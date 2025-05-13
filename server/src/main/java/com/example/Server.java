@@ -1,22 +1,43 @@
 package com.example;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
-    public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(12345)) {
-            System.out.println("Server is listening on port 12345...");
-            try (Socket clientSocket = serverSocket.accept();
-                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+    int port;
 
-                String clientMessage = in.readLine();
-                System.out.println("Received from client: " + clientMessage);
-                out.println("Hello from the server!");
-            }
+    public static void main(String[] args) {
+        Server server = new Server(1234);
+        server.startServer();
+    }
+
+    public Server(int port) {
+        this.port = port;
+    }
+
+    public void startServer() {
+        ExecutorService executor = Executors.newCachedThreadPool();
+        ServerSocket serverSocket;
+
+        try {
+            serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage()); // Porta non disponibile
+            return;
         }
+        System.out.println("Server ready");
+
+        while (true) {
+            try {
+                Socket socket = serverSocket.accept();
+                executor.submit(new SingleClientHandler(socket));
+            } catch (IOException e) {
+                break; // Entrerei qui se serverSocket venisse chiuso
+            }
+        }
+        executor.shutdown();
     }
 }
