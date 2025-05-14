@@ -1,4 +1,4 @@
-package com.example;
+package bookRecommender;
 
 import java.io.IOException;
 import java.net.ServerSocket;

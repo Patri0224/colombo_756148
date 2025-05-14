@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.example</groupId>
+        <groupId>bookRecommender</groupId>
         <artifactId>colombo_756148</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -22,7 +22,7 @@
             <version>21</version>
         </dependency>
         <dependency>
-            <groupId>com.example</groupId>
+            <groupId>bookRecommender</groupId>
             <artifactId>common</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>

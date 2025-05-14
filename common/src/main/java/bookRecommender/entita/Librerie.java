@@ -1,4 +1,4 @@
-package com.example;
+package bookRecommender.entita;
 
 import java.io.Serializable;
 
