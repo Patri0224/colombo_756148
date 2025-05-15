@@ -1,23 +1,22 @@
 package bookRecommender;
 
 import bookRecommender.rmi.ServerBookRecommenderInterface;
-import db.DbMethods;
+import db.DbBuilder;
+import db.DbUtilityMethods;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.Connection;
 import java.sql.SQLException;
-
-import static db.DbBuilder.getDbInstance;
 
 public class Server extends UnicastRemoteObject implements ServerBookRecommenderInterface {
     static int PORT = 10001;
-    private DbMethods dbm;
+    private Connection CONNESSIONE_CHE_DOVETE_USARE;
 
     public Server() throws RemoteException {
-        //connect to server
-        //connectionToDB();
+        inizializzaServerGetConnection();
     }
 
     private void startServer() throws RemoteException {
@@ -41,15 +40,19 @@ public class Server extends UnicastRemoteObject implements ServerBookRecommender
 
     }
 
-    private void connectionToDB() {
+    private void inizializzaServerGetConnection() {
         try {
-            dbm=getDbInstance();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            DbUtilityMethods dbm = DbBuilder.getDbInstance();
+            this.CONNESSIONE_CHE_DOVETE_USARE = dbm.getconnBookRecommenderDB();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        catch (SQLException e){
+            e.printStackTrace();
         }
     }
+
 
     @Override
     public boolean login(String userId, String password) throws RemoteException {

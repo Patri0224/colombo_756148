@@ -7,7 +7,7 @@ import java.sql.Statement;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
-public class DbBuilder implements DbMethods{
+public class DbBuilder implements DbUtilityMethods {
     private final String[] ddlTabelleArr = {"create table libritemp(\n" +
             "\tlibro_id int generated always as identity,\n" +
             "\ttitolo varchar(400),\n" +
@@ -96,10 +96,14 @@ public class DbBuilder implements DbMethods{
     private static DbBuilder instance;
 
     private DbBuilder() throws SQLException, IOException {
+        System.out.println("Inizio costruttore");
         connTemplate0 = DB.getDBConnection(0);
+        System.out.println("Presa connessione con template");
         createDatabase();
 
+        System.out.println("Prima di presa connessione con brd");
         connBookRecommenderDB = DB.getDBConnection(1);
+        System.out.println("Presa connessinoe con brd");
         try(Statement statementBookRecommenderDB = connBookRecommenderDB.createStatement()){
             for(String s:ddlTabelleArr){
                 statementBookRecommenderDB.executeUpdate(s);
@@ -121,9 +125,6 @@ public class DbBuilder implements DbMethods{
             statementBookRecommenderDB.executeUpdate(eliminaLibritemp);
         }
     }
-    public DbBuilder buildDb() throws SQLException, IOException{
-        return DbBuilder.getDbInstance();
-    }
     public static DbBuilder getDbInstance() throws SQLException, IOException {
         if(instance == null) {
             instance = new DbBuilder();
@@ -132,7 +133,11 @@ public class DbBuilder implements DbMethods{
     }
     private void createDatabase() throws SQLException{
         try(Statement statTemplate0 = connTemplate0.createStatement()){
-            statTemplate0.executeUpdate("CREATE DATABASE BookRecommenderDB");
+            System.out.println("Fatto statement con tamplate");
+            statTemplate0.executeUpdate("DROP DATABASE IF EXISTS bookrecommenderdb");
+            System.out.println("Database droppato");
+            statTemplate0.executeUpdate("CREATE DATABASE bookrecommenderdb");
+            System.out.println("Database creato");
         }
     }
     @Override
@@ -141,7 +146,7 @@ public class DbBuilder implements DbMethods{
             connBookRecommenderDB.close();
         }
         try(Statement statementTemplate0 = connTemplate0.createStatement()){
-            statementTemplate0.executeUpdate("DROP DATABASE BookRecommenderDB");
+            statementTemplate0.executeUpdate("DROP DATABASE bookrecommenderdb");
         }
         connTemplate0.close();
     }
