@@ -4,10 +4,11 @@ import java.io.*;
 import java.io.IOException;
 import java.util.Properties;
 
-public class DBConfigLoader {
-    protected String dbUrl;
-    protected String username;
-    protected String password;
+public class DBConfigLoader{
+    private String dbUrlTemplate0;
+    private String dbbUrlBookRecommenderDB;
+    private String username;
+    private String password;
 
     protected DBConfigLoader() throws IOException{
         loadDBConfig();
@@ -17,14 +18,18 @@ public class DBConfigLoader {
         try(InputStream in = getClass().getResourceAsStream("/db.properties")){
             Properties properties = new Properties();
             properties.load(in);
-            dbUrl = properties.getProperty("db.url");
+            dbUrlTemplate0 = properties.getProperty("db.urlTemplate0");
+            dbbUrlBookRecommenderDB = properties.getProperty("db.utlBookRecommenderDB");
             username = properties.getProperty("db.username");
             password = properties.getProperty("db.password");
         }
     }
 
-    protected String getDbUrl() {
-        return dbUrl;
+    protected String getDbUrlTemplate0() {
+        return dbUrlTemplate0;
+    }
+    protected String getDbUrlBookRecommenderDB(){
+        return dbbUrlBookRecommenderDB;
     }
     protected String getUsername() {
         return username;
