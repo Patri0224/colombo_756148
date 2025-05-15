@@ -1,6 +1,6 @@
 package bookRecommender.entita;
 
-import bookrecommender.classiIntermedie.Score;
+import bookRecommender.entita.Score;
 
 import java.io.Serializable;
 

@@ -1,43 +1,49 @@
 package bookRecommender;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import bookRecommender.rmi.ServerBookRecommenderInterface;
 
-public class Server {
-    int port;
+import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
-    public static void main(String[] args) {
-        Server server = new Server(1234);
-        server.startServer();
+public class Server extends UnicastRemoteObject implements ServerBookRecommenderInterface {
+    static int PORT = 10001;
+
+    public Server() throws RemoteException {
+//connect to server
+        super();
     }
 
-    public Server(int port) {
-        this.port = port;
-    }
-
-    public void startServer() {
-        ExecutorService executor = Executors.newCachedThreadPool();
-        ServerSocket serverSocket;
-
+    private void startServer() throws RemoteException {
         try {
-            serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-            System.err.println(e.getMessage()); // Porta non disponibile
-            return;
+            Registry registry = java.rmi.registry.LocateRegistry.createRegistry(PORT);
+            registry.rebind("BookRecommender", this);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String args[]) {
+        System.out.println("Server started on port " + PORT);
+        try {
+            new Server().startServer();
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
         System.out.println("Server ready");
 
-        while (true) {
-            try {
-                Socket socket = serverSocket.accept();
-                executor.submit(new SingleClientHandler(socket));
-            } catch (IOException e) {
-                break; // Entrerei qui se serverSocket venisse chiuso
-            }
+
+    }
+
+
+    @Override
+    public boolean login(String userId, String password) throws RemoteException {
+        if (userId.equals("admin") && password.equals("admin")) {
+            return true;
+        } else {
+            return false;
         }
-        executor.shutdown();
     }
 }
+
+
