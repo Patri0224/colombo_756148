@@ -52,7 +52,7 @@ public class Server extends UnicastRemoteObject implements ServerBookRecommender
             e.printStackTrace();
         }
     }
-
+//kkkk
 
     @Override
     public boolean login(String userId, String password) throws RemoteException {
