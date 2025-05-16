@@ -99,30 +99,36 @@ public class DbBuilder implements DbUtilityMethods {
         System.out.println("Inizio costruttore");
         connTemplate0 = DB.getDBConnection(0);
         System.out.println("Presa connessione con template");
-        createDatabase();
-
-        System.out.println("Prima di presa connessione con brd");
-        connBookRecommenderDB = DB.getDBConnection(1);
-        System.out.println("Presa connessinoe con brd");
-        try(Statement statementBookRecommenderDB = connBookRecommenderDB.createStatement()){
-            for(String s:ddlTabelleArr){
-                statementBookRecommenderDB.executeUpdate(s);
-            }
-            try(InputStream in = getClass().getResourceAsStream("/bd.csv")){
-                try(BufferedReader bufIn = new BufferedReader(new InputStreamReader(in))){
-                    CopyManager copyManager = new CopyManager((BaseConnection) connBookRecommenderDB);
-                    copyManager.copyIn("COPY libritemp(titolo, autori, descrizione, categorie, editori, prezzo, mese_pubblicazione, anno_pubblicazione)\n" +
-                            "FROM STDIN\n" +
-                            "WITH (FORMAT CSV, HEADER, DELIMITER ',')", bufIn);
+        try{
+            createDatabase();
+        }
+        catch(CreazioneAvvenutaEx creazioneAvvenutaEx){
+            System.out.println("Prima di presa connessione con brd");
+            connBookRecommenderDB = DB.getDBConnection(1);
+            System.out.println("Presa connessinoe con brd");
+            try(Statement statementBookRecommenderDB = connBookRecommenderDB.createStatement()){
+                for(String s:ddlTabelleArr){
+                    statementBookRecommenderDB.executeUpdate(s);
                 }
+                try(InputStream in = getClass().getResourceAsStream("/bd.csv")){
+                    try(BufferedReader bufIn = new BufferedReader(new InputStreamReader(in))){
+                        CopyManager copyManager = new CopyManager((BaseConnection) connBookRecommenderDB);
+                        copyManager.copyIn("COPY libritemp(titolo, autori, descrizione, categorie, editori, prezzo, mese_pubblicazione, anno_pubblicazione)\n" +
+                                "FROM STDIN\n" +
+                                "WITH (FORMAT CSV, HEADER, DELIMITER ',')", bufIn);
+                    }
+                }
+                for(String s:puliziaTabelle){
+                    statementBookRecommenderDB.executeUpdate(s);
+                }
+                for(String s:splittingLibri){
+                    statementBookRecommenderDB.executeUpdate(s);
+                }
+                statementBookRecommenderDB.executeUpdate(eliminaLibritemp);
             }
-            for(String s:puliziaTabelle){
-                statementBookRecommenderDB.executeUpdate(s);
-            }
-            for(String s:splittingLibri){
-                statementBookRecommenderDB.executeUpdate(s);
-            }
-            statementBookRecommenderDB.executeUpdate(eliminaLibritemp);
+        }
+        catch (SQLException sqlException){
+            System.out.println("DB già esistente");
         }
     }
     public static DbBuilder getDbInstance() throws SQLException, IOException {
@@ -131,13 +137,12 @@ public class DbBuilder implements DbUtilityMethods {
         }
         return(instance);
     }
-    private void createDatabase() throws SQLException{
+    private void createDatabase() throws SQLException, CreazioneAvvenutaEx{
         try(Statement statTemplate0 = connTemplate0.createStatement()){
             System.out.println("Fatto statement con tamplate");
-            statTemplate0.executeUpdate("DROP DATABASE IF EXISTS bookrecommenderdb");
-            System.out.println("Database droppato");
             statTemplate0.executeUpdate("CREATE DATABASE bookrecommenderdb");
             System.out.println("Database creato");
+            throw new CreazioneAvvenutaEx();
         }
     }
     @Override
