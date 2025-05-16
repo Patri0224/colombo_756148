@@ -3,6 +3,7 @@ package db;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLOutput;
 import java.sql.Statement;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
@@ -96,16 +97,41 @@ public class DbBuilder implements DbUtilityMethods {
     private static DbBuilder instance;
 
     private DbBuilder() throws SQLException, IOException {
-        System.out.println("Inizio costruttore");
-        connTemplate0 = DB.getDBConnection(0);
-        System.out.println("Presa connessione con template");
+        while(true){
+            try{
+                connTemplate0 = DB.getDBConnection(0);
+                System.out.println("Presa connessione con template");
+                break;
+            }
+            catch(SQLException sqlException){
+                System.out.println("Connessione fallita... riprovo tra 5sec");
+            }
+            try{
+                Thread.sleep(5000);
+            }
+            catch(InterruptedException interruptedException){
+            }
+        }
         try{
             createDatabase();
         }
         catch(CreazioneAvvenutaEx creazioneAvvenutaEx){
-            System.out.println("Prima di presa connessione con brd");
-            connBookRecommenderDB = DB.getDBConnection(1);
-            System.out.println("Presa connessinoe con brd");
+            System.out.println(creazioneAvvenutaEx.getMessage());
+            while(true){
+                try{
+                    connBookRecommenderDB = DB.getDBConnection(1);
+                    System.out.println("Presa connessione con bookrecommenderdb");
+                    break;
+                }
+                catch(SQLException sqlException){
+                    System.err.println("Connessione fallita... riprovo tra 5sec");
+                }
+                try{
+                    Thread.sleep(5000);
+                }
+                catch(InterruptedException interruptedException){
+                }
+            }
             try(Statement statementBookRecommenderDB = connBookRecommenderDB.createStatement()){
                 for(String s:ddlTabelleArr){
                     statementBookRecommenderDB.executeUpdate(s);
@@ -128,7 +154,7 @@ public class DbBuilder implements DbUtilityMethods {
             }
         }
         catch (SQLException sqlException){
-            System.out.println("DB già esistente");
+            System.err.println("DB già esistente");
         }
     }
     public static DbBuilder getDbInstance() throws SQLException, IOException {
@@ -139,10 +165,11 @@ public class DbBuilder implements DbUtilityMethods {
     }
     private void createDatabase() throws SQLException, CreazioneAvvenutaEx{
         try(Statement statTemplate0 = connTemplate0.createStatement()){
-            System.out.println("Fatto statement con tamplate");
+            System.out.println("Creazione database");
             statTemplate0.executeUpdate("CREATE DATABASE bookrecommenderdb");
             System.out.println("Database creato");
-            throw new CreazioneAvvenutaEx();
+            connTemplate0.close();
+            throw new CreazioneAvvenutaEx("Costruzione e riempimento tabelle in corso");
         }
     }
     @Override
