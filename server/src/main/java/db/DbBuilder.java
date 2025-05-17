@@ -69,7 +69,12 @@ public class DbBuilder implements DbUtilityMethods {
             "\tutente_id int references utenti_registrati_principale(utente_id) on delete cascade on update cascade,\n" +
             "\tlibro_id int references libri_principale(libro_id) on delete cascade on update cascade,\n" +
             "\t\n" +
-            "\tnote varchar(256) default(null),\n" +
+            "\tnote_contenuto varchar(256) default(null),\n" +
+            "\tnote_stile varchar(256) default(null),\n" +
+            "\tnote_gradevolezza varchar(256) default(null),\n" +
+            "\tnote_originalita varchar(256) default(null),\n" +
+            "\tnote_edizione varchar(256) default(null),\n" +
+            "\tnote_generale varchar(256) default(null),\n" +
             "\tcontenuto smallint not null check(contenuto between 1 and 5),\n" +
             "\tstile smallint not null check(stile between 1 and 5),\n" +
             "\tgradevolezza smallint not null check(gradevolezza between 1 and 5),\n" +
