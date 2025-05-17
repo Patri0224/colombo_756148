@@ -7,4 +7,5 @@ public interface ServerBookRecommenderInterface extends Remote {
 
     boolean login(String userId, String password) throws RemoteException;
 
+
 }

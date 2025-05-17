@@ -1,17 +1,18 @@
 package bookRecommender.entita;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
-public class Librerie  implements Serializable {
+public class Librerie implements Serializable {
+    private int idLibreria;
     private String nome;
-    private int[] idLibro;
-    private int count; // Contatore per il numero di libri attualmente presenti
+    private ArrayList<Integer> idLibro;// Contatore per il numero di libri attualmente presenti
 
     // Costruttore
-    public Librerie(String nome, int[] idLibro) {
+    public Librerie(int idLibreria, String nome, ArrayList<Integer> idLibro) {
+        this.idLibreria = idLibreria;
         this.nome = nome;
-        this.idLibro = idLibro;
-        this.count = idLibro.length; // Inizializza il contatore con la lunghezza dell'array
+        this.idLibro = idLibro; // Inizializza il contatore con la lunghezza dell'array
     }
 
     // Metodi getter per accedere ai dati
@@ -19,32 +20,23 @@ public class Librerie  implements Serializable {
         return nome;
     }
 
+    public int getIdLibreria() {
+        return idLibreria;
+    }
+
     public int[] getIdLibro() {
-        return idLibro;
+        return idLibro.stream().mapToInt(i -> i).toArray();
     }
 
     /**
-     * aggiunge un nuovo idLibro nell'array di libri se non esistente
+     * aggiunge un nuovo idLibro nell'arraylist di libri se non esistente
+     *
      * @param nuovoIdLibro
      */
-    public boolean aggiungiLibro(int nuovoIdLibro) {
+    public boolean aggiungiLibroInLocale(int nuovoIdLibro) {
         // Controllo se il libro è già presente
-        for (int i = 0; i < count; i++) {
-            if (idLibro[i] == nuovoIdLibro) {
-                System.out.println("Il libro è già presente nella libreria.");
-                return false; // Esci dal metodo se il libro è già presente
-            }
-        }
-
-        // Crea un nuovo array con una dimensione maggiore
-        int[] nuovoArray = new int[count + 1];
-        // Copia gli elementi esistenti nel nuovo array
-        System.arraycopy(idLibro, 0, nuovoArray, 0, count);
-        idLibro = nuovoArray; // Sostituisci l'array vecchio con quello nuovo
-
-        // Aggiungi il nuovo libro in coda
-        idLibro[count] = nuovoIdLibro;
-        count++; // Incrementa il contatore
+        if (idLibro.contains(nuovoIdLibro)) return false;
+        idLibro.add(nuovoIdLibro);
         return true;
     }
 }
