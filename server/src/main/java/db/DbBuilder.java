@@ -3,8 +3,9 @@ package db;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLOutput;
 import java.sql.Statement;
+import java.util.Objects;
+
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
@@ -104,12 +105,17 @@ public class DbBuilder implements DbUtilityMethods {
     private DbBuilder() throws SQLException, IOException {
         while(true){
             try{
-                connTemplate0 = DB.getDBConnection(0);
+                connTemplate0 = Db.getDBConnection(0);
                 System.out.println("Presa connessione con template");
                 break;
             }
             catch(SQLException sqlException){
-                System.out.println("Connessione fallita... riprovo tra 5sec");
+                System.err.println("Connessione fallita... riprovo tra 5sec");
+                if(Objects.equals(sqlException.getSQLState(), "08001")){
+                    System.err.println("Causa probabile: numero di porta sbagliato (db non in ascolto su quella porta");
+                }
+                System.err.println(sqlException.getMessage());
+                System.err.println("Codice: " + sqlException.getSQLState());
             }
             try{
                 Thread.sleep(5000);
@@ -124,12 +130,14 @@ public class DbBuilder implements DbUtilityMethods {
             System.out.println(creazioneAvvenutaEx.getMessage());
             while(true){
                 try{
-                    connBookRecommenderDB = DB.getDBConnection(1);
+                    connBookRecommenderDB = Db.getDBConnection(1);
                     System.out.println("Presa connessione con bookrecommenderdb");
                     break;
                 }
                 catch(SQLException sqlException){
-                    System.err.println("Connessione fallita... riprovo tra 5sec");
+                    System.err.println(sqlException.getMessage());
+                    System.err.println("Codice: " + sqlException.getSQLState());
+                    System.err.println("Connessione fallita (errore interno)... riprovo tra 5sec");
                 }
                 try{
                     Thread.sleep(5000);
@@ -159,7 +167,13 @@ public class DbBuilder implements DbUtilityMethods {
             }
         }
         catch (SQLException sqlException){
-            System.err.println("DB già esistente");
+            if(Objects.equals(sqlException.getSQLState(), "42P04")){
+                System.out.println("DB già esistente. Programma pronto all'uso");
+            }
+            else{
+                System.out.println(sqlException.getMessage());
+                System.out.println("Codice errore SQL: " + sqlException.getSQLState());
+            }
         }
     }
     public static DbBuilder getDbInstance() throws SQLException, IOException {
@@ -176,16 +190,6 @@ public class DbBuilder implements DbUtilityMethods {
             connTemplate0.close();
             throw new CreazioneAvvenutaEx("Costruzione e riempimento tabelle in corso");
         }
-    }
-    @Override
-    public void nukeDb() throws SQLException {
-        if(connBookRecommenderDB != null && !connBookRecommenderDB.isClosed()){
-            connBookRecommenderDB.close();
-        }
-        try(Statement statementTemplate0 = connTemplate0.createStatement()){
-            statementTemplate0.executeUpdate("DROP DATABASE bookrecommenderdb");
-        }
-        connTemplate0.close();
     }
     @Override
     public Connection getconnBookRecommenderDB(){

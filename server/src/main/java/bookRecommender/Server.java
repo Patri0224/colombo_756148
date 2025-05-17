@@ -58,7 +58,7 @@ public class Server extends UnicastRemoteObject implements ServerBookRecommender
         }
         queryList = new QueryList(CONNESSIONE_CHE_DOVETE_USARE);
     }
-//kkkk
+
 
     @Override
     public boolean login(String userId, String password) throws RemoteException {
