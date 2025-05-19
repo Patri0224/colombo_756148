@@ -1,6 +1,5 @@
 package bookRecommender;
 
-import bookRecommender.rmi.ServerBookRecommenderInterface;
 import db.DbBuilder;
 import db.DbUtilityMethods;
 import db.QueryList;
@@ -12,7 +11,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class Server extends UnicastRemoteObject implements ServerBookRecommenderInterface {
+public class Server extends UnicastRemoteObject {
     static int PORT = 10001;
     private Connection CONNESSIONE_CHE_DOVETE_USARE;
     private QueryList queryList;
@@ -23,8 +22,9 @@ public class Server extends UnicastRemoteObject implements ServerBookRecommender
 
     private void startServer() throws RemoteException {
         try {
+            ImpServer impServer = new ImpServer(queryList);
             Registry registry = java.rmi.registry.LocateRegistry.createRegistry(PORT);
-            registry.rebind("BookRecommender", this);
+            registry.rebind("BookRecommender", impServer);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -60,14 +60,6 @@ public class Server extends UnicastRemoteObject implements ServerBookRecommender
     }
 
 
-    @Override
-    public boolean login(String userId, String password) throws RemoteException {
-        if (userId.equals("admin") && password.equals("admin")) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }
 
 
