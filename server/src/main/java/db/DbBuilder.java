@@ -9,7 +9,7 @@ import java.util.Objects;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
-public class DbBuilder implements DbUtilityMethods {
+public class DbBuilder {
     private final String[] ddlTabelleArr = {"create table libritemp(\n" +
             "\tlibro_id int generated always as identity,\n" +
             "\ttitolo varchar(400),\n" +
@@ -105,7 +105,7 @@ public class DbBuilder implements DbUtilityMethods {
     private DbBuilder() throws SQLException, IOException {
         while(true){
             try{
-                connTemplate0 = Db.getDBConnection(0);
+                connTemplate0 = Db.getConnection(0);
                 System.out.println("Presa connessione con template");
                 break;
             }
@@ -130,7 +130,7 @@ public class DbBuilder implements DbUtilityMethods {
             System.out.println(creazioneAvvenutaEx.getMessage());
             while(true){
                 try{
-                    connBookRecommenderDB = Db.getDBConnection(1);
+                    connBookRecommenderDB = Db.getConnection(1);
                     System.out.println("Presa connessione con bookrecommenderdb");
                     break;
                 }
@@ -175,6 +175,7 @@ public class DbBuilder implements DbUtilityMethods {
                 System.out.println("Codice errore SQL: " + sqlException.getSQLState());
             }
         }
+        connBookRecommenderDB.close();
     }
     public static DbBuilder getDbInstance() throws SQLException, IOException {
         if(instance == null) {
@@ -191,8 +192,5 @@ public class DbBuilder implements DbUtilityMethods {
             throw new CreazioneAvvenutaEx("Costruzione e riempimento tabelle in corso");
         }
     }
-    @Override
-    public Connection getconnBookRecommenderDB(){
-        return(connBookRecommenderDB);
-    }
+
 }

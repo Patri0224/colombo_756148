@@ -8,10 +8,8 @@ import java.util.HashMap;
 
 class Db {
     private Connection connection;
-    private static final HashMap<Integer, Db> mappaIstanze = new HashMap<>();
 
-
-    private Db(int x) throws IOException, SQLException {
+    public Db(int x) throws IOException, SQLException {
         DBConfigLoader config = DBConfigLoader.getInstanceDBConfigLoader();
         switch (x){
             case 0:
@@ -22,11 +20,8 @@ class Db {
                 break;
         }
     }
-
-    protected static Connection getDBConnection(int x) throws SQLException, IOException {
-        if(!mappaIstanze.containsKey(x)){
-            mappaIstanze.put(x, new Db(x));
-        }
-        return(mappaIstanze.get(x).connection);
+    public static synchronized Connection getConnection(int x) throws SQLException, IOException {
+        Db db = new Db(x);
+        return(db.connection);
     }
 }

@@ -5,26 +5,38 @@ import bookRecommender.entita.ConsigliLibri;
 import bookRecommender.entita.Librerie;
 import bookRecommender.entita.Libri;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class QueryList {
-    private Connection conn = null;
+//Bisogna creare una connessione diversa per ogni query. Fare Connection conn = connMgr.getConnection(). Poi bisogna me
+//ttere nel finally alla fine di ogni query connMgr.endConnection(conn)
 
-    public QueryList(Connection conn) {
-        this.conn = conn;
+public class QueryList {
+    private ConnectionManager connMgr;
+
+    public QueryList(ConnectionManager connMgr) {
+        this.connMgr = connMgr;
     }
 
     //utenti
-    public boolean ControlloEsisteUtente(int idUtente) throws SQLException {
-        String sql = "SELECT EXISTS (SELECT 1 FROM UTENTI_REGISTRATI_PRINCIPALE WHERE utente_id = ?) AS esiste_utente";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idUtente);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getBoolean("esiste_utente");
+    public boolean ControlloEsisteUtente(int idUtente) throws SQLException, IOException, InterruptedException {
+        Connection conn = null;
+        try{
+            conn = connMgr.getConnection();
+            String sql = "SELECT EXISTS (SELECT 1 FROM UTENTI_REGISTRATI_PRINCIPALE WHERE utente_id = ?) AS esiste_utente";
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, idUtente);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getBoolean("esiste_utente");
+                    }
                 }
             }
+        }
+        finally{
+            connMgr.endConnection(conn);
         }
         return false;
     }
