@@ -13,8 +13,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-
-public class Server extends UnicastRemoteObject implements ServerBookRecommenderInterface {
+public class Server extends UnicastRemoteObject {
     static int PORT = 10001;
     private QueryList queryList;
     private DbBuilder db;
@@ -46,14 +45,17 @@ public class Server extends UnicastRemoteObject implements ServerBookRecommender
         inizializzaDatabase();
         ottieniConnessioni();
     }
+
     private void startServer() throws RemoteException {
         try {
+            ImpServer impServer = new ImpServer(queryList);
             Registry registry = java.rmi.registry.LocateRegistry.createRegistry(PORT);
-            registry.rebind("BookRecommender", this);
+            registry.rebind("BookRecommender", impServer);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
     }
+
     public static void main(String[] args) {
         System.out.println("Server started on port " + PORT);
         try {
@@ -62,16 +64,5 @@ public class Server extends UnicastRemoteObject implements ServerBookRecommender
             e.printStackTrace();
         }
         System.out.println("Server ready");
-    }
-
-    @Override
-    public boolean login(String userId, String password) throws RemoteException {
-        if (userId.equals("admin") && password.equals("admin")) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
 
 

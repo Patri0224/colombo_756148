@@ -87,7 +87,7 @@ public class QueryList {
                 return new Eccezione(2, "Registrazione fallita a principale");
             }
         } catch (SQLIntegrityConstraintViolationException e) {
-            return new Eccezione(1, "Conflitti di integrità: " + e.getMessage());
+            return new Eccezione(4, "Conflitti di integrità: " + e.getMessage());
         } catch (SQLException e) {
             return new Eccezione(3, "Errore SQL: " + e.getMessage());
         }
@@ -315,6 +315,54 @@ public class QueryList {
             }
         }
 
+    }
+
+    public Libri[] RicercaLibriDaLibrerie(int idUtente) throws SQLException {
+        String sql = """
+                SELECT c.libro_id
+                FROM librerie l JOIN contenuto_libreria c ON l.libreria_id = c.libreria_id
+                WHERE l.utente_id = ?""";
+        ArrayList<Integer> ids = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUtente);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt("libro_id"));
+                }
+            }
+        }
+        if (ids.isEmpty()) return new Libri[0];
+
+        int[] uniqueIds = ids.stream().distinct().mapToInt(i -> i).toArray();
+        return RicercaLibriDaIds(uniqueIds);
+    }
+
+    public boolean ControlloEsisteLibreria(int idUtente, String nomeLibreria) throws SQLException {
+        String sql = "SELECT EXISTS (SELECT 1 FROM librerie WHERE utente_id = ? AND nome_libreria = ?) AS esiste_libreria";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUtente);
+            stmt.setString(2, nomeLibreria);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBoolean("esiste_libreria");
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean ControlloLibroInLibrerie(int idUtente, int idLibro) throws SQLException {
+        String sql = "SELECT EXISTS (SELECT 1 FROM contenuto_libreria WHERE libreria_id IN (SELECT libreria_id FROM librerie WHERE utente_id = ?) AND libro_id = ?) AS esiste_libro";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUtente);
+            stmt.setInt(2, idLibro);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBoolean("esiste_libro");
+                }
+            }
+        }
+        return false;
     }
 
     public Eccezione AggiungiLibreria(int idUtente, Librerie libreria) {
