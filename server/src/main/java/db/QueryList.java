@@ -1,42 +1,30 @@
 package db;
 
 import bookRecommender.eccezioni.Eccezione;
-import bookRecommender.entita.ConsigliLibri;
-import bookRecommender.entita.Librerie;
-import bookRecommender.entita.Libri;
+import bookRecommender.entita.*;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-
-//Bisogna creare una connessione diversa per ogni query. Fare Connection conn = connMgr.getConnection(). Poi bisogna me
-//ttere nel finally alla fine di ogni query connMgr.endConnection(conn)
+import java.util.HashMap;
+import java.util.Map;
 
 public class QueryList {
-    private ConnectionManager connMgr;
+    private Connection conn;
 
-    public QueryList(ConnectionManager connMgr) {
-        this.connMgr = connMgr;
+    public QueryList(Connection conn) {
+        this.conn = conn;
     }
 
     //utenti
-    public boolean ControlloEsisteUtente(int idUtente) throws SQLException, IOException, InterruptedException {
-        Connection conn = null;
-        try{
-            conn = connMgr.getConnection();
-            String sql = "SELECT EXISTS (SELECT 1 FROM UTENTI_REGISTRATI_PRINCIPALE WHERE utente_id = ?) AS esiste_utente";
-
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, idUtente);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        return rs.getBoolean("esiste_utente");
-                    }
+    public boolean ControlloEsisteUtente(int idUtente) throws SQLException {
+        String sql = "SELECT EXISTS (SELECT 1 FROM UTENTI_REGISTRATI_PRINCIPALE WHERE utente_id = ?) AS esiste_utente";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUtente);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBoolean("esiste_utente");
                 }
             }
-        }
-        finally{
-            connMgr.endConnection(conn);
         }
         return false;
     }
@@ -95,9 +83,7 @@ public class QueryList {
             stmt.setString(1, email);
             stmt.setString(2, password);
             int rowsInserted = stmt.executeUpdate();
-            if (rowsInserted > 0) {
-                // Nessuna eccezione, registrazione avvenuta con successo
-            } else {
+            if (rowsInserted <= 0) {
                 return new Eccezione(2, "Registrazione fallita a principale");
             }
         } catch (SQLIntegrityConstraintViolationException e) {
@@ -162,8 +148,17 @@ public class QueryList {
 
     //libri
     public Libri[] RicercaLibri(String titolo, String autore, int anno) throws SQLException {
-        String dataSql = "SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori, d.descrizione, d.categorie, d.editori, d.prezzo " + "FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id " + "WHERE (? IS NULL OR LOWER(p.titolo) LIKE LOWER(CONCAT('%', ?, '%'))) " + "AND (? IS NULL OR LOWER(p.autori) LIKE LOWER(CONCAT('%', ?, '%'))) " + "AND (? IS NULL OR p.anno_pubblicazione = ?)";
-        String countSql = "SELECT COUNT(*) " + "FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id " + "WHERE (? IS NULL OR LOWER(p.titolo) LIKE LOWER(CONCAT('%', ?, '%'))) " + "AND (? IS NULL OR LOWER(p.autori) LIKE LOWER(CONCAT('%', ?, '%'))) " + "AND (? IS NULL OR p.anno_pubblicazione = ?)";
+        String dataSql = """
+                SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori, d.descrizione, d.categorie, d.editori, d.prezzo
+                FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id
+                WHERE (? IS NULL OR LOWER(p.titolo) LIKE LOWER(CONCAT('%', ?, '%')))
+                AND (? IS NULL OR LOWER(p.autori) LIKE LOWER(CONCAT('%', ?, '%')))
+                AND (? IS NULL OR p.anno_pubblicazione = ?)""";
+        String countSql = """
+                SELECT COUNT(*) FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id
+                WHERE (? IS NULL OR LOWER(p.titolo) LIKE LOWER(CONCAT('%', ?, '%')))
+                AND (? IS NULL OR LOWER(p.autori) LIKE LOWER(CONCAT('%', ?, '%')))
+                AND (? IS NULL OR p.anno_pubblicazione = ?)""";
         int count = 0;
         try (PreparedStatement countStmt = conn.prepareStatement(countSql)) {
             // Impostazione parametri per count
@@ -256,19 +251,21 @@ public class QueryList {
     public Libri[] RicercaLibriDaIds(int[] ids) throws SQLException {
 
         if (ids.length == 0) return new Libri[0];
-        String str = "";
+        StringBuilder str = new StringBuilder();
         int i = 0;
         for (int id : ids) {
-            str += id + ", ";
+            str.append(id).append(", ");
             if (id < 0) i++;
         }
-        str = str.substring(0, str.length() - 2);
-        String dataSql = "SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori, d.descrizione, d.categorie, d.editori, d.prezzo " + "FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id " + "WHERE p.libro_id IN (" + str + ")";
+        str = new StringBuilder(str.substring(0, str.length() - 2));
+        String dataSql = """
+                SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori, d.descrizione, d.categorie, d.editori, d.prezzo
+                FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id
+                WHERE p.libro_id IN (""" + str + ")";
         Libri[] risultati = new Libri[ids.length - i];
 
         try (PreparedStatement dataStmt = conn.prepareStatement(dataSql)) {
             try (ResultSet rs = dataStmt.executeQuery()) {
-                int l = 0;
                 while (rs.next()) {
                     int id = rs.getInt("libro_id");
                     String titolo = (rs.getString("titolo"));
@@ -278,9 +275,8 @@ public class QueryList {
                     String desc = (rs.getString("descrizione"));
                     String cat = (rs.getString("categorie"));
                     String editor = (rs.getString("editori"));
-                    Float prezzo = (rs.getBigDecimal("prezzo").floatValue());
+                    float prezzo = (rs.getBigDecimal("prezzo").floatValue());
                     risultati[i] = new Libri(id, titolo, aut, desc, cat, editor, prezzo, mese, anno);
-                    l++;
                 }
             }
         }
@@ -290,7 +286,10 @@ public class QueryList {
     //librerie
     public Librerie[] RicercaLibrerie(int idUtente) throws SQLException {
         ArrayList<Librerie> librerie = new ArrayList<>();
-        String sql = "SELECT l.libreria_id,l.nome_libreria,c.libro_id\n" + "FROM librerie l JOIN contenuto_libreria c ON l.libreria_id = c.libreria_id\n" + "WHERE l.utente_id = ?";
+        String sql = """
+                SELECT l.libreria_id,l.nome_libreria,c.libro_id
+                FROM librerie l JOIN contenuto_libreria c ON l.libreria_id = c.libreria_id
+                WHERE l.utente_id = ?""";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idUtente);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -306,7 +305,7 @@ public class QueryList {
                         }
                     }
                     if (!esistente) {
-                        Librerie lib = new Librerie(idLibreria, nomeLibreria, new ArrayList<Integer>());
+                        Librerie lib = new Librerie(idLibreria, nomeLibreria, new ArrayList<>());
                         lib.aggiungiLibroInLocale(idLibro);
                         librerie.add(lib);
 
@@ -415,9 +414,7 @@ public class QueryList {
             stmt.setInt(1, consiglio.getIdUtente());
             stmt.setInt(2, consiglio.getIdLibro());
             int rowsInserted = stmt.executeUpdate();
-            if (rowsInserted > 0) {
-                // Nessuna eccezione, tutto ok
-            } else {
+            if (rowsInserted <= 0) {
                 return new Eccezione(2, "Aggiunta fallita tabella consigli");
             }
         } catch (SQLIntegrityConstraintViolationException e) {
@@ -473,12 +470,160 @@ public class QueryList {
         }
     }
 
-    public ConsigliLibri[] RicercaConsigliDatoLibro(int idLibro) throws SQLException {
-        String sql = "SELECT utente_id, libro_id_riguardante, libro_id_consigliato FROM contenuto_consiglio WHERE libro_id_riguardante = ?";
-        ArrayList<ConsigliLibri> consigli = new ArrayList<>();
-        return null;
+    public Libri[] RicercaConsigliDatoLibro(int idLibro) throws SQLException {
+        String sql = "SELECT libro_id_consigliato FROM contenuto_consiglio WHERE libro_id_riguardante = ?";
+        ArrayList<Integer> ids = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idLibro);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt("libro_id_consigliato"));
+                }
+            }
+        }
+        if (ids.isEmpty()) return new Libri[0];
+
+        int[] uniqueIds = ids.stream().distinct().mapToInt(i -> i).toArray();
+        Libri[] libri = RicercaLibriDaIds(uniqueIds);
+
+        //restituisce i libri anche duplicati
+        Map<Integer, Libri> idToLibro = new HashMap<>();
+        for (Libri libro : libri) {
+            idToLibro.put(libro.getId(), libro); // Supponendo getId() esista
+        }
+
+        Libri[] risultato = new Libri[ids.size()];
+        for (int i = 0; i < ids.size(); i++) {
+            risultato[i] = idToLibro.get(ids.get(i));
+        }
+
+        return risultato;
+    }
+
+    public ConsigliLibri RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws SQLException {
+        String sql = "SELECT libro_id_consigliato FROM contenuto_consiglio WHERE utente_id = ? AND libro_id_riguardante = ?";
+        ConsigliLibri consiglio = new ConsigliLibri(idLibro, idUtente);
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUtente);
+            stmt.setInt(2, idLibro);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int libroIdConsigliato = rs.getInt("libro_id_consigliato");
+                    consiglio.aggiungiConsiglio(libroIdConsigliato);
+                }
+            }
+        }
+        return consiglio;
     }
 
     //valutazione
+    public Eccezione AggiungiValutazione(ValutazioniLibri v) {
+        String sql = """
+                    INSERT INTO recensioni (
+                        utente_id, libro_id,
+                        note_contenuto, note_stile, note_gradevolezza, note_originalita, note_edizione, note_generale,
+                        contenuto, stile, gradevolezza, originalita, edizione
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
 
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            // ID utente e libro
+            stmt.setInt(1, v.getIdUtente());
+            stmt.setInt(2, v.getIdLibro());
+
+            String[] note = v.getNote();
+            short[] punteggi = v.getPunteggi();
+
+            // Le note (default null se mancanti)
+            stmt.setString(3, note[1]);  // contenuto
+            stmt.setString(4, note[0]);  // stile
+            stmt.setString(5, note[2]);  // gradevolezza
+            stmt.setString(6, note[3]);  // originalità
+            stmt.setString(7, note[4]);  // edizione
+            stmt.setString(8, note[5]);  // generale
+
+            // I punteggi (valori tra 1 e 5)
+            stmt.setShort(9, punteggi[1]);  // contenuto
+            stmt.setShort(10, punteggi[0]); // stile
+            stmt.setShort(11, punteggi[2]); // gradevolezza
+            stmt.setShort(12, punteggi[3]); // originalità
+            stmt.setShort(13, punteggi[4]); // edizione
+
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted > 0) {
+                return null; // Nessuna eccezione, tutto ok
+            } else {
+                return new Eccezione(2, "Aggiunta fallita");
+            }
+        } catch (SQLIntegrityConstraintViolationException e) {
+            return new Eccezione(1, "Conflitti di integrità: " + e.getMessage());
+        } catch (SQLException e) {
+            return new Eccezione(3, "Errore SQL: " + e.getMessage());
+        }
+    }
+
+    public ValutazioniLibri RicercaValutazione(int idUtente, int idLibro) throws SQLException {
+        String sql = "SELECT * FROM recensioni WHERE utente_id = ? AND libro_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idUtente);
+            stmt.setInt(2, idLibro);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    short[] punteggi = new short[6];
+                    String[] note = new String[6];
+
+                    // NOTE: ordine coerente con Score
+                    note[1] = rs.getString("note_contenuto");
+                    note[0] = rs.getString("note_stile");
+                    note[2] = rs.getString("note_gradevolezza");
+                    note[3] = rs.getString("note_originalita");
+                    note[4] = rs.getString("note_edizione");
+                    note[5] = rs.getString("note_generale");
+
+                    punteggi[1] = rs.getShort("contenuto");
+                    punteggi[0] = rs.getShort("stile");
+                    punteggi[2] = rs.getShort("gradevolezza");
+                    punteggi[3] = rs.getShort("originalita");
+                    punteggi[4] = rs.getShort("edizione");
+                    punteggi[5] = (short) ((punteggi[1] + punteggi[0] + punteggi[2] + punteggi[3] + punteggi[4]) / 5);
+
+                    Score score = new Score(punteggi, note);
+                    return new ValutazioniLibri(idLibro, idUtente, score);
+                }
+            }
+        }
+        return null;
+    }
+
+    public ValutazioniLibri RicercaValutazioneMedia(int idLibro) throws SQLException {
+        String sql = "SELECT AVG(contenuto) AS avg_contenuto, AVG(stile) AS avg_stile, AVG(gradevolezza) AS avg_gradevolezza, AVG(originalita) AS avg_originalita, AVG(edizione) AS avg_edizione FROM recensioni WHERE libro_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idLibro);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    short[] punteggi = new short[6];
+                    String[] note = new String[6];
+
+                    // NOTE: ordine coerente con Score
+                    note[1] = "Media contenuto";
+                    note[0] = "Media stile";
+                    note[2] = "Media gradevolezza";
+                    note[3] = "Media originalità";
+                    note[4] = "Media edizione";
+                    note[5] = "Media generale";
+
+                    punteggi[1] = rs.getShort("avg_contenuto");
+                    punteggi[0] = rs.getShort("avg_stile");
+                    punteggi[2] = rs.getShort("avg_gradevolezza");
+                    punteggi[3] = rs.getShort("avg_originalita");
+                    punteggi[4] = rs.getShort("avg_edizione");
+                    punteggi[5] = (short) ((punteggi[1] + punteggi[0] + punteggi[2] + punteggi[3] + punteggi[4]) / 5);
+
+                    Score score = new Score(punteggi, note);
+                    return new ValutazioniLibri(idLibro, -1, score);
+                }
+            }
+        }
+        return null;
+    }
 }
