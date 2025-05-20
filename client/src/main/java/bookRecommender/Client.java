@@ -20,7 +20,7 @@ public class Client {
         try {
             Registry registry = java.rmi.registry.LocateRegistry.getRegistry(hostName, PORT);
             stub = (ServerBookRecommenderInterface) registry.lookup("BookRecommender");
-            Libri[] libri = stub.RicercaLibri("po","la",0);
+            Libri[] libri = stub.RicercaLibri("poet","la",0);
             for(Libri lib:libri){
                 System.out.println(lib.toString());
             }

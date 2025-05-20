@@ -29,8 +29,8 @@ public class Server extends UnicastRemoteObject {
     private void ottieniConnessioni() {
         try {
             conMgr = new ConnectionProvider();
-        } catch (IOException e) {
-        } catch (InterruptedException iex) {
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -42,17 +42,12 @@ public class Server extends UnicastRemoteObject {
 
     private void startServer() throws RemoteException {
         try {
-            ImpServer impServer = new ImpServer(conMgr.getConnection());
+            queryList = new QueryList(conMgr);
+            ImpServer impServer = new ImpServer(queryList);
             ServerBookRecommenderInterface stub = (ServerBookRecommenderInterface) UnicastRemoteObject.exportObject(impServer, 0);
             Registry registry = java.rmi.registry.LocateRegistry.createRegistry(PORT);
             registry.rebind("BookRecommender", stub);
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

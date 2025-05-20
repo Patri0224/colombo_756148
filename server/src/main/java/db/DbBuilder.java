@@ -175,7 +175,7 @@ public class DbBuilder {
                 System.out.println("Codice errore SQL: " + sqlException.getSQLState());
             }
         }
-        connBookRecommenderDB.close();
+        //connBookRecommenderDB.close();
     }
     public static DbBuilder getDbInstance() throws SQLException, IOException {
         if(instance == null) {
