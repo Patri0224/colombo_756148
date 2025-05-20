@@ -43,6 +43,7 @@ public class Libri implements Serializable {
 
     @Override
     public String toString() {
+
         return "Libro{" +
                 "Id=" + Id +
                 ", Titolo='" + Titolo + '\'' +
