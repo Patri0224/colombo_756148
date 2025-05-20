@@ -1,10 +1,12 @@
 package bookRecommender.eccezioni;
 
-public class Eccezione {
+import java.io.Serializable;
+
+public class Eccezione implements Serializable{
     private String message;
     private int errorCode;
 
-    public Eccezione(int errorCode, String message) {
+    public Eccezione(int errorCode, String message){
         this.message = message;
         this.errorCode = errorCode;
     }

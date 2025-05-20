@@ -1,16 +1,15 @@
 package bookRecommender;
 
 import bookRecommender.rmi.ServerBookRecommenderInterface;
+import db.ConnectionManager;
 import db.ConnectionProvider;
 import db.DbBuilder;
-import db.ConnectionManager;
 import db.QueryList;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Server extends UnicastRemoteObject {
@@ -19,25 +18,20 @@ public class Server extends UnicastRemoteObject {
     private DbBuilder db;
     private ConnectionManager conMgr;
 
-    private void inizializzaDatabase(){
-        try{
+    private void inizializzaDatabase() {
+        try {
             db = DbBuilder.getDbInstance();
-        }
-        catch(IOException | SQLException e){
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
     }
-    private void ottieniConnessioni(){
-        try{
+
+    private void ottieniConnessioni() {
+        try {
             conMgr = new ConnectionProvider();
+        } catch (IOException e) {
+        } catch (InterruptedException iex) {
         }
-        catch(IOException e){
-        }
-        catch(InterruptedException iex){
-        }
-    }
-    private void query(){
-        queryList = new QueryList(conMgr);
     }
 
 
@@ -48,10 +42,17 @@ public class Server extends UnicastRemoteObject {
 
     private void startServer() throws RemoteException {
         try {
-            ImpServer impServer = new ImpServer(queryList);
+            ImpServer impServer = new ImpServer(conMgr.getConnection());
+            ServerBookRecommenderInterface stub = (ServerBookRecommenderInterface) UnicastRemoteObject.exportObject(impServer, 0);
             Registry registry = java.rmi.registry.LocateRegistry.createRegistry(PORT);
-            registry.rebind("BookRecommender", impServer);
+            registry.rebind("BookRecommender", stub);
         } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -64,5 +65,8 @@ public class Server extends UnicastRemoteObject {
             e.printStackTrace();
         }
         System.out.println("Server ready");
+
+    }
+}
 
 

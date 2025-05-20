@@ -8,16 +8,18 @@ import bookRecommender.entita.ValutazioniLibri;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
 import db.QueryList;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ImpServer implements ServerBookRecommenderInterface {
+public class ImpServer implements ServerBookRecommenderInterface, Serializable {
+    private final transient Connection conn;
 
-    private QueryList q;
-
-    public ImpServer(QueryList query) {
-        this.q = query;
+    public ImpServer(Connection conn) throws RemoteException {
+        this.conn = conn;
     }
+
 
     /**
      * Login per l'utente tramite id e password
@@ -29,7 +31,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public Eccezione login(int idUtente, String password) throws RemoteException, SQLException {
-        return q.ControlloPasswordUtente(idUtente, password);
+        return QueryList.ControlloPasswordUtente(idUtente, password, conn);
     }
 
     /**
@@ -42,7 +44,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public Eccezione login(String email, String password) throws RemoteException, SQLException {
-        return q.ControlloPasswordUtente(email, password);
+        return QueryList.ControlloPasswordUtente(email, password, conn);
     }
 
     /**
@@ -54,7 +56,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public int getIdUtente(String email) throws RemoteException, SQLException {
-        return q.GetIdUtenteDaEmail(email);
+        return QueryList.GetIdUtenteDaEmail(email, conn);
     }
 
     /**
@@ -66,7 +68,12 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public boolean ControlloEsisteUtente(int idUtente) throws RemoteException, SQLException {
-        return q.ControlloEsisteUtente(idUtente);
+        return QueryList.ControlloEsisteUtente(idUtente, conn);
+    }
+
+    @Override
+    public String[] GetUtenteRegistrato(int idUtente) throws RemoteException, SQLException {
+        return QueryList.getUtenteRegistrato(idUtente, conn);
     }
 
     /**
@@ -78,7 +85,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public boolean ControlloEsisteUtente(String email) throws RemoteException, SQLException {
-        return q.ControlloEsisteUtente(email);
+        return QueryList.ControlloEsisteUtente(email, conn);
     }
 
     /**
@@ -94,7 +101,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public Eccezione Registrazione(String email, String password, String nome, String cognome, String codiceFiscale) throws RemoteException, SQLException {
-        return q.Registrazione(email, password, nome, cognome, codiceFiscale);
+        return QueryList.Registrazione(email, password, nome, cognome, codiceFiscale, conn);
     }
 
     /**
@@ -107,7 +114,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public Eccezione ModificaPassword(int idUtente, String password) throws RemoteException, SQLException {
-        return q.ModificaPassword( idUtente, password);
+        return QueryList.ModificaPassword(idUtente, password, conn);
     }
 
     /**
@@ -119,7 +126,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public Eccezione RimuoviUtente(int idUtente) throws RemoteException, SQLException {
-        return q.RimuoviUtente( idUtente);
+        return QueryList.RimuoviUtente(idUtente, conn);
     }
 
     /**
@@ -133,7 +140,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public Libri[] RicercaLibri(String titolo, String autore, int anno) throws RemoteException, SQLException {
-        return q.RicercaLibri( titolo, autore, anno);
+        return QueryList.RicercaLibri(titolo, autore, anno, conn);
     }
 
     /**
@@ -145,7 +152,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public Libri[] RicercaLibriDaIds(int[] ids) throws RemoteException, SQLException {
-        return q.RicercaLibriDaIds( ids);
+        return QueryList.RicercaLibriDaIds(ids, conn);
     }
 
     /**
@@ -157,7 +164,7 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public Librerie[] RicercaLibrerie(int idUtente) throws RemoteException, SQLException {
-        return q.RicercaLibrerie( idUtente);
+        return QueryList.RicercaLibrerie(idUtente, conn);
     }
 
     /**
@@ -168,79 +175,79 @@ public class ImpServer implements ServerBookRecommenderInterface {
      */
     @Override
     public Eccezione AggiungiLibreria(int idUtente, Librerie libreria) throws RemoteException {
-        return q.AggiungiLibreria( idUtente, libreria);
+        return QueryList.AggiungiLibreria(idUtente, libreria, conn);
     }
 
     @Override
     public Eccezione AggiungiLibroALibreria(int idLibreria, int idLibro) throws RemoteException {
-        return q.AggiungiLibroALibreria( idLibreria, idLibro);
+        return QueryList.AggiungiLibroALibreria(idLibreria, idLibro, conn);
     }
 
 
     @Override
     public boolean ControlloEsisteLibreria(int idUtente, String nomeLibreria) throws RemoteException, SQLException {
-        return q.ControlloEsisteLibreria( idUtente, nomeLibreria);
+        return QueryList.ControlloEsisteLibreria(idUtente, nomeLibreria, conn);
     }
 
 
     @Override
     public boolean ControlloLibroInLibrerie(int idUtente, int idLibro) throws RemoteException, SQLException {
-        return q.ControlloLibroInLibrerie( idUtente, idLibro);
+        return QueryList.ControlloLibroInLibrerie(idUtente, idLibro, conn);
     }
 
 
     @Override
     public Libri[] RicercaLibriDaLibrerie(int idUtente) throws RemoteException, SQLException {
-        return q.RicercaLibriDaLibrerie( idUtente);
+        return QueryList.RicercaLibriDaLibrerie(idUtente, conn);
     }
 
     @Override
     public Eccezione RimuoviLibroDaLibreria(int idLibreria, int idLibro) throws RemoteException {
-        return q.RimuoviLibroDaLibreria( idLibreria, idLibro);
+        return QueryList.RimuoviLibroDaLibreria(idLibreria, idLibro, conn);
     }
 
     @Override
     public Eccezione RimuoviLibreria(int idLibreria) throws RemoteException {
-        return q.RimuoviLibreria( idLibreria);
+        return QueryList.RimuoviLibreria(idLibreria, conn);
     }
 
 
     @Override
     public Eccezione AggiungiConsiglio(ConsigliLibri consiglio) throws RemoteException {
-        return q.AggiungiConsiglio( consiglio);
+        return QueryList.AggiungiConsiglio(consiglio, conn);
     }
 
 
     @Override
     public Eccezione AggiungiLibroAConsiglio(ConsigliLibri consiglio, int idLibroConsigliato) throws RemoteException {
-        return q.AggiungiLibroAConsiglio( consiglio, idLibroConsigliato);
+        return QueryList.AggiungiLibroAConsiglio(consiglio, idLibroConsigliato, conn);
     }
 
 
     @Override
     public Libri[] RicercaConsigliDatoLibro(int idLibro) throws RemoteException, SQLException {
-        return q.RicercaConsigliDatoLibro( idLibro);
+        return QueryList.RicercaConsigliDatoLibro(idLibro, conn);
     }
 
 
     @Override
     public ConsigliLibri RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws RemoteException, SQLException {
-        return q.RicercaConsigliDatoUtenteELibro( idUtente, idLibro);
+        return QueryList.RicercaConsigliDatoUtenteELibro(idUtente, idLibro, conn);
     }
 
     @Override
     public Eccezione AggiungiValutazione(ValutazioniLibri v) throws RemoteException {
-        return q.AggiungiValutazione( v);
+        return QueryList.AggiungiValutazione(v, conn);
     }
 
 
     @Override
     public ValutazioniLibri RicercaValutazione(int idUtente, int idLibro) throws RemoteException, SQLException {
-        return q.RicercaValutazione( idUtente, idLibro);
+        return QueryList.RicercaValutazione(idUtente, idLibro, conn);
     }
 
     @Override
     public ValutazioniLibri RicercaValutazioneMedia(int idLibro) throws RemoteException, SQLException {
-        return q.RicercaValutazioneMedia( idLibro);
+        return QueryList.RicercaValutazioneMedia(idLibro, conn);
     }
 }

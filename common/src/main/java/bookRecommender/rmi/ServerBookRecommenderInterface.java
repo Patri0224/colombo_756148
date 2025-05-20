@@ -6,6 +6,7 @@ import bookRecommender.entita.Librerie;
 import bookRecommender.entita.Libri;
 import bookRecommender.entita.ValutazioniLibri;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -87,6 +88,7 @@ public interface ServerBookRecommenderInterface extends Remote {
      */
     Eccezione RimuoviUtente(int idUtente) throws RemoteException, SQLException;
 
+    String[] GetUtenteRegistrato(int idUtente) throws RemoteException, SQLException;
 
     //libri
 
