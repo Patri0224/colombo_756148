@@ -10,10 +10,10 @@ public class UtenteGestore {
     private String codiceFiscale;
     private String nome;
     private String cognome;
-    private ServerBookRecommenderInterface stub;
+    private final ServerBookRecommenderInterface stub;
 
     public UtenteGestore(ServerBookRecommenderInterface stub) {
-        // Default constructor
+        this.stub = stub;
     }
 
     public static boolean ControlloCaratteriPassword(String password) {
@@ -46,10 +46,10 @@ public class UtenteGestore {
 
         Eccezione ecc = null;
         try {
-            ecc = stub.Registrazione(email, password, codiceFiscale, nome, cognome);
+            ecc = stub.Registrazione(email, password, nome, cognome,codiceFiscale);
             if (ecc == null) {
                 idUtente = GetIdUtente(email);
-                return null;
+                return new Eccezione(0,"");
             }
         } catch (Exception e) {
             return new Eccezione(5, "Remote Error" + e.getMessage());
@@ -80,7 +80,7 @@ public class UtenteGestore {
         }
     }
 
-    public Eccezione login(String email,String password){
+    public Eccezione login(String email, String password) {
 
         this.email = email;
         this.passwordCriptata = CrittografiaPassword(password);
@@ -103,6 +103,7 @@ public class UtenteGestore {
             return new Eccezione(4, "Errore SQL" + ecc.getMessage());
         return null;
     }
+
     public Eccezione Login(int idUtente, String password) {
 
         this.idUtente = idUtente;
@@ -128,7 +129,7 @@ public class UtenteGestore {
 
     }
 
-    private void GetDati() {
+    public void GetDati() {
         try {
             String[] str = stub.GetUtenteRegistrato(idUtente);
             this.email = str[0];
@@ -148,6 +149,17 @@ public class UtenteGestore {
     public boolean ControlloCodiceFiscale(String codiceFiscale) {
         // Implement codice fiscale validation logic here
         return true; // Placeholder, replace with actual validation logic
+    }
+    @Override
+    public String toString() {
+        return "UtenteGestore{" +
+                "idUtente=" + idUtente +
+                ", email='" + email + '\'' +
+                ", passwordCriptata='" + passwordCriptata + '\'' +
+                ", codiceFiscale='" + codiceFiscale + '\'' +
+                ", nome='" + nome + '\'' +
+                ", cognome='" + cognome + '\'' +
+                '}';
     }
 
 

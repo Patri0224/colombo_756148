@@ -56,7 +56,7 @@ public class QueryList {
     }
 
     public int GetIdUtenteDaEmail(String email) throws SQLException {
-        String sql = "SELECT utente_id FROM UTENTI_REGISTRATI_PRINCIPALE WHERE email = ?";
+        String sql = "SELECT utente_id FROM UTENTI_REGISTRATI_PRINCIPALE WHERE mail = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -96,7 +96,7 @@ public class QueryList {
 
     public Eccezione Registrazione(String email, String password, String nome, String cognome, String codiceFiscale) throws SQLException {
         if (ControlloEsisteUtente(email)) return new Eccezione(1, "Utente già esistente");
-        String sql = "INSERT INTO UTENTI_REGISTRATI_PRINCIPALE (email, passwd) VALUES (?, ?)";
+        String sql = "INSERT INTO UTENTI_REGISTRATI_PRINCIPALE (mail, passwd) VALUES (?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email);
             stmt.setString(2, password);
@@ -131,7 +131,7 @@ public class QueryList {
     }
 
     public String[] GetUtenteRegistrato(int idUtente) throws SQLException {
-        String sql = "SELECT email, nome, cognome, codice_fiscale FROM UTENTI_REGISTRATI_DETTAGLI WHERE utente_id = ?";
+        String sql = "SELECT p.mail, d.nome, d.cognome, d.codice_fiscale FROM UTENTI_REGISTRATI_DETTAGLI d JOIN UTENTI_REGISTRATI_PRINCIPALE p ON d.utente_id=p.utente_id WHERE d.utente_id = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idUtente);
@@ -139,7 +139,7 @@ public class QueryList {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new String[]{
-                            rs.getString("email"),
+                            rs.getString("mail"),
                             rs.getString("nome"),
                             rs.getString("cognome"),
                             rs.getString("codice_fiscale")

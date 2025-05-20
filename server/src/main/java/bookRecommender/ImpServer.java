@@ -30,11 +30,19 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public Eccezione login(int idUtente, String password) throws RemoteException, SQLException {
-        q.Connect();
-        Eccezione ec = q.ControlloPasswordUtente(idUtente, password);
-        q.Disconnect();
-        return ec;
+    public Eccezione login(int idUtente, String password) throws RemoteException {
+        try {
+            q.Connect();
+            Eccezione ec = q.ControlloPasswordUtente(idUtente, password);
+            q.Disconnect();
+            if (ec==null){
+                return new Eccezione(0,"");
+            }
+            return ec;
+        } catch (SQLException e) {
+            q.Disconnect();
+            return new Eccezione(10, "Errore in QueryList: " + e.getMessage());
+        }
     }
 
     /**
@@ -46,11 +54,19 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public Eccezione login(String email, String password) throws RemoteException, SQLException {
-        q.Connect();
-        Eccezione ec = q.ControlloPasswordUtente(email, password);
-        q.Disconnect();
-        return ec;
+    public Eccezione login(String email, String password) throws RemoteException {
+        try {
+            q.Connect();
+            Eccezione ec = q.ControlloPasswordUtente(email, password);
+            q.Disconnect();
+            if (ec==null){
+                return new Eccezione(0,"");
+            }
+            return ec;
+        } catch (SQLException e) {
+            q.Disconnect();
+            return new Eccezione(10, "Errore in QueryList: " + e.getMessage());
+        }
     }
 
     /**
@@ -61,11 +77,16 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public int getIdUtente(String email) throws RemoteException, SQLException {
-        q.Connect();
-        int id = q.GetIdUtenteDaEmail(email);
-        q.Disconnect();
-        return id;
+    public int getIdUtente(String email) throws RemoteException {
+        try {
+            q.Connect();
+            int id = q.GetIdUtenteDaEmail(email);
+            q.Disconnect();
+            return id;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
     }
 
     /**
@@ -76,19 +97,29 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public boolean ControlloEsisteUtente(int idUtente) throws RemoteException, SQLException {
-        q.Connect();
-        boolean b = q.ControlloEsisteUtente(idUtente);
-        q.Disconnect();
-        return b;
+    public boolean ControlloEsisteUtente(int idUtente) throws RemoteException {
+        try {
+            q.Connect();
+            boolean b = q.ControlloEsisteUtente(idUtente);
+            q.Disconnect();
+            return b;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
     }
 
     @Override
-    public String[] GetUtenteRegistrato(int idUtente) throws RemoteException, SQLException {
-        q.Connect();
-        String[] utente = q.GetUtenteRegistrato(idUtente);
-        q.Disconnect();
-        return utente;
+    public String[] GetUtenteRegistrato(int idUtente) throws RemoteException {
+        try {
+            q.Connect();
+            String[] utente = q.GetUtenteRegistrato(idUtente);
+            q.Disconnect();
+            return utente;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
     }
 
     /**
@@ -99,11 +130,16 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public boolean ControlloEsisteUtente(String email) throws RemoteException, SQLException {
-        q.Connect();
-        boolean b = q.ControlloEsisteUtente(email);
-        q.Disconnect();
-        return b;
+    public boolean ControlloEsisteUtente(String email) throws RemoteException {
+        try {
+            q.Connect();
+            boolean b = q.ControlloEsisteUtente(email);
+            q.Disconnect();
+            return b;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
     }
 
     /**
@@ -118,12 +154,19 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public Eccezione Registrazione(String email, String password, String nome, String cognome, String codiceFiscale) throws RemoteException, SQLException {
-        q.Connect();
-        Eccezione ec = q.Registrazione(email, password, nome, cognome, codiceFiscale);
-        q.Disconnect();
-        return ec;
-
+    public Eccezione Registrazione(String email, String password, String nome, String cognome, String codiceFiscale) throws RemoteException {
+        try {
+            q.Connect();
+            Eccezione ec = q.Registrazione(email, password, nome, cognome, codiceFiscale);
+            q.Disconnect();
+            if (ec==null){
+                return new Eccezione(0,"");
+            }
+            return ec;
+        } catch (SQLException e) {
+            q.Disconnect();
+            return new Eccezione(10, "Errore in QueryList: " + e.getMessage());
+        }
     }
 
     /**
@@ -135,11 +178,19 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public Eccezione ModificaPassword(int idUtente, String password) throws RemoteException, SQLException {
-        q.Connect();
-        Eccezione ec = q.ModificaPassword(idUtente, password);
-        q.Disconnect();
-        return ec;
+    public Eccezione ModificaPassword(int idUtente, String password) throws RemoteException {
+        try {
+            q.Connect();
+            Eccezione ec = q.ModificaPassword(idUtente, password);
+            q.Disconnect();
+            if (ec==null){
+                return new Eccezione(0,"");
+            }
+            return ec;
+        } catch (SQLException e) {
+            q.Disconnect();
+            return new Eccezione(10, "Errore in QueryList: " + e.getMessage());
+        }
     }
 
     /**
@@ -150,12 +201,19 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public Eccezione RimuoviUtente(int idUtente) throws RemoteException, SQLException {
-        q.Connect();
-        Eccezione ec = q.RimuoviUtente(idUtente);
-        q.Disconnect();
-        return ec;
-
+    public Eccezione RimuoviUtente(int idUtente) throws RemoteException {
+        try {
+            q.Connect();
+            Eccezione ec = q.RimuoviUtente(idUtente);
+            q.Disconnect();
+            if (ec==null){
+                return new Eccezione(0,"");
+            }
+            return ec;
+        } catch (SQLException e) {
+            q.Disconnect();
+            return new Eccezione(10, "Errore in QueryList: " + e.getMessage());
+        }
     }
 
     /**
@@ -168,11 +226,16 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public Libri[] RicercaLibri(String titolo, String autore, int anno) throws RemoteException, SQLException {
-        q.Connect();
-        Libri[] libri = q.RicercaLibri(titolo, autore, anno);
-        q.Disconnect();
-        return libri;
+    public Libri[] RicercaLibri(String titolo, String autore, int anno) throws RemoteException {
+        try {
+            q.Connect();
+            Libri[] libri = q.RicercaLibri(titolo, autore, anno);
+            q.Disconnect();
+            return libri;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
     }
 
     /**
@@ -183,14 +246,19 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public Libri[] RicercaLibriDaIds(int[] ids) throws RemoteException, SQLException {
-        q.Connect();
-        Libri[] libri = q.RicercaLibriDaIds(ids);
-        q.Disconnect();
-        if (libri == null) {
-            return new Libri[0];
+    public Libri[] RicercaLibriDaIds(int[] ids) throws RemoteException {
+        try {
+            q.Connect();
+            Libri[] libri = q.RicercaLibriDaIds(ids);
+            q.Disconnect();
+            if (libri == null) {
+                return new Libri[0];
+            }
+            return libri;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
         }
-        return libri;
     }
 
     /**
@@ -201,14 +269,19 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException
      */
     @Override
-    public Librerie[] RicercaLibrerie(int idUtente) throws RemoteException, SQLException {
-        q.Connect();
-        Librerie[] librerie = q.RicercaLibrerie(idUtente);
-        q.Disconnect();
-        if (librerie == null) {
-            return new Librerie[0];
+    public Librerie[] RicercaLibrerie(int idUtente) throws RemoteException {
+        try {
+            q.Connect();
+            Librerie[] librerie = q.RicercaLibrerie(idUtente);
+            q.Disconnect();
+            if (librerie == null) {
+                return new Librerie[0];
+            }
+            return librerie;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
         }
-        return librerie;
     }
 
     /**
@@ -222,6 +295,9 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         q.Connect();
         Eccezione ec = q.AggiungiLibreria(idUtente, libreria);
         q.Disconnect();
+        if (ec==null){
+            return new Eccezione(0,"");
+        }
         return ec;
     }
 
@@ -230,37 +306,52 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         q.Connect();
         Eccezione ec = q.AggiungiLibroALibreria(idLibreria, idLibro);
         q.Disconnect();
+        if (ec==null){
+            return new Eccezione(0,"");
+        }
         return ec;
     }
 
-
     @Override
-    public boolean ControlloEsisteLibreria(int idUtente, String nomeLibreria) throws RemoteException, SQLException {
-        q.Connect();
-        boolean b = q.ControlloEsisteLibreria(idUtente, nomeLibreria);
-        q.Disconnect();
-        return b;
-    }
-
-
-    @Override
-    public boolean ControlloLibroInLibrerie(int idUtente, int idLibro) throws RemoteException, SQLException {
-        q.Connect();
-        boolean b = q.ControlloLibroInLibrerie(idUtente, idLibro);
-        q.Disconnect();
-        return b;
-    }
-
-
-    @Override
-    public Libri[] RicercaLibriDaLibrerie(int idUtente) throws RemoteException, SQLException {
-        q.Connect();
-        Libri[] libri = q.RicercaLibriDaLibrerie(idUtente);
-        q.Disconnect();
-        if (libri == null) {
-            return new Libri[0];
+    public boolean ControlloEsisteLibreria(int idUtente, String nomeLibreria) throws RemoteException {
+        try {
+            q.Connect();
+            boolean b = q.ControlloEsisteLibreria(idUtente, nomeLibreria);
+            q.Disconnect();
+            return b;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
         }
-        return libri;
+    }
+
+    @Override
+    public boolean ControlloLibroInLibrerie(int idUtente, int idLibro) throws RemoteException {
+        try {
+            q.Connect();
+            boolean b = q.ControlloLibroInLibrerie(idUtente, idLibro);
+            q.Disconnect();
+            return b;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Libri[] RicercaLibriDaLibrerie(int idUtente) throws RemoteException {
+        try {
+            q.Connect();
+            Libri[] libri = q.RicercaLibriDaLibrerie(idUtente);
+            q.Disconnect();
+            if (libri == null) {
+                return new Libri[0];
+            }
+            return libri;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
     }
 
     @Override
@@ -268,6 +359,9 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         q.Connect();
         Eccezione ec = q.RimuoviLibroDaLibreria(idLibreria, idLibro);
         q.Disconnect();
+        if (ec==null){
+            return new Eccezione(0,"");
+        }
         return ec;
     }
 
@@ -276,46 +370,58 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         q.Connect();
         Eccezione ec = q.RimuoviLibreria(idLibreria);
         q.Disconnect();
+        if (ec==null){
+            return new Eccezione(0,"");
+        }
         return ec;
     }
-
 
     @Override
     public Eccezione AggiungiConsiglio(ConsigliLibri consiglio) throws RemoteException {
         q.Connect();
         Eccezione ec = q.AggiungiConsiglio(consiglio);
         q.Disconnect();
+        if (ec==null){
+            return new Eccezione(0,"");
+        }
         return ec;
     }
-
 
     @Override
     public Eccezione AggiungiLibroAConsiglio(ConsigliLibri consiglio, int idLibroConsigliato) throws RemoteException {
         q.Connect();
         Eccezione ec = q.AggiungiLibroAConsiglio(consiglio, idLibroConsigliato);
         q.Disconnect();
+        if (ec==null){
+            return new Eccezione(0,"");
+        }
         return ec;
     }
 
-
     @Override
-    public Libri[] RicercaConsigliDatoLibro(int idLibro) throws RemoteException, SQLException {
-        q.Connect();
-        Libri[] libri = q.RicercaConsigliDatoLibro(idLibro);
-        q.Disconnect();
-        if (libri == null) {
-            return new Libri[0];
+    public Libri[] RicercaConsigliDatoLibro(int idLibro) throws RemoteException {
+        try {
+            q.Connect();
+            Libri[] libri = q.RicercaConsigliDatoLibro(idLibro);
+            q.Disconnect();
+            return libri != null ? libri : new Libri[0];
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
         }
-        return libri;
     }
 
-
     @Override
-    public ConsigliLibri RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws RemoteException, SQLException {
-        q.Connect();
-        ConsigliLibri c = q.RicercaConsigliDatoUtenteELibro(idUtente, idLibro);
-        q.Disconnect();
-        return c;
+    public ConsigliLibri RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws RemoteException {
+        try {
+            q.Connect();
+            ConsigliLibri c = q.RicercaConsigliDatoUtenteELibro(idUtente, idLibro);
+            q.Disconnect();
+            return c;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
     }
 
     @Override
@@ -323,23 +429,35 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         q.Connect();
         Eccezione ec = q.AggiungiValutazione(v);
         q.Disconnect();
+        if (ec==null){
+            return new Eccezione(0,"");
+        }
         return ec;
     }
 
-
     @Override
-    public ValutazioniLibri RicercaValutazione(int idUtente, int idLibro) throws RemoteException, SQLException {
-        q.Connect();
-        ValutazioniLibri v = q.RicercaValutazione(idUtente, idLibro);
-        q.Disconnect();
-        return v;
+    public ValutazioniLibri RicercaValutazione(int idUtente, int idLibro) throws RemoteException {
+        try {
+            q.Connect();
+            ValutazioniLibri v = q.RicercaValutazione(idUtente, idLibro);
+            q.Disconnect();
+            return v;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
     }
 
     @Override
-    public ValutazioniLibri RicercaValutazioneMedia(int idLibro) throws RemoteException, SQLException {
-        q.Connect();
-        ValutazioniLibri v = q.RicercaValutazioneMedia(idLibro);
-        q.Disconnect();
-        return v;
+    public ValutazioniLibri RicercaValutazioneMedia(int idLibro) throws RemoteException {
+        try {
+            q.Connect();
+            ValutazioniLibri v = q.RicercaValutazioneMedia(idLibro);
+            q.Disconnect();
+            return v;
+        } catch (SQLException e) {
+            q.Disconnect();
+            throw new RemoteException("Errore in QueryList: " + e.getMessage());
+        }
     }
 }
