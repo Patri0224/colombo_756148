@@ -24,7 +24,7 @@ public class Librerie implements Serializable {
         return idLibreria;
     }
 
-    public int[] getIdLibro() {
+    public int[] getIdLibri() {
         return idLibro.stream().mapToInt(i -> i).toArray();
     }
 
