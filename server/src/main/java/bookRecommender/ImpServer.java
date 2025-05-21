@@ -25,9 +25,9 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * Login per l'utente tramite id e password
      *
      * @param idUtente id dell'utente dato dal database
-     * @param password dare password in chiaro
-     * @return Eccezione con:1 se l'utente non esiste, 2 se la password è errata, 3 errore interno, 0 se tutto ok
-     * @throws RemoteException
+     * @param password password dell'utente già criptata
+     * @return Eccezione con:1 se l'utente non esiste, 2 se la password è errata, 3 errore interno, 0 con messaggio id dell'utente
+     * @throws RemoteException altre eccezioni
      */
     @Override
     public Eccezione login(int idUtente, String password) throws RemoteException {
@@ -35,9 +35,6 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
             q.Connect();
             Eccezione ec = q.ControlloPasswordUtente(idUtente, password);
             q.Disconnect();
-            if (ec == null) {
-                return new Eccezione(0, "");
-            }
             return ec;
         } catch (SQLException e) {
             q.Disconnect();
@@ -48,10 +45,10 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     /**
      * Login per l'utente tramite email e password
      *
-     * @param email
-     * @param password
+     * @param email    email dell'utente
+     * @param password password dell'utente già criptata
      * @return Eccezione con:1 se l'utente non esiste, 2 se la password è errata, 3 errore interno, 0 con messaggio id dell'utente
-     * @throws RemoteException
+     * @throws RemoteException altre eccezioni
      */
     @Override
     public Eccezione login(String email, String password) throws RemoteException {
@@ -59,7 +56,7 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
             q.Connect();
             Eccezione ec = q.ControlloPasswordUtente(email, password);
             q.Disconnect();
-                       return ec;
+            return ec;
         } catch (SQLException e) {
             q.Disconnect();
             return new Eccezione(10, "Errore in QueryList: " + e.getMessage());
@@ -71,7 +68,7 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      *
      * @param email email dell'utente
      * @return l'id dell'utente se il esiste, -1 altrimenti
-     * @throws RemoteException
+     * @throws RemoteException tutte le eccezioni
      */
     @Override
     public int getIdUtente(String email) throws RemoteException {
@@ -89,9 +86,9 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     /**
      * Controlla se l'utente esiste nel database dato il suo id
      *
-     * @param idUtente
+     * @param idUtente id dell'utente
      * @return vero se l'utente esiste, falso altrimenti
-     * @throws RemoteException
+     * @throws RemoteException tutte le eccezioni
      */
     @Override
     public boolean ControlloEsisteUtente(int idUtente) throws RemoteException {
@@ -106,6 +103,13 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         }
     }
 
+    /**
+     * Restituisce i dati dell'utente dato il suo id
+     *
+     * @param idUtente id dell'utente
+     * @return un array di stringhe con i dati dell'utente [0] email, [1] nome, [2] cognome, [3] codice fiscale
+     * @throws RemoteException tutte le eccezioni
+     */
     @Override
     public String[] GetUtenteRegistrato(int idUtente) throws RemoteException {
         try {
@@ -122,9 +126,9 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     /**
      * Controlla se l'utente esiste nel database dato la sua email
      *
-     * @param email
+     * @param email email dell'utente
      * @return vero se l'utente esiste, falso altrimenti
-     * @throws RemoteException
+     * @throws RemoteException tutte le eccezioni
      */
     @Override
     public boolean ControlloEsisteUtente(String email) throws RemoteException {
@@ -142,13 +146,13 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     /**
      * Crea un nuovo utente nel database
      *
-     * @param email
-     * @param password
-     * @param nome
-     * @param cognome
-     * @param codiceFiscale
+     * @param email email dell'utente max 100 caratteri
+     * @param password password dell'utente max 200 caratteri
+     * @param nome nome dell'utente max 100 caratteri
+     * @param cognome cognome dell'utente max 100 caratteri
+     * @param codiceFiscale codice fiscale dell'utente max 16 caratteri
      * @return Eccezione con:1 se l'utente già esiste, 2, 3, 4 errori SQL, ecc 0 con messaggio l'id dell'utente
-     * @throws RemoteException
+     * @throws RemoteException altre eccezioni
      */
     @Override
     public Eccezione Registrazione(String email, String password, String nome, String cognome, String codiceFiscale) throws RemoteException {
@@ -166,10 +170,10 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     /**
      * Modifica la password dell'utente
      *
-     * @param idUtente
+     * @param idUtente id dell'utente
      * @param password nuova password
-     * @return Eccezione con:1 se l'utente non esiste, 2, 3 errori SQL, null se tutto ok
-     * @throws RemoteException
+     * @return Eccezione con:1 se l'utente non esiste, 2, 3 errori SQL, 0 tutto ok
+     * @throws RemoteException altre eccezioni
      */
     @Override
     public Eccezione ModificaPassword(int idUtente, String password) throws RemoteException {
@@ -177,9 +181,6 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
             q.Connect();
             Eccezione ec = q.ModificaPassword(idUtente, password);
             q.Disconnect();
-            if (ec == null) {
-                return new Eccezione(0, "");
-            }
             return ec;
         } catch (SQLException e) {
             q.Disconnect();
@@ -190,9 +191,9 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     /**
      * Rimuove un utente dal database
      *
-     * @param idUtente
-     * @return Eccezione con:1 se l'utente non esiste, 2, 3 errori SQL, null se tutto ok
-     * @throws RemoteException
+     * @param idUtente id dell'utente
+     * @return Eccezione con:1 se l'utente non esiste, 2, 3 errori SQL, 0 se tutto ok
+     * @throws RemoteException altre eccezioni
      */
     @Override
     public Eccezione RimuoviUtente(int idUtente) throws RemoteException {
@@ -200,9 +201,6 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
             q.Connect();
             Eccezione ec = q.RimuoviUtente(idUtente);
             q.Disconnect();
-            if (ec == null) {
-                return new Eccezione(0, "");
-            }
             return ec;
         } catch (SQLException e) {
             q.Disconnect();
@@ -217,7 +215,7 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @param autore stringa per cercare nell'autore, può essere null
      * @param anno   anno di pubblicazione, -1 se non specificato
      * @return un array di Libri
-     * @throws RemoteException
+     * @throws RemoteException tutte le eccezioni
      */
     @Override
     public Libri[] RicercaLibri(String titolo, String autore, int anno) throws RemoteException {
@@ -232,6 +230,19 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         }
     }
 
+    /**
+     * Restituisce l'array libri presenti nel database che contengono i campi di ricerca
+     *
+     * @param titolo    stringa per cercare nel titolo, può essere null
+     * @param autore    stringa per cercare nell'autore, può essere null
+     * @param anno      anno di pubblicazione, -1 se non specificato
+     * @param editore   stringa per cercare nell'editore, può essere null
+     * @param categoria stringa per cercare nella categoria, può essere null
+     * @param prezzoMin prezzo minimo del libro, -1 se non specificato
+     * @param prezzoMax prezzo massimo del libro, -1 se non specificato
+     * @return un array di Libri
+     * @throws RemoteException tutte le eccezioni
+     */
     @Override
     public Libri[] RicercaLibri(String titolo, String autore, int anno, String editore, String categoria, float prezzoMin, float prezzoMax) throws RemoteException {
         try {
@@ -250,7 +261,7 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      *
      * @param ids array di id dei libri
      * @return un array di Libri
-     * @throws RemoteException
+     * @throws RemoteException tutte le eccezioni
      */
     @Override
     public Libri[] RicercaLibriDaIds(int[] ids) throws RemoteException {
@@ -271,9 +282,9 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     /**
      * Restituisce tutte le librerie di un utente, le librerie contengono gli id dei libri presenti in esse
      *
-     * @param idUtente
+     * @param idUtente id dell'utente
      * @return un array di Librerie
-     * @throws RemoteException
+     * @throws RemoteException tutte le eccezioni
      */
     @Override
     public Librerie[] RicercaLibrerie(int idUtente) throws RemoteException {
@@ -292,33 +303,45 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     }
 
     /**
-     * @param idUtente id dell'utente
+     *  Aggiunge una vuota libreria all'utente
+     *
+     * @param idUtente     id dell'utente
      * @param nomeLibreria libreria da aggiungere
      * @return Eccezione con:1, conflitti integrita, 2 registrazione fallita in principale, 3 errore SQL, 4 errore IdLibriria non ottenuto, 0 tutto ok con idLibreria nel messaggio come String
-     * @throws RemoteException
+     * @throws RemoteException altre eccezioni
      */
     @Override
     public Eccezione AggiungiLibreria(int idUtente, String nomeLibreria) throws RemoteException {
         q.Connect();
         Eccezione ec = q.AggiungiLibreria(idUtente, nomeLibreria);
         q.Disconnect();
-        if (ec == null) {
-            return new Eccezione(0, "");
-        }
         return ec;
     }
 
+    /**
+     * Aggiunge un libro alla libreria
+     *
+     * @param idLibreria id della libreria
+     * @param idLibro    id del libro da aggiungere
+     * @return Eccezione con:1, conflitti integrita, 2 registrazione fallita in principale, 3 errore SQL, 4 errore IdLibriria non ottenuto, 0 tutto ok con idLibreria nel messaggio come String
+     * @throws RemoteException altre eccezioni
+     */
     @Override
     public Eccezione AggiungiLibroALibreria(int idLibreria, int idLibro) throws RemoteException {
         q.Connect();
         Eccezione ec = q.AggiungiLibroALibreria(idLibreria, idLibro);
         q.Disconnect();
-        if (ec == null) {
-            return new Eccezione(0, "");
-        }
         return ec;
     }
 
+    /**
+     * Controlla se la libreria esiste
+     *
+     * @param idUtente     id dell'utente
+     * @param nomeLibreria nome della libreria da controllare
+     * @return vero se la libreria esiste, falso altrimenti
+     * @throws RemoteException tutte le eccezioni
+     */
     @Override
     public boolean ControlloEsisteLibreria(int idUtente, String nomeLibreria) throws RemoteException {
         try {
@@ -332,6 +355,14 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         }
     }
 
+    /**
+     * Controlla se un libro è presente in una libreria
+     *
+     * @param idUtente id dell'utente
+     * @param idLibro  id del libro da controllare
+     * @return vero se il libro è presente in una libreria, falso altrimenti
+     * @throws RemoteException tutte le eccezioni
+     */
     @Override
     public boolean ControlloLibroInLibrerie(int idUtente, int idLibro) throws RemoteException {
         try {
@@ -345,6 +376,13 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         }
     }
 
+    /**
+     * Restituisce i libri presenti in tutte le librerie dell'utente
+     *
+     * @param idUtente id dell'utente
+     * @return un array di Libri
+     * @throws RemoteException tutte le eccezioni
+     */
     @Override
     public Libri[] RicercaLibriDaLibrerie(int idUtente) throws RemoteException {
         try {
@@ -361,17 +399,29 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         }
     }
 
+    /**
+     * Rimuove un libro dalla libreria
+     *
+     * @param idLibreria id della libreria
+     * @param idLibro   id del libro da rimuovere
+     * @return Eccezione 0 tutto ok, 3 errore SQL, 2 errore eliminazione non avvenuta
+     * @throws RemoteException altre eccezioni
+     */
     @Override
     public Eccezione RimuoviLibroDaLibreria(int idLibreria, int idLibro) throws RemoteException {
         q.Connect();
         Eccezione ec = q.RimuoviLibroDaLibreria(idLibreria, idLibro);
         q.Disconnect();
-        if (ec == null) {
-            return new Eccezione(0, "");
-        }
         return ec;
     }
 
+    /**
+     * Rimuove una libreria
+     *
+     * @param idLibreria id della libreria da rimuovere
+     * @return Eccezione 0 tutto ok, 3 errore SQL, 2 errore eliminazione non avvenuta
+     * @throws RemoteException altre eccezioni
+     */
     @Override
     public Eccezione RimuoviLibreria(int idLibreria) throws RemoteException {
         q.Connect();
@@ -388,9 +438,6 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         q.Connect();
         Eccezione ec = q.AggiungiConsiglio(consiglio);
         q.Disconnect();
-        if (ec == null) {
-            return new Eccezione(0, "");
-        }
         return ec;
     }
 
@@ -399,9 +446,6 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         q.Connect();
         Eccezione ec = q.AggiungiLibroAConsiglio(consiglio, idLibroConsigliato);
         q.Disconnect();
-        if (ec == null) {
-            return new Eccezione(0, "");
-        }
         return ec;
     }
 
@@ -436,9 +480,6 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         q.Connect();
         Eccezione ec = q.AggiungiValutazione(v);
         q.Disconnect();
-        if (ec == null) {
-            return new Eccezione(0, "");
-        }
         return ec;
     }
 

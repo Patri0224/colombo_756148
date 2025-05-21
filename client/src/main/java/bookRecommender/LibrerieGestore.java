@@ -11,7 +11,7 @@ public class LibrerieGestore {
     private static LibrerieGestore instance = null;
     private final ServerBookRecommenderInterface stub;
     private Librerie[] librerie = new Librerie[0];
-    private UtenteGestore utenteGestore = null;
+    private final UtenteGestore utenteGestore;
 
     private LibrerieGestore(ServerBookRecommenderInterface stub) {
         this.stub = stub;
@@ -70,9 +70,9 @@ public class LibrerieGestore {
     }
 
     public Librerie GetLibreria(String nomeLibreria) {
-        for (int i = 0; i < librerie.length; i++) {
-            if (librerie[i].getNome().equals(nomeLibreria)) {
-                return librerie[i];
+        for (Librerie value : librerie) {
+            if (value.getNome().equals(nomeLibreria)) {
+                return value;
             }
         }
         return null;
@@ -182,7 +182,7 @@ public class LibrerieGestore {
     /**
      * Controlla se una libreria esiste
      *
-     * @param nomeLibreria
+     * @param nomeLibreria nome della libreria da controllare
      * @return false se la libreria non esiste, true altrimenti
      */
     public boolean ControlloEsisteLibreria(String nomeLibreria) {
@@ -200,7 +200,7 @@ public class LibrerieGestore {
     /**
      * Controlla se un libro è presente in una libreria
      *
-     * @param idLibro
+     * @param idLibro id del libro da controllare
      * @return false se il libro non è presente in una libreria, true altrimenti
      */
     public boolean ControlloLibroInLibrerie(int idLibro) {
@@ -224,6 +224,17 @@ public class LibrerieGestore {
             }
         }
         return new Libri[0];
+    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("LibrerieGestore{");
+        sb.append("librerie=[");
+        for (Librerie libreria : librerie) {
+            sb.append(libreria.toString()).append(", ");
+        }
+        sb.append("]}");
+        return sb.toString();
     }
 
 }

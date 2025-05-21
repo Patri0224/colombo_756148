@@ -3,8 +3,8 @@ package bookRecommender.eccezioni;
 import java.io.Serializable;
 
 public class Eccezione implements Serializable {
-    private String message;
-    private int errorCode;
+    private final String message;
+    private final int errorCode;
 
     public Eccezione(int errorCode, String message) {
         this.message = message;
@@ -22,8 +22,8 @@ public class Eccezione implements Serializable {
     @Override
     public String toString() {
         return "Eccezione{" +
-                "message='" + message + '\'' +
-                ", errorCode=" + errorCode +
+                "errorCode='" + errorCode + '\'' +
+                ", message=" + message +
                 '}';
     }
 

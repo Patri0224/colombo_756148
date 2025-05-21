@@ -25,9 +25,9 @@ public class Client {
             int numLibri = libriGestore.GetNumeroLibri();
             System.out.println(ecc.toString());
             Libri[] libri = libriGestore.GetLibri();
-            for (Libri lib : libri) {
+            /*for (Libri lib : libri) {
                 System.out.println(lib.toString());
-            }
+            }*/
 
             ecc = libriGestore.RicercaLibri("poet", "la", -1, null, "poetry", -1, -1);
             System.out.println(ecc.toString());
@@ -43,10 +43,28 @@ public class Client {
             utenteGestore = UtenteGestore.GetInstance();
             Eccezione e = utenteGestore.Login("colombo@g", "Patrizio.24");
             System.out.println(e.toString());
-            e = utenteGestore.RimuoviUtente();
+            /*e = utenteGestore.RimuoviUtente();
             System.out.println(e.toString());
             e = utenteGestore.Registrazione("colombo@g", "Patrizio.24", "CMLPRZ04B416W", "patrizio", "colombo");
             System.out.println(e.toString());
+            if (!utenteGestore.UtenteLoggato()) {
+                utenteGestore.Login("colombo@g", "Patrizio.24");
+            }*/
+            LibrerieGestore.CreateInstance(stub);
+            LibrerieGestore librerieGestore = LibrerieGestore.GetInstance();
+            ecc = librerieGestore.caricaLibrerie();
+            System.out.println(ecc.toString());
+            ecc = librerieGestore.AggiungiLibreria("prova1");
+            System.out.println(ecc.toString());
+            ecc = librerieGestore.AggiungiLibreria("prova2");
+            System.out.println(ecc.toString());
+            ecc = librerieGestore.caricaLibrerie();
+            System.out.println(ecc.toString());
+            Libri libro = libriGestore.GetLibri()[1];
+            System.out.println(libro.toString());
+            ecc = librerieGestore.AggiungiLibroALibreria("prova1", libro.getId());
+            System.out.println(ecc.toString());
+            System.out.println(librerieGestore.toString());
             /*Eccezione ecc = utenteGestore.Registrazione("colombo@g", "Patrizio.24", "CMLPRZ04B416W", "patrizio", "colombo");
             System.out.println(ecc.toString());
             System.out.println(utenteGestore.GetIdUtente("colombo@g"));
