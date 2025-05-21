@@ -4,6 +4,7 @@ import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
 
 public class UtenteGestore {
+    private static UtenteGestore instance = null;
     private int idUtente = -1;
     private String email;
     private String passwordCriptata;
@@ -12,8 +13,23 @@ public class UtenteGestore {
     private String cognome;
     private final ServerBookRecommenderInterface stub;
 
-    public UtenteGestore(ServerBookRecommenderInterface stub) {
+    private UtenteGestore(ServerBookRecommenderInterface stub) {
         this.stub = stub;
+    }
+
+    public static synchronized UtenteGestore CreateInstance(ServerBookRecommenderInterface stub) {
+        if (instance == null) {
+            instance = new UtenteGestore(stub);
+            return instance;
+        }
+        return instance;
+    }
+
+    public static synchronized UtenteGestore GetInstance() {
+        if (instance == null) {
+            return null;
+        }
+        return instance;
     }
 
     public static boolean ControlloCaratteriPassword(String password) {
@@ -69,6 +85,22 @@ public class UtenteGestore {
         if (idUtente != -1)
             return idUtente; //se l'utente è già loggato
 
+        try {
+            idUtente = stub.getIdUtente(email);
+            return idUtente;
+        } catch (Exception e) {
+            try {//riprova una volta
+                idUtente = stub.getIdUtente(email);
+                return idUtente;
+            } catch (Exception e1) {
+                return -1;
+            }
+        }
+    }
+
+    public int GetIdUtente() {
+        if (idUtente != -1)
+            return idUtente;
         try {
             idUtente = stub.getIdUtente(email);
             return idUtente;
@@ -168,6 +200,26 @@ public class UtenteGestore {
         } catch (Exception e) {
             return new Eccezione(5, "Remote Error" + e.getMessage());
         }
+    }
+
+    public Eccezione ModificaPassword(String password) {
+        if (ControlloCaratteriPassword(password))
+            password = CrittografiaPassword(password);
+        else
+            return new Eccezione(3, "Password non valida");
+        try {
+            Eccezione ecc = stub.ModificaPassword(idUtente, password);
+            if (ecc.getErrorCode() == 0) {
+                this.passwordCriptata = password;
+                return ecc;
+            }
+            return ecc;
+        } catch (Exception e) {
+            return new Eccezione(5, "Remote Error" + e.getMessage());
+        }
+    }
+    public boolean UtenteLoggato() {
+        return idUtente != -1;
     }
 
     @Override

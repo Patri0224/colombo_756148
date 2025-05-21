@@ -83,7 +83,7 @@ public class QueryList {
                 if (rs.next()) {
                     String storedPassword = rs.getString("passwd");
                     if (storedPassword.equals(password)) {
-                        return null; // Nessuna eccezione, password corretta
+                        return new Eccezione(0, "" + idUtente); // Password corretta
                     } else {
                         return new Eccezione(2, "Password errata");
                     }
@@ -94,6 +94,17 @@ public class QueryList {
         }
     }
 
+    /**
+     * Registrazione tramite parametri e ritorna l'id
+     *
+     * @param email
+     * @param password
+     * @param nome
+     * @param cognome
+     * @param codiceFiscale
+     * @return Eccezione con codice 0 e come messaggio l'id dell'utente, altrimenti il codice di errore
+     * @throws SQLException
+     */
     public Eccezione Registrazione(String email, String password, String nome, String cognome, String codiceFiscale) throws SQLException {
         if (ControlloEsisteUtente(email)) return new Eccezione(1, "Utente già esistente");
         String sql = "INSERT INTO UTENTI_REGISTRATI_PRINCIPALE (mail, passwd) VALUES (?, ?)";
@@ -119,7 +130,7 @@ public class QueryList {
             int rowsInserted = stmt.executeUpdate();
 
             if (rowsInserted > 0) {
-                return null; // Nessuna eccezione, tutto ok
+                return new Eccezione(0, "" + id); //tutto ok
             } else {
                 return new Eccezione(2, "Registrazione fallita nei dettagli");
             }
@@ -208,30 +219,10 @@ public class QueryList {
                 AND (? IS NULL OR p.anno_pubblicazione = ?)""";
         int count = 0;
         try (PreparedStatement countStmt = conn.prepareStatement(countSql)) {
-            // Impostazione parametri per count
-            if (titolo == null) {
-                countStmt.setNull(1, java.sql.Types.VARCHAR);
-                countStmt.setNull(2, java.sql.Types.VARCHAR);
-            } else {
-                countStmt.setString(1, titolo);
-                countStmt.setString(2, titolo);
-            }
-
-            if (autore == null) {
-                countStmt.setNull(3, java.sql.Types.VARCHAR);
-                countStmt.setNull(4, java.sql.Types.VARCHAR);
-            } else {
-                countStmt.setString(3, autore);
-                countStmt.setString(4, autore);
-            }
-
-            if (anno == 0) {
-                countStmt.setNull(5, java.sql.Types.INTEGER);
-                countStmt.setNull(6, java.sql.Types.INTEGER);
-            } else {
-                countStmt.setInt(5, anno);
-                countStmt.setInt(6, anno);
-            }
+            int idx = 1;
+            idx = setStringParam(countStmt, idx, titolo);
+            idx = setStringParam(countStmt, idx, autore);
+            idx = setIntParam(countStmt, idx, anno);
 
             try (ResultSet rsCount = countStmt.executeQuery()) {
                 if (rsCount.next()) {
@@ -247,30 +238,10 @@ public class QueryList {
         Libri[] risultati = new Libri[count];
 
         try (PreparedStatement dataStmt = conn.prepareStatement(dataSql)) {
-            // Impostazione parametri per estrazione dati
-            if (titolo == null) {
-                dataStmt.setNull(1, java.sql.Types.VARCHAR);
-                dataStmt.setNull(2, java.sql.Types.VARCHAR);
-            } else {
-                dataStmt.setString(1, titolo);
-                dataStmt.setString(2, titolo);
-            }
-
-            if (autore == null) {
-                dataStmt.setNull(3, java.sql.Types.VARCHAR);
-                dataStmt.setNull(4, java.sql.Types.VARCHAR);
-            } else {
-                dataStmt.setString(3, autore);
-                dataStmt.setString(4, autore);
-            }
-
-            if (anno == 0) {
-                dataStmt.setNull(5, java.sql.Types.INTEGER);
-                dataStmt.setNull(6, java.sql.Types.INTEGER);
-            } else {
-                dataStmt.setInt(5, anno);
-                dataStmt.setInt(6, anno);
-            }
+            int idx = 1;
+            idx = setStringParam(dataStmt, idx, titolo);
+            idx = setStringParam(dataStmt, idx, autore);
+            idx = setIntParam(dataStmt, idx, anno);
 
             try (ResultSet rs = dataStmt.executeQuery()) {
                 int i = 0;
@@ -293,6 +264,122 @@ public class QueryList {
         }
 
         return risultati;
+    }
+
+    public Libri[] RicercaLibri(String titolo, String autore, int anno, String editore, String categoria, float prezzoMin, float prezzoMax) throws SQLException {
+        String dataSql = """
+                SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori,
+                       d.descrizione, d.categorie, d.editori, d.prezzo
+                FROM libri_principale p
+                JOIN libri_dettagli d ON p.libro_id = d.libro_id
+                WHERE (? IS NULL OR LOWER(p.titolo) LIKE LOWER(CONCAT('%', ?, '%')))
+                  AND (? IS NULL OR LOWER(p.autori) LIKE LOWER(CONCAT('%', ?, '%')))
+                  AND (? IS NULL OR p.anno_pubblicazione = ?)
+                  AND (? IS NULL OR LOWER(d.editori) LIKE LOWER(CONCAT('%', ?, '%')))
+                  AND (? IS NULL OR LOWER(d.categorie) LIKE LOWER(CONCAT('%', ?, '%')))
+                  AND (? IS NULL OR d.prezzo >= ?)
+                  AND (? IS NULL OR d.prezzo <= ?)
+                """;
+
+        String countSql = """
+                SELECT COUNT(*)
+                FROM libri_principale p
+                JOIN libri_dettagli d ON p.libro_id = d.libro_id
+                WHERE (? IS NULL OR LOWER(p.titolo) LIKE LOWER(CONCAT('%', ?, '%')))
+                  AND (? IS NULL OR LOWER(p.autori) LIKE LOWER(CONCAT('%', ?, '%')))
+                  AND (? IS NULL OR p.anno_pubblicazione = ?)
+                  AND (? IS NULL OR LOWER(d.editori) LIKE LOWER(CONCAT('%', ?, '%')))
+                  AND (? IS NULL OR LOWER(d.categorie) LIKE LOWER(CONCAT('%', ?, '%')))
+                  AND (? IS NULL OR d.prezzo >= ?)
+                  AND (? IS NULL OR d.prezzo <= ?)
+                """;
+
+        int count = 0;
+
+        try (PreparedStatement countStmt = conn.prepareStatement(countSql)) {
+            int idx = 1;
+            idx = setStringParam(countStmt, idx, titolo);
+            idx = setStringParam(countStmt, idx, autore);
+            idx = setIntParam(countStmt, idx, anno);
+            idx = setStringParam(countStmt, idx, editore);
+            idx = setStringParam(countStmt, idx, categoria);
+            idx = setFloatParam(countStmt, idx, prezzoMin);
+            idx = setFloatParam(countStmt, idx, prezzoMax);
+
+            try (ResultSet rsCount = countStmt.executeQuery()) {
+                if (rsCount.next()) {
+                    count = rsCount.getInt(1);
+                }
+            }
+        }
+
+        if (count == 0) return new Libri[0];
+
+        Libri[] risultati = new Libri[count];
+
+        try (PreparedStatement dataStmt = conn.prepareStatement(dataSql)) {
+            int idx = 1;
+            idx = setStringParam(dataStmt, idx, titolo);
+            idx = setStringParam(dataStmt, idx, autore);
+            idx = setIntParam(dataStmt, idx, anno);
+            idx = setStringParam(dataStmt, idx, editore);
+            idx = setStringParam(dataStmt, idx, categoria);
+            idx = setFloatParam(dataStmt, idx, prezzoMin);
+            idx = setFloatParam(dataStmt, idx, prezzoMax);
+
+            try (ResultSet rs = dataStmt.executeQuery()) {
+                int i = 0;
+                while (rs.next()) {
+                    Libri libro = new Libri();
+                    libro.setId(rs.getInt("libro_id"));
+                    libro.setTitolo(rs.getString("titolo"));
+                    libro.setAnnoPubblicazione(rs.getInt("anno_pubblicazione"));
+                    libro.setMesePubblicazione(rs.getString("mese_pubblicazione"));
+                    libro.setAutori(rs.getString("autori"));
+                    libro.setDescrizione(rs.getString("descrizione"));
+                    libro.setCategorie(rs.getString("categorie"));
+                    libro.setEditore(rs.getString("editori"));
+                    libro.setPrezzoPartenza(rs.getBigDecimal("prezzo").floatValue());
+
+                    risultati[i++] = libro;
+                }
+            }
+        }
+
+        return risultati;
+    }
+
+    private int setStringParam(PreparedStatement stmt, int idx, String val) throws SQLException {
+        if (val == null) {
+            stmt.setNull(idx++, Types.VARCHAR);
+            stmt.setNull(idx++, Types.VARCHAR);
+        } else {
+            stmt.setString(idx++, val);
+            stmt.setString(idx++, val);
+        }
+        return idx;
+    }
+
+    private int setIntParam(PreparedStatement stmt, int idx, int val) throws SQLException {
+        if (val == -1) {
+            stmt.setNull(idx++, Types.INTEGER);
+            stmt.setNull(idx++, Types.INTEGER);
+        } else {
+            stmt.setInt(idx++, val);
+            stmt.setInt(idx++, val);
+        }
+        return idx;
+    }
+
+    private int setFloatParam(PreparedStatement stmt, int idx, float val) throws SQLException {
+        if (val == -1) {
+            stmt.setNull(idx++, Types.FLOAT);
+            stmt.setNull(idx++, Types.FLOAT);
+        } else {
+            stmt.setFloat(idx++, val);
+            stmt.setFloat(idx++, val);
+        }
+        return idx;
     }
 
     public Libri[] RicercaLibriDaIds(int[] ids) throws SQLException {
@@ -412,11 +499,18 @@ public class QueryList {
         return false;
     }
 
-    public Eccezione AggiungiLibreria(int idUtente, Librerie libreria) {
+    /**
+     * aggiunge una libreria senza libri al database
+     *
+     * @param idUtente
+     * @param nomeLibreria
+     * @return Eccezione con codice 0 e come messaggio l'id della libreria, altrimenti il codice di errore
+     */
+    public Eccezione AggiungiLibreria(int idUtente, String nomeLibreria) {
         String sql = "INSERT INTO librerie (utente_id, nome_libreria) VALUES (?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, idUtente);
-            stmt.setString(2, libreria.getNome());
+            stmt.setString(2, nomeLibreria);
 
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted == 0) {
@@ -427,24 +521,12 @@ public class QueryList {
             int libreriaId;
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    libreriaId = generatedKeys.getInt(1);
+                    return new Eccezione(0, "" + generatedKeys.getInt(1));
                 } else {
                     return new Eccezione(4, "ID libreria non ottenuto");
                 }
             }
 
-            // Ora inserisci ogni libro nella tabella contenuto_libreria
-            sql = "INSERT INTO contenuto_libreria (libreria_id, libro_id) VALUES (?, ?)";
-            try (PreparedStatement stmt2 = conn.prepareStatement(sql)) {
-                for (Integer libroId : libreria.getIdLibro()) {
-                    stmt2.setInt(1, libreriaId);
-                    stmt2.setInt(2, libroId);
-                    stmt2.addBatch();
-                }
-                stmt2.executeBatch();
-            }
-
-            return null;
 
         } catch (SQLIntegrityConstraintViolationException e) {
             return new Eccezione(1, "Conflitti di integrità: " + e.getMessage());

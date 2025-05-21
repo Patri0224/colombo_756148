@@ -8,7 +8,6 @@ import bookRecommender.rmi.ServerBookRecommenderInterface;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
-import java.sql.SQLException;
 
 public class Client {
     static String hostName = "127.0.0.1";
@@ -20,12 +19,28 @@ public class Client {
         try {
             Registry registry = java.rmi.registry.LocateRegistry.getRegistry(hostName, PORT);
             stub = (ServerBookRecommenderInterface) registry.lookup("BookRecommender");
-            Libri[] libri = stub.RicercaLibri("poet", "la", 0);
+            LibriRicercaGestore.CreateInstance(stub);
+            LibriRicercaGestore libriGestore = LibriRicercaGestore.GetInstance();
+            Eccezione ecc = libriGestore.RicercaLibri("poet", "la", -1);
+            int numLibri = libriGestore.GetNumeroLibri();
+            System.out.println(ecc.toString());
+            Libri[] libri = libriGestore.GetLibri();
             for (Libri lib : libri) {
                 System.out.println(lib.toString());
             }
+
+            ecc = libriGestore.RicercaLibri("poet", "la", -1, null, "poetry", -1, -1);
+            System.out.println(ecc.toString());
+            libri = libriGestore.GetLibri();
+            for (Libri lib : libri) {
+                System.out.println(lib.toString());
+            }
+            System.out.println("old:" + numLibri + "new:" + libriGestore.GetNumeroLibri());
+
+
             System.out.println("output: errorCode 0,1,errorCode 0,dati utente,errorCode 0,errorCode 1,dati -1 e null");
-            utenteGestore = new UtenteGestore(stub);
+            UtenteGestore.CreateInstance(stub);
+            utenteGestore = UtenteGestore.GetInstance();
             Eccezione e = utenteGestore.Login("colombo@g", "Patrizio.24");
             System.out.println(e.toString());
             e = utenteGestore.RimuoviUtente();
@@ -43,7 +58,7 @@ public class Client {
             System.out.println(ecc.toString());
             System.out.println(utenteGestore.toString());*/
 
-        } catch (RemoteException | SQLException | NotBoundException e) {
+        } catch (RemoteException | NotBoundException e) {
             throw new RuntimeException(e);
         }
 
