@@ -832,6 +832,12 @@ public class QueryList {
     }
 
     //valutazione
+    /**
+     * Aggiunge una valutazione al database
+     *
+     * @param v oggetto ValutazioniLibri contenente i dati della valutazione
+     * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL
+     */
     public Eccezione AggiungiValutazione(ValutazioniLibri v) {
         String sql = """
                     INSERT INTO recensioni (
@@ -877,6 +883,13 @@ public class QueryList {
         }
     }
 
+    /**
+     * Ricerca la valutazione di un libro fatta da un singolo utente
+     * @param idUtente id dell'utente
+     * @param idLibro id del libro
+     * @return ValutazioniLibri con la valutazione dell'utente
+     * @throws SQLException eccezione da gestire fuori
+     */
     public ValutazioniLibri RicercaValutazione(int idUtente, int idLibro) throws SQLException {
         String sql = "SELECT * FROM recensioni WHERE utente_id = ? AND libro_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -909,7 +922,12 @@ public class QueryList {
         }
         return null;
     }
-
+    /**
+     * Ricerca la valutazione media di un libro
+     * @param idLibro id del libro su qui si vuole la media
+     * @return ValutazioniLibri con la media delle valutazioni
+     * @throws SQLException eccezione da gestire fuori
+     */
     public ValutazioniLibri RicercaValutazioneMedia(int idLibro) throws SQLException {
         String sql = "SELECT AVG(contenuto) AS avg_contenuto, AVG(stile) AS avg_stile, AVG(gradevolezza) AS avg_gradevolezza, AVG(originalita) AS avg_originalita, AVG(edizione) AS avg_edizione FROM recensioni WHERE libro_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

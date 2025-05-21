@@ -146,10 +146,10 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     /**
      * Crea un nuovo utente nel database
      *
-     * @param email email dell'utente max 100 caratteri
-     * @param password password dell'utente max 200 caratteri
-     * @param nome nome dell'utente max 100 caratteri
-     * @param cognome cognome dell'utente max 100 caratteri
+     * @param email         email dell'utente max 100 caratteri
+     * @param password      password dell'utente max 200 caratteri
+     * @param nome          nome dell'utente max 100 caratteri
+     * @param cognome       cognome dell'utente max 100 caratteri
      * @param codiceFiscale codice fiscale dell'utente max 16 caratteri
      * @return Eccezione con:1 se l'utente già esiste, 2, 3, 4 errori SQL, ecc 0 con messaggio l'id dell'utente
      * @throws RemoteException altre eccezioni
@@ -303,7 +303,7 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     }
 
     /**
-     *  Aggiunge una vuota libreria all'utente
+     * Aggiunge una vuota libreria all'utente
      *
      * @param idUtente     id dell'utente
      * @param nomeLibreria libreria da aggiungere
@@ -403,7 +403,7 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * Rimuove un libro dalla libreria
      *
      * @param idLibreria id della libreria
-     * @param idLibro   id del libro da rimuovere
+     * @param idLibro    id del libro da rimuovere
      * @return Eccezione 0 tutto ok, 3 errore SQL, 2 errore eliminazione non avvenuta
      * @throws RemoteException altre eccezioni
      */
@@ -475,6 +475,13 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         }
     }
 
+    /**
+     * Aggiunge una valutazione al database
+     *
+     * @param v oggetto ValutazioniLibri contenente i dati della valutazione
+     * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL
+     * @throws RemoteException altre eccezioni
+     */
     @Override
     public Eccezione AggiungiValutazione(ValutazioniLibri v) throws RemoteException {
         q.Connect();
@@ -483,6 +490,14 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         return ec;
     }
 
+    /**
+     * Restituisce la valutazione di un libro da parte di un utente
+     *
+     * @param idUtente id dell'utente
+     * @param idLibro  id del libro
+     * @return oggetto ValutazioniLibri con i dati della valutazione
+     * @throws RemoteException tutte le eccezioni
+     */
     @Override
     public ValutazioniLibri RicercaValutazione(int idUtente, int idLibro) throws RemoteException {
         try {
@@ -496,6 +511,13 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         }
     }
 
+    /**
+     * Restituisce la valutazione media di un libro
+     *
+     * @param idLibro id del libro
+     * @return oggetto ValutazioniLibri con i dati della valutazione media
+     * @throws RemoteException tutte le eccezioni
+     */
     @Override
     public ValutazioniLibri RicercaValutazioneMedia(int idLibro) throws RemoteException {
         try {
