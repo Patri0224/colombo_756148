@@ -32,24 +32,26 @@ public class UtenteGestore {
     }
 
     public Eccezione Registrazione(String email, String password, String codiceFiscale, String nome, String cognome) {
-        this.email = email;
-        this.nome = nome;
-        this.cognome = cognome;
         if (ControlloCodiceFiscale(codiceFiscale))
-            this.codiceFiscale = codiceFiscale;
+            codiceFiscale = codiceFiscale;
         else
             return new Eccezione(2, "Codice fiscale non valido");
         if (ControlloCaratteriPassword(password))
-            this.passwordCriptata = CrittografiaPassword(password);
+            password = CrittografiaPassword(password);
         else
             return new Eccezione(3, "Password non valida");
 
         Eccezione ecc = null;
         try {
-            ecc = stub.Registrazione(email, password, nome, cognome,codiceFiscale);
-            if (ecc == null) {
+            ecc = stub.Registrazione(email, password, nome, cognome, codiceFiscale);
+            if (ecc.getErrorCode() == 0) {
                 idUtente = GetIdUtente(email);
-                return new Eccezione(0,"");
+                this.email = email;
+                this.nome = nome;
+                this.cognome = cognome;
+                this.codiceFiscale = codiceFiscale;
+                this.passwordCriptata = password;
+                return ecc;
             }
         } catch (Exception e) {
             return new Eccezione(5, "Remote Error" + e.getMessage());
@@ -59,7 +61,7 @@ public class UtenteGestore {
         if (ecc.getErrorCode() > 1)
             return new Eccezione(4, "Errore SQL" + ecc.getMessage());
         else
-            return null;
+            return new Eccezione(20, "last");
 
     }
 
@@ -80,17 +82,16 @@ public class UtenteGestore {
         }
     }
 
-    public Eccezione login(String email, String password) {
-
-        this.email = email;
-        this.passwordCriptata = CrittografiaPassword(password);
+    public Eccezione Login(String email, String password) {
         Eccezione ecc = null;
         try {
             ecc = stub.login(email, password);
-            if (ecc == null) {
+            if (ecc.getErrorCode() == 0) {
+                this.email = email;
+                this.passwordCriptata = CrittografiaPassword(password);
                 idUtente = GetIdUtente(email);
                 GetDati();
-                return null;
+                return ecc;
             }
         } catch (Exception e) {
             return new Eccezione(5, "Remote Error" + e.getMessage());
@@ -101,19 +102,19 @@ public class UtenteGestore {
             return ecc;
         if (ecc.getErrorCode() > 2)
             return new Eccezione(4, "Errore SQL" + ecc.getMessage());
-        return null;
+        return new Eccezione(20, "last");
     }
 
     public Eccezione Login(int idUtente, String password) {
 
-        this.idUtente = idUtente;
-        this.passwordCriptata = CrittografiaPassword(password);
         Eccezione ecc = null;
         try {
             ecc = stub.login(idUtente, password);
-            if (ecc == null) {
+            if (ecc.getErrorCode() == 0) {
+                this.idUtente = idUtente;
+                this.passwordCriptata = CrittografiaPassword(password);
                 GetDati();
-                return null;
+                return ecc;
             }
 
         } catch (Exception e) {
@@ -125,7 +126,7 @@ public class UtenteGestore {
             return ecc;
         if (ecc.getErrorCode() > 2)
             return new Eccezione(4, "Errore SQL" + ecc.getMessage());
-        return null;
+        return new Eccezione(20, "lasr");
 
     }
 
@@ -150,6 +151,25 @@ public class UtenteGestore {
         // Implement codice fiscale validation logic here
         return true; // Placeholder, replace with actual validation logic
     }
+
+    public Eccezione RimuoviUtente() {
+        try {
+            Eccezione ecc = stub.RimuoviUtente(idUtente);
+            if (ecc.getErrorCode() == 0) {
+                idUtente = -1;
+                email = null;
+                passwordCriptata = null;
+                codiceFiscale = null;
+                nome = null;
+                cognome = null;
+                return ecc;
+            }
+            return ecc;
+        } catch (Exception e) {
+            return new Eccezione(5, "Remote Error" + e.getMessage());
+        }
+    }
+
     @Override
     public String toString() {
         return "UtenteGestore{" +

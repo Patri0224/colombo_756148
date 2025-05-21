@@ -24,19 +24,26 @@ public class Client {
             for (Libri lib : libri) {
                 System.out.println(lib.toString());
             }
-
+            System.out.println("output: errorCode 0,1,errorCode 0,dati utente,errorCode 0,errorCode 1,dati -1 e null");
             utenteGestore = new UtenteGestore(stub);
-            Eccezione ecc = utenteGestore.Registrazione("colombo@g", "Patrizio.24", "CMLPRZ04B416W", "patrizio", "colombo");
+            Eccezione e = utenteGestore.Login("colombo@g", "Patrizio.24");
+            System.out.println(e.toString());
+            e = utenteGestore.RimuoviUtente();
+            System.out.println(e.toString());
+            e = utenteGestore.Registrazione("colombo@g", "Patrizio.24", "CMLPRZ04B416W", "patrizio", "colombo");
+            System.out.println(e.toString());
+            /*Eccezione ecc = utenteGestore.Registrazione("colombo@g", "Patrizio.24", "CMLPRZ04B416W", "patrizio", "colombo");
             System.out.println(ecc.toString());
             System.out.println(utenteGestore.GetIdUtente("colombo@g"));
-            utenteGestore.GetDati();
+            ecc = utenteGestore.Login("colombo@g", "Patrizio.24");
+            System.out.println(ecc.toString());
             System.out.println(utenteGestore.toString());
+            utenteGestore.RimuoviUtente();
+            ecc = utenteGestore.Login("colombo@g", "Patrizio.24");
+            System.out.println(ecc.toString());
+            System.out.println(utenteGestore.toString());*/
 
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        } catch (NotBoundException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
+        } catch (RemoteException | SQLException | NotBoundException e) {
             throw new RuntimeException(e);
         }
 
