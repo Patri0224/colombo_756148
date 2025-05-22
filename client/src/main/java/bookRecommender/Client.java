@@ -17,9 +17,21 @@ public class Client {
 
     public static void main(String[] args) {
         try {
+            //collegamento con il server
             Registry registry = java.rmi.registry.LocateRegistry.getRegistry(hostName, PORT);
             stub = (ServerBookRecommenderInterface) registry.lookup("BookRecommender");
+            //creazione componenti client
             LibriRicercaGestore.CreateInstance(stub);
+            LibrerieGestore.CreateInstance(stub);
+            UtenteGestore.CreateInstance(stub);
+            ConsigliGestore.CreateInstance(stub);
+            ValutazioniGestore.CreateInstance(stub);
+
+            //crezione GUI
+
+
+//test
+
             LibriRicercaGestore libriGestore = LibriRicercaGestore.GetInstance();
             Eccezione ecc = libriGestore.RicercaLibri("poet", "la", -1);
             int numLibri = libriGestore.GetNumeroLibri();
@@ -76,6 +88,8 @@ public class Client {
             System.out.println(ecc.toString());
             System.out.println(utenteGestore.toString());*/
 
+
+//fine test
         } catch (RemoteException | NotBoundException e) {
             throw new RuntimeException(e);
         }

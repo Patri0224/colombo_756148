@@ -10,14 +10,14 @@ public class ValutazioniGestore {
     private final ServerBookRecommenderInterface stub;
     private final UtenteGestore utenteGestore;
 
-    private ValutazioniGestore(ServerBookRecommenderInterface stub, UtenteGestore utenteGestore) {
+    private ValutazioniGestore(ServerBookRecommenderInterface stub) {
         this.stub = stub;
-        this.utenteGestore = utenteGestore;
+        this.utenteGestore = UtenteGestore.GetInstance();
     }
 
-    public static ValutazioniGestore CreateInstance(ServerBookRecommenderInterface stub, UtenteGestore utenteGestore) {
+    public static ValutazioniGestore CreateInstance(ServerBookRecommenderInterface stub) {
         if (instance == null) {
-            instance = new ValutazioniGestore(stub, utenteGestore);
+            instance = new ValutazioniGestore(stub);
         }
         return instance;
     }
@@ -61,6 +61,7 @@ public class ValutazioniGestore {
             return new Eccezione(1, "Errore durante l'aggiunta della valutazione: " + e.getMessage());
         }
     }
+
     /**
      * Cerca la valutazione che l'utente ha fatto sul libro
      *
@@ -77,6 +78,7 @@ public class ValutazioniGestore {
             return null;
         }
     }
+
     /**
      * Cerca la valutazione media del libro
      *

@@ -10,14 +10,14 @@ public class ConsigliGestore {
     private final ServerBookRecommenderInterface stub;
     private final UtenteGestore utenteGestore;
 
-    private ConsigliGestore(ServerBookRecommenderInterface stub, UtenteGestore utenteGestore) {
+    private ConsigliGestore(ServerBookRecommenderInterface stub) {
         this.stub = stub;
-        this.utenteGestore = utenteGestore;
+        this.utenteGestore = UtenteGestore.GetInstance();
     }
 
-    public static ConsigliGestore CreateInstance(ServerBookRecommenderInterface stub, UtenteGestore utenteGestore) {
+    public static ConsigliGestore CreateInstance(ServerBookRecommenderInterface stub) {
         if (instance == null) {
-            instance = new ConsigliGestore(stub, utenteGestore);
+            instance = new ConsigliGestore(stub);
         }
         return instance;
     }
