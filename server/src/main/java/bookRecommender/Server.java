@@ -26,16 +26,14 @@ public class Server extends UnicastRemoteObject {
         }
     }
 
-    private void ottieniConnessioni() {
-        try {
+    private void ottieniConnessioni() throws IOException, InterruptedException {
+
             conMgr = new ConnectionProvider();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
 
-    public Server() throws RemoteException {
+    public Server() throws IOException, InterruptedException {
         inizializzaDatabase();
         ottieniConnessioni();
     }
@@ -56,7 +54,7 @@ public class Server extends UnicastRemoteObject {
         System.out.println("Server started on port " + PORT);
         try {
             new Server().startServer();
-        } catch (RemoteException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
         System.out.println("Server ready");

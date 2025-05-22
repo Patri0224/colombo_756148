@@ -21,7 +21,7 @@ public class QueryList {
     public void Connect() {
         try {
             conn = connectionManager.getConnection();
-        } catch (SQLException | IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -29,7 +29,7 @@ public class QueryList {
     public void Disconnect() {
         try {
             connectionManager.endConnection(conn);
-        } catch (SQLException | InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

@@ -1,11 +1,27 @@
 package db;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
+
+/**
+ * Interfaccia che esporta i metodi di {@link ConnectionProvider} e che consente di ottenere e restituire connessioni con
+ * {@code bookrecommenderdb}
+ */
 
 public interface ConnectionManager {
-    Connection getConnection() throws SQLException, IOException, InterruptedException;
-    void endConnection(Connection c) throws SQLException, InterruptedException;
+    /**
+     * Fornisce una connessione per svolgere query
+     *
+     * @return {@code Connection} a {@code bookrecommenderdb}
+     * @throws InterruptedException
+     */
+    Connection getConnection() throws InterruptedException;
+
+    /**
+     * Restituisce la connessione al gestore dopo aver svolto la query
+     *
+     * @param c {@code Connection} da restituire
+     * @throws InterruptedException
+     */
+    void endConnection(Connection c) throws InterruptedException;
 }
 

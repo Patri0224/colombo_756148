@@ -1,6 +1,7 @@
 package db;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,6 +10,9 @@ import java.util.Objects;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 
+/**
+ * Si occupa del setup del {@code bookrecommenderdb}
+ */
 public class DbBuilder {
     private final String[] ddlTabelleArr = {"create table libritemp(\n" +
             "\tlibro_id int generated always as identity,\n" +
@@ -102,32 +106,52 @@ public class DbBuilder {
     private Connection connTemplate0;
     private static DbBuilder instance;
 
+    /**
+     * Costruttore privato che gestisce l'inizializzazione del database. Si connette a {@code template0} e controlla se esiste già
+     * {@code bookrecommenderdb}. In caso positivo, l'esecuzione termina. Se invece {@code bookrecommenderdb} non esiste:
+     * viene creato, vengono create tutte le tabelle necessarie, viene caricato il dataset di libri da CSV e infine vengono
+     * eseguite operazioni di pulizia e ottimizzazione (splitting) sulla tabella {@code libritemp}
+     *
+     *
+     * @throws SQLException causata da {@link CopyManager}, {@link Connection#close()}, {@link Connection#createStatement()}, {@link Statement#executeUpdate(String)}
+     * @throws IOException causata da reader vari e se la connessione a {@code bookrecommenderdb} fallisce per 10 volte
+     */
     private DbBuilder() throws SQLException, IOException {
-        while(true){
-            try{
-                connTemplate0 = Db.getConnection(0);
-                System.out.println("Presa connessione con template");
-                break;
+
+        try{
+            connTemplate0 = Db.getConnection(0);
+            System.out.println("Presa connessione con template");
+        }
+        catch(SQLException sqlException){
+            //Host sbagliato
+            if(Objects.equals(sqlException.getSQLState(), "08001")){
+                System.err.println(sqlException.getMessage());
+                System.err.println("Causa probabile: numero di porta sbagliato (db non in ascolto su quella porta");
+                System.err.println("Codice: " + sqlException.getSQLState());
+                DBConfigLoader.getInstanceDBConfigLoader().updateHost();
             }
-            catch(SQLException sqlException){
-                System.err.println("Connessione fallita... riprovo tra 5sec");
-                if(Objects.equals(sqlException.getSQLState(), "08001")){
-                    System.err.println("Causa probabile: numero di porta sbagliato (db non in ascolto su quella porta");
-                }
+            //Username errato o password errata, non distingue i casi ma lo specifica nel getMessage
+            if(Objects.equals(sqlException.getSQLState(), "28P01")) {
                 System.err.println(sqlException.getMessage());
                 System.err.println("Codice: " + sqlException.getSQLState());
+                DBConfigLoader.getInstanceDBConfigLoader().updateNomePassword();
             }
-            try{
-                Thread.sleep(5000);
+            else{
+                System.err.println("Errore sconosciuto");
+                System.err.println(sqlException.getMessage());
+                System.err.println("Codice: " + sqlException.getSQLState());
+                DBConfigLoader.reset();
             }
-            catch(InterruptedException interruptedException){
-            }
+            connTemplate0 = Db.getConnection(0);
         }
         try{
             createDatabase();
         }
         catch(CreazioneAvvenutaEx creazioneAvvenutaEx){
             System.out.println(creazioneAvvenutaEx.getMessage());
+
+            int tentativi = 0;
+
             while(true){
                 try{
                     connBookRecommenderDB = Db.getConnection(1);
@@ -135,6 +159,7 @@ public class DbBuilder {
                     break;
                 }
                 catch(SQLException sqlException){
+                    tentativi++;
                     System.err.println(sqlException.getMessage());
                     System.err.println("Codice: " + sqlException.getSQLState());
                     System.err.println("Connessione fallita (errore interno)... riprovo tra 5sec");
@@ -144,17 +169,20 @@ public class DbBuilder {
                 }
                 catch(InterruptedException interruptedException){
                 }
+                if(tentativi >= 10){
+                    throw new IOException();
+                }
             }
             try(Statement statementBookRecommenderDB = connBookRecommenderDB.createStatement()){
                 for(String s:ddlTabelleArr){
                     statementBookRecommenderDB.executeUpdate(s);
                 }
                 try(InputStream in = getClass().getResourceAsStream("/bd.csv")){
-                    try(BufferedReader bufIn = new BufferedReader(new InputStreamReader(in))){
+                    try(BufferedReader bufIn = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){ //utf8 se no non carica bene i dati
                         CopyManager copyManager = new CopyManager((BaseConnection) connBookRecommenderDB);
                         copyManager.copyIn("COPY libritemp(titolo, autori, descrizione, categorie, editori, prezzo, mese_pubblicazione, anno_pubblicazione)\n" +
                                 "FROM STDIN\n" +
-                                "WITH (FORMAT CSV, HEADER, DELIMITER ',')", bufIn);
+                                "WITH (FORMAT CSV, HEADER, DELIMITER ',', ENCODING 'UTF-8')", bufIn);
                     }
                 }
                 for(String s:puliziaTabelle){
@@ -175,14 +203,31 @@ public class DbBuilder {
                 System.out.println("Codice errore SQL: " + sqlException.getSQLState());
             }
         }
-        //connBookRecommenderDB.close();
+        if(connBookRecommenderDB != null){
+            connBookRecommenderDB.close();
+        }
     }
+
+    /**
+     * Esegue il costruttore
+     *
+     * @return L'istanza singleton di {@link DbBuilder#DbBuilder}
+     * @throws SQLException propagata da {@link DbBuilder#DbBuilder}
+     * @throws IOException propagata da {@link DbBuilder#DbBuilder}
+     */
     public static DbBuilder getDbInstance() throws SQLException, IOException {
         if(instance == null) {
             instance = new DbBuilder();
         }
         return(instance);
     }
+
+    /**
+     * Crea il database {@code bookrecommenderdb}
+     *
+     * @throws SQLException causata da {@link Connection#close()}, {@link Connection#createStatement()}, {@link Statement#executeUpdate(String)}
+     * @throws CreazioneAvvenutaEx lanciata se la creazione del database avviene correttamente
+     */
     private void createDatabase() throws SQLException, CreazioneAvvenutaEx{
         try(Statement statTemplate0 = connTemplate0.createStatement()){
             System.out.println("Creazione database");
@@ -192,5 +237,4 @@ public class DbBuilder {
             throw new CreazioneAvvenutaEx("Costruzione e riempimento tabelle in corso");
         }
     }
-
 }
