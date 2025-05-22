@@ -4,12 +4,23 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashMap;
+
+/**
+ * Gestisce la creazione a due database differenti {@code template0} e {@code bookrecommenderdb} per permettere operazioni di
+ * connessione in {@link DbBuilder} e {@link ConnectionProvider}
+ */
 
 class Db {
     private Connection connection;
 
-    public Db(int x) throws IOException, SQLException {
+    /**
+     * Costruttore privato
+     *
+     * @param x Sceglie se ritornare una connessione a template0 {@code int 0} o a bookrecommenderdb {@code int 1}
+     * @throws IOException propagata da {@link DBConfigLoader#getInstanceDBConfigLoader()}
+     * @throws SQLException causata da {@link DriverManager}
+     */
+    private Db(int x) throws IOException, SQLException {
         DBConfigLoader config = DBConfigLoader.getInstanceDBConfigLoader();
         switch (x){
             case 0:
@@ -20,6 +31,15 @@ class Db {
                 break;
         }
     }
+
+    /**
+     * Esegue il costruttore
+     *
+     * @param x parametro da passare al costruttore
+     * @return istanza di {@link Db#Db}
+     * @throws SQLException propagata da {@link Db#Db}
+     * @throws IOException propagata da {@link Db#Db}
+     */
     public static synchronized Connection getConnection(int x) throws SQLException, IOException {
         Db db = new Db(x);
         return(db.connection);

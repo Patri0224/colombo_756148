@@ -3,90 +3,162 @@ package db;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Consente la connessione con il {@code bookrecommenderdb}
+ */
 public class ConnectionProvider implements ConnectionManager {
-    private LinkedBlockingQueue<Connection> connessioniDisponibili = new LinkedBlockingQueue<Connection>();
-    private AtomicInteger connessioniFunzionanti = new AtomicInteger(0);
-    private static final int maxTentativi = 100;
-    private boolean inRicostruzione = false;
+    private final LinkedBlockingQueue<Connection> connessioniDisponibili = new LinkedBlockingQueue<>();
+    private final Thread supervisore;
+    private final int targetFunzionanti = 50;
+    private final int minimeFunzionanti = 40;
+    private final ReentrantLock lockControllo = new ReentrantLock();
 
-
-    public ConnectionProvider() throws IOException, InterruptedException {
-        connectionProviderImpl();
-    }
-
-    private synchronized void connectionProviderImpl() throws IOException, InterruptedException {
-        int targetFunzionanti = 50;
-        int tentativi = 0;
-        Connection c;
-        while (connessioniFunzionanti.get() < targetFunzionanti && tentativi < maxTentativi) {
+    private class PoolChecker implements Runnable{
+        public void run(){
             try {
-                tentativi++;
-                c = Db.getConnection(1);
-                if (c.isValid(1)) {
-                    connessioniDisponibili.put(c);
-                    connessioniFunzionanti.incrementAndGet();
-                    System.out.println("Creazione connessione n." + tentativi + " riuscita");
+                controlloPool();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /**
+         * Controlla ogni 10 secondi che nel pool di connessioni ce ne siano almeno {@code minimeFunzionanti} funzionanti.
+         * Se no chiude quelle che non funzionano e ne ricrea funzionanti in numero uguale, rimettendole infine nel pool
+         */
+        private void controlloPool() throws IOException{
+            while(true){
+                try{
+                    Thread.sleep(10000);
+                    lockControllo.lock();
+
+                    try{
+                        int valide = 0;
+                        ArrayList<Connection> temp = new ArrayList<>();
+
+                        connessioniDisponibili.drainTo(temp); //Non bloccante
+                        for(Connection c : temp){
+                            if(c.isValid(1)){
+                                valide++;
+                                connessioniDisponibili.put(c);
+                            }
+                            else{
+                                c.close();
+                            }
+                        }
+                        if(valide < minimeFunzionanti){
+                            for(int i = valide; i<targetFunzionanti; i++){
+                                aggiungiConnessione();
+                            }
+                        }
+                    }
+                    catch(SQLException e){
+                        e.printStackTrace();
+                    }
                 }
-            } catch (SQLException e) {
-                System.err.println("Creazione connessione n." + tentativi + " fallita, riprovo");
-                System.err.println(e.getMessage());
+                catch(InterruptedException e){
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                finally{
+                    lockControllo.unlock();
+                }
             }
         }
-        if (tentativi == maxTentativi) {
-            throw new IOException("Troppi tentativi non riusciti. Riavviare il programma o il db");
+
+    }
+
+    /**
+     * Costruisce un pool di n. {@code targetFunzionanti} connessioni e attiva il thread supervisore, che controlla periodicamente
+     * la struttura dati
+     *
+     * @throws IOException propagata da {@link ConnectionProvider#aggiungiConnessione()}
+     * @throws InterruptedException propagata da {@link ConnectionProvider#aggiungiConnessione()}
+     */
+    public ConnectionProvider() throws IOException, InterruptedException {
+        for(int i=0; i<targetFunzionanti; i++){
+            aggiungiConnessione();
+            System.out.println("Creazione connessione n. "+(i+1)+" riuscita");
+        }
+        supervisore = new Thread(new PoolChecker());
+        supervisore.start();
+    }
+
+    /**
+     * Ottiene una connessione dal {@code bookrecommenderdb} e se è valida la inserisce nel pool
+     *
+     * @throws IOException propagata da {@link Db#getConnection(int)}
+     * @throws InterruptedException causata da {@link LinkedBlockingQueue#put(Object)}
+     */
+    private void aggiungiConnessione() throws IOException, InterruptedException {
+        try{
+            Connection c = Db.getConnection(1);
+            if(c.isValid(1)){
+                connessioniDisponibili.put(c); //Bloccante
+            }
+        }
+        catch(SQLException e){
+            e.printStackTrace();
         }
     }
 
-    private synchronized void ricostruisci() throws IOException, InterruptedException {
-        if (inRicostruzione) {
-            return;
-        }
-        if (connessioniDisponibili.isEmpty() && connessioniFunzionanti.get() < 40) {
-            inRicostruzione = true;
-            try {
-                connectionProviderImpl();
-            } finally {
-                inRicostruzione = false;
+    /**
+     * Preleva connessioni dal pool finchè non ne trova una funzionante. Quelle non funzionanti vengono chiuse
+     *
+     * @return {@code Connection} funzionante per fare query
+     * @throws InterruptedException causata da {@link LinkedBlockingQueue#take()}
+     */
+    public Connection getConnection() throws InterruptedException {
+        lockControllo.lock();
+        try{
+            while(true){
+                try{
+                    Connection c = connessioniDisponibili.take();
+                    if(c.isValid(1)){
+                        return c;
+                    }
+                    else{
+                        c.close();
+                    }
+                }
+                catch(SQLException e){
+                    e.printStackTrace();
+                }
             }
+        }
+        finally {
+            lockControllo.unlock();
         }
     }
 
-    @Override
-    public Connection getConnection() throws SQLException, InterruptedException, IOException {
-        Connection c = null;
-        for (int i = 0; i < 50; i++) {
-            c = connessioniDisponibili.take();
-            if (c.isValid(1)) {
-                return c;
+    /**
+     * Restituisce al pool la connessione {@code c}, se funziona. Se no la chiude
+     *
+     * @param c la {@code Connection} che si vuole restituire
+     * @throws InterruptedException causata da {@link LinkedBlockingQueue#put(Object)}
+     */
+    public void endConnection(Connection c) throws InterruptedException{
+        lockControllo.lock();
+        try{
+            try{
+                if(c.isValid(1)){
+                    connessioniDisponibili.put(c);
+                }
+                else{
+                    c.close();
+                }
             }
-            c.close();
-            connessioniFunzionanti.decrementAndGet();
+            catch(SQLException e){
+                e.printStackTrace();
+            }
         }
-        System.err.println("Nessuna connessione valida trovata. Ricostruzione buffer");
-        ricostruisci();
-        c = connessioniDisponibili.take();
-        if (!c.isValid(1)) {
-            c.close();
-            connessioniFunzionanti.decrementAndGet();
-            throw new SQLException("Riavviare il programma e il db");
+        finally{
+            lockControllo.unlock();
         }
-        return c;
     }
 
-
-    @Override
-    public void endConnection(Connection c) throws InterruptedException, SQLException {
-        try {
-            if (c.isValid(1)) {
-                connessioniDisponibili.put(c);
-            }
-        } catch (SQLException ex) {
-            System.err.println("Errore nella restituzione della connessione nel buffer");
-            c.close();
-            connessioniFunzionanti.decrementAndGet();
-        }
-    }
 }
