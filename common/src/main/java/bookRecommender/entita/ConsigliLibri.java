@@ -3,8 +3,8 @@ package bookRecommender.entita;
 import java.io.Serializable;
 
 public class ConsigliLibri implements Serializable {
-    private int id_libro;
-    private int id_utente;
+    private final int id_libro;
+    private final int id_utente;
     private int[] consigli_libri = new int[]{-1, -1, -1}; // Inizializza un array di 3 elementi a 0
 
     // Costruttore
@@ -43,10 +43,23 @@ public class ConsigliLibri implements Serializable {
      * Restituisce i libri consigliati
      * id validi solo se diversi da -1
      *
-     * @return
+     * @return array di libri consigliati
      */
     public int[] getConsigliLibri() {
         return consigli_libri;
+    }
+    /**
+     * Restituisce true se l'array di libri consigliati è vuoto (contiene solo -1
+     *
+     * @return true/false
+     */
+    public boolean isEmpty() {
+        for (int i : consigli_libri) {
+            if (i != -1) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 

@@ -46,6 +46,7 @@ public class QueryList {
 
     /**
      * Controlla se l'utente esiste nel database dato il suo id
+     *
      * @param idUtente id dell'utente
      * @return vero se l'utente esiste, falso altrimenti
      * @throws SQLException da gestire fuori
@@ -65,6 +66,7 @@ public class QueryList {
 
     /**
      * Controlla se l'utente esiste nel database dato la sua email
+     *
      * @param email email dell'utente
      * @return vero se l'utente esiste, falso altrimenti
      * @throws SQLException da gestire fuori
@@ -77,6 +79,7 @@ public class QueryList {
 
     /**
      * da email a idUtente
+     *
      * @param email email dell'utente
      * @return l'id dell'utente se il esiste, -1 altrimenti
      * @throws SQLException da gestire fuori
@@ -96,7 +99,8 @@ public class QueryList {
 
     /**
      * Controlla se la combinazione email e password vanno bene e restituisce l'id dell'utente
-     * @param email email dell'utente
+     *
+     * @param email    email dell'utente
      * @param password password criptata
      * @return Eccezione con codice 0 e come messaggio l'id dell'utente, altrimenti il codice di errore
      * @throws SQLException da gestire fuori
@@ -109,6 +113,7 @@ public class QueryList {
 
     /**
      * Controlla se la combinazione idUtente e password vanno bene e restituisce l'id dell'utente
+     *
      * @param idUtente id dell'utente
      * @param password password criptata
      * @return Eccezione con codice 0 e come messaggio l'id dell'utente, altrimenti il codice di errore
@@ -137,10 +142,10 @@ public class QueryList {
     /**
      * Registrazione tramite parametri e ritorna l'id
      *
-     * @param email email dell'utente (max 100 caratteri)
-     * @param password password criptata (max 200 caratteri)
-     * @param nome nome dell'utente(max 100 caratteri)
-     * @param cognome cognome dell'utente(max 100 caratteri)
+     * @param email         email dell'utente (max 100 caratteri)
+     * @param password      password criptata (max 200 caratteri)
+     * @param nome          nome dell'utente(max 100 caratteri)
+     * @param cognome       cognome dell'utente(max 100 caratteri)
      * @param codiceFiscale codice fiscale dell'utente(max 16 caratteri)
      * @return Eccezione con codice 0 e come messaggio l'id dell'utente, altrimenti il codice di errore
      * @throws SQLException da gestire fuori per il controllo utente
@@ -183,6 +188,7 @@ public class QueryList {
 
     /**
      * Recupera i dettagli dell'utente registrato
+     *
      * @param idUtente id dell'utente
      * @return un array di stringhe contenente l'email, nome, cognome e codice fiscale dell'utente
      * @throws SQLException da gestire fuori
@@ -210,6 +216,7 @@ public class QueryList {
 
     /**
      * Modifica la password dell'utente
+     *
      * @param idUtente id dell'utente
      * @param password nuova password criptata
      * @return Eccezione con codice 0 se tutto ok, altrimenti il codice di errore
@@ -223,7 +230,7 @@ public class QueryList {
             stmt.setInt(2, idUtente);
             int rowsUpdated = stmt.executeUpdate();
             if (rowsUpdated > 0) {
-                return new Eccezione(0,""); // Nessuna eccezione, tutto ok
+                return new Eccezione(0, ""); // Nessuna eccezione, tutto ok
             } else {
                 return new Eccezione(2, "Modifica fallita");
             }
@@ -234,6 +241,7 @@ public class QueryList {
 
     /**
      * Rimuove l'utente dal database
+     *
      * @param idUtente id dell'utente
      * @return Eccezione con codice 0 se tutto ok, altrimenti il codice di errore
      * @throws SQLException da gestire fuori per il controllo utente
@@ -245,7 +253,7 @@ public class QueryList {
             stmt.setInt(1, idUtente);
             int rowsDeleted = stmt.executeUpdate();
             if (rowsDeleted > 0) {
-                return new Eccezione(0,""); // Nessuna eccezione, tutto ok
+                return new Eccezione(0, ""); // Nessuna eccezione, tutto ok
             } else {
                 return new Eccezione(2, "Rimozione fallita");
             }
@@ -255,12 +263,13 @@ public class QueryList {
     }
 
     //libri
+
     /**
      * Ricerca i libri in base ai parametri forniti
      *
-     * @param titolo  titolo del libro, null o "" se non specificato
-     * @param autore  autore del libro, null o "" se non specificato
-     * @param anno    anno di pubblicazione, -1 se non specificato
+     * @param titolo titolo del libro, null o "" se non specificato
+     * @param autore autore del libro, null o "" se non specificato
+     * @param anno   anno di pubblicazione, -1 se non specificato
      * @return un array di Libri che soddisfano i criteri di ricerca
      * @throws SQLException da gestire fuori
      */
@@ -464,6 +473,7 @@ public class QueryList {
 
     /**
      * Restituisce l'array libri dati gli id di quei libri
+     *
      * @param ids array di id dei libri da cercare
      * @return un array di Libri senza ripetizioni
      * @throws SQLException da gestire fuori
@@ -474,8 +484,8 @@ public class QueryList {
         StringBuilder str = new StringBuilder();
         int i = 0;
         for (int id : ids) {
-            str.append(id).append(", ");
             if (id < 0) i++;
+            else str.append(id).append(", ");
         }
         str = new StringBuilder(str.substring(0, str.length() - 2));
         String dataSql = """
@@ -483,7 +493,7 @@ public class QueryList {
                 FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id
                 WHERE p.libro_id IN (""" + str + ")";
         Libri[] risultati = new Libri[ids.length - i];
-
+        i = 0;
         try (PreparedStatement dataStmt = conn.prepareStatement(dataSql)) {
             try (ResultSet rs = dataStmt.executeQuery()) {
                 while (rs.next()) {
@@ -496,14 +506,17 @@ public class QueryList {
                     String cat = (rs.getString("categorie"));
                     String editor = (rs.getString("editori"));
                     float prezzo = (rs.getBigDecimal("prezzo").floatValue());
-                    risultati[i] = new Libri(id, titolo, aut, desc, cat, editor, prezzo, mese, anno);
+                    risultati[i++] = new Libri(id, titolo, aut, desc, cat, editor, prezzo, mese, anno);
                 }
             }
         }
-        return risultati;
+        Libri[] risultatiFinali = new Libri[i];
+        System.arraycopy(risultati, 0, risultatiFinali, 0, i);
+        return risultatiFinali;
     }
 
     //librerie
+
     /**
      * Restituisce tutte le librerie di un utente, le librerie contengono gli id dei libri presenti in esse
      *
@@ -577,7 +590,7 @@ public class QueryList {
     /**
      * Controlla se la libreria esiste nel database
      *
-     * @param idUtente id dell'utente
+     * @param idUtente     id dell'utente
      * @param nomeLibreria nome della libreria
      * @return vero se la libreria esiste, falso altrimenti
      * @throws SQLException da gestire fuori
@@ -600,7 +613,7 @@ public class QueryList {
      * Controlla se il libro esiste nella libreria dell'utente
      *
      * @param idUtente id dell'utente
-     * @param idLibro id del libro
+     * @param idLibro  id del libro
      * @return vero se il libro esiste, falso altrimenti
      * @throws SQLException da gestire fuori
      */
@@ -621,7 +634,7 @@ public class QueryList {
     /**
      * aggiunge una libreria senza libri al database
      *
-     * @param idUtente id dell'utente
+     * @param idUtente     id dell'utente
      * @param nomeLibreria nome della libreria
      * @return Eccezione con codice 0 e come messaggio l'id della libreria, altrimenti il codice di errore
      */
@@ -657,7 +670,7 @@ public class QueryList {
      * aggiunge un libro alla libreria
      *
      * @param idLibreria id della libreria
-     * @param idLibro id del libro
+     * @param idLibro    id del libro
      * @return Eccezione con codice 0 se tutto ok, altrimenti il codice di errore
      */
     public Eccezione AggiungiLibroALibreria(int idLibreria, int idLibro) {
@@ -667,7 +680,7 @@ public class QueryList {
             stmt.setInt(2, idLibro);
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted > 0) {
-                return new Eccezione(0,""); // Nessuna eccezione, tutto ok
+                return new Eccezione(0, ""); // Nessuna eccezione, tutto ok
             } else {
                 return new Eccezione(2, "Aggiunta fallita");
             }
@@ -682,7 +695,7 @@ public class QueryList {
      * Rimuove un libro dalla libreria
      *
      * @param idLibreria id della libreria
-     * @param idLibro id del libro
+     * @param idLibro    id del libro
      * @return Eccezione con codice 0 se tutto ok, altrimenti il codice di errore
      */
     public Eccezione RimuoviLibroDaLibreria(int idLibreria, int idLibro) {
@@ -692,7 +705,7 @@ public class QueryList {
             stmt.setInt(2, idLibro);
             int rowsDeleted = stmt.executeUpdate();
             if (rowsDeleted > 0) {
-                return new Eccezione(0,""); // Nessuna eccezione, tutto ok
+                return new Eccezione(0, ""); // Nessuna eccezione, tutto ok
             } else {
                 return new Eccezione(2, "Rimozione fallita");
             }
@@ -713,7 +726,7 @@ public class QueryList {
             stmt.setInt(1, idLibreria);
             int rowsDeleted = stmt.executeUpdate();
             if (rowsDeleted > 0) {
-                return new Eccezione(0,""); // Nessuna eccezione, tutto ok
+                return new Eccezione(0, ""); // Nessuna eccezione, tutto ok
             } else {
                 return new Eccezione(2, "Rimozione fallita");
             }
@@ -723,7 +736,22 @@ public class QueryList {
     }
 
     //consigli
+    /**
+     * Aggiunge un consiglio al database
+     *
+     * @param consiglio oggetto ConsigliLibri contenente i dati del consiglio
+     * @return Eccezione con codice 0 se tutto ok, 2 aggiunta fallita, 1 conflitti di integrità, 3 errore SQL,4 nessun libro è stato consigliato
+     */
     public Eccezione AggiungiConsiglio(ConsigliLibri consiglio) {
+        int[] idLibri = consiglio.getConsigliLibri();
+        boolean empty = true;
+        for (int l : idLibri) {
+            if (l != -1) {
+                empty = false;
+                break;
+            }
+        }
+        if (empty) return new Eccezione(4, "nessun libro è stato consigliato");
         String sql = "INSERT INTO consigli (utente_id, libro_id_riguardante) VALUES (?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, consiglio.getIdUtente());
@@ -737,6 +765,7 @@ public class QueryList {
         } catch (SQLException e) {
             return new Eccezione(3, "Errore SQL tabella consigli: " + e.getMessage());
         }
+
         sql = "INSERT INTO contenuto_consiglio (utente_id, libro_id_riguardante, libro_id_consigliato) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             for (int libroId : consiglio.getConsigliLibri()) {
@@ -755,7 +784,7 @@ public class QueryList {
                 }
             }
             if (rowsCount > 0) {
-                return new Eccezione(0,""); // Nessuna eccezione, tutto ok
+                return new Eccezione(0, "aggiunta consiglio con libri"); // Nessuna eccezione, tutto ok
             } else {
                 return new Eccezione(2, "Aggiunta fallita tabella contenuto_consiglio");
             }
@@ -766,15 +795,23 @@ public class QueryList {
         }
     }
 
-    public Eccezione AggiungiLibroAConsiglio(ConsigliLibri consiglio, int idLibroConsigliato) {
+    /**
+     * Aggiunge un libro a un consiglio esistente
+     *
+     * @param idUtente         id dell'utente
+     * @param idRiguardante    id del libro riguardante
+     * @param idLibroConsigliato id del libro consigliato
+     * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL
+     */
+    public Eccezione AggiungiLibroAConsiglio(int idUtente, int idRiguardante, int idLibroConsigliato) {
         String sql = "INSERT INTO contenuto_consiglio (utente_id, libro_id_riguardante, libro_id_consigliato) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, consiglio.getIdLibro());
-            stmt.setInt(2, consiglio.getIdLibro());
+            stmt.setInt(1, idUtente);
+            stmt.setInt(2, idRiguardante);
             stmt.setInt(3, idLibroConsigliato);
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted > 0) {
-                return new Eccezione(0,""); // Nessuna eccezione, tutto ok
+                return new Eccezione(0, ""); // Nessuna eccezione, tutto ok
             } else {
                 return new Eccezione(2, "Aggiunta fallita");
             }
@@ -785,6 +822,13 @@ public class QueryList {
         }
     }
 
+    /**
+     * Restituisce i libri consigliati da parte di tutti gli utenti per un libro specifico tenendo i duplicati
+     *
+     * @param idLibro id del libro
+     * @return un array di Libri consigliati
+     * @throws SQLException da gestire fuori
+     */
     public Libri[] RicercaConsigliDatoLibro(int idLibro) throws SQLException {
         String sql = "SELECT libro_id_consigliato FROM contenuto_consiglio WHERE libro_id_riguardante = ?";
         ArrayList<Integer> ids = new ArrayList<>();
@@ -815,6 +859,14 @@ public class QueryList {
         return risultato;
     }
 
+    /**
+     * Restituisce i libri consigliati da parte di un utente per un libro specifico
+     *
+     * @param idUtente id dell'utente
+     * @param idLibro  id del libro
+     * @return un oggetto ConsigliLibri contenente i libri consigliati
+     * @throws SQLException da gestire fuori
+     */
     public ConsigliLibri RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws SQLException {
         String sql = "SELECT libro_id_consigliato FROM contenuto_consiglio WHERE utente_id = ? AND libro_id_riguardante = ?";
         ConsigliLibri consiglio = new ConsigliLibri(idLibro, idUtente);
@@ -832,6 +884,7 @@ public class QueryList {
     }
 
     //valutazione
+
     /**
      * Aggiunge una valutazione al database
      *
@@ -872,7 +925,7 @@ public class QueryList {
 
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted > 0) {
-                return new Eccezione(0,"tutto ok"); // Nessuna eccezione, tutto ok
+                return new Eccezione(0, "tutto ok"); // Nessuna eccezione, tutto ok
             } else {
                 return new Eccezione(2, "Aggiunta fallita");
             }
@@ -885,8 +938,9 @@ public class QueryList {
 
     /**
      * Ricerca la valutazione di un libro fatta da un singolo utente
+     *
      * @param idUtente id dell'utente
-     * @param idLibro id del libro
+     * @param idLibro  id del libro
      * @return ValutazioniLibri con la valutazione dell'utente
      * @throws SQLException eccezione da gestire fuori
      */
@@ -922,8 +976,10 @@ public class QueryList {
         }
         return null;
     }
+
     /**
      * Ricerca la valutazione media di un libro
+     *
      * @param idLibro id del libro su qui si vuole la media
      * @return ValutazioniLibri con la media delle valutazioni
      * @throws SQLException eccezione da gestire fuori

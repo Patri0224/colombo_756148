@@ -8,7 +8,6 @@ import bookRecommender.entita.ValutazioniLibri;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.sql.SQLException;
 
 public interface ServerBookRecommenderInterface extends Remote {
 
@@ -150,12 +149,14 @@ public interface ServerBookRecommenderInterface extends Remote {
 
     /**
      * Aggiunge una vuota libreria al database
+     *
      * @param idUtente     id dell'utente
      * @param nomeLibreria nome della libreria da aggiungere
      * @return Eccezione con:1, conflitti integrita, 2 registrazione fallita in principale, 3 errore SQL, 4 errore IdLibriria non ottenuto, 0 tutto ok con idLibreria nel messaggio come String
      * @throws RemoteException altre eccezioni
      */
     Eccezione AggiungiLibreria(int idUtente, String nomeLibreria) throws RemoteException;
+
     /**
      * Aggiunge un libro alla libreria
      *
@@ -165,6 +166,7 @@ public interface ServerBookRecommenderInterface extends Remote {
      * @throws RemoteException altre eccezioni
      */
     Eccezione AggiungiLibroALibreria(int idLibreria, int idLibro) throws RemoteException;
+
     /**
      * Controlla se la libreria esiste
      *
@@ -174,6 +176,7 @@ public interface ServerBookRecommenderInterface extends Remote {
      * @throws RemoteException tutte le eccezioni
      */
     boolean ControlloEsisteLibreria(int idUtente, String nomeLibreria) throws RemoteException;
+
     /**
      * Controlla se un libro è presente in una libreria
      *
@@ -183,6 +186,7 @@ public interface ServerBookRecommenderInterface extends Remote {
      * @throws RemoteException tutte le eccezioni
      */
     boolean ControlloLibroInLibrerie(int idUtente, int idLibro) throws RemoteException;
+
     /**
      * Restituisce i libri presenti in tutte le librerie dell'utente
      *
@@ -191,15 +195,17 @@ public interface ServerBookRecommenderInterface extends Remote {
      * @throws RemoteException tutte le eccezioni
      */
     Libri[] RicercaLibriDaLibrerie(int idUtente) throws RemoteException;
+
     /**
      * Rimuove un libro dalla libreria
      *
      * @param idLibreria id della libreria
-     * @param idLibro   id del libro da rimuovere
+     * @param idLibro    id del libro da rimuovere
      * @return Eccezione 0 tutto ok, 3 errore SQL, 2 errore eliminazione non avvenuta
      * @throws RemoteException altre eccezioni
      */
     Eccezione RimuoviLibroDaLibreria(int idLibreria, int idLibro) throws RemoteException;
+
     /**
      * Rimuove una libreria
      *
@@ -210,19 +216,73 @@ public interface ServerBookRecommenderInterface extends Remote {
     Eccezione RimuoviLibreria(int idLibreria) throws RemoteException;
 
     // Consigli
+
+    /**
+     * Aggiunge un consiglio al database
+     *
+     * @param consiglio oggetto ConsigliLibri contenente i dati del consiglio
+     * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL, 4 se non ci sono libri consigliati
+     * @throws RemoteException altre eccezioni
+     */
     Eccezione AggiungiConsiglio(ConsigliLibri consiglio) throws RemoteException;
 
-    Eccezione AggiungiLibroAConsiglio(ConsigliLibri consiglio, int idLibroConsigliato) throws RemoteException;
+    /**
+     * Aggiunge un libro a un consiglio esistente
+     *
+     * @param idUtente           id dell'utente
+     * @param idRiguardante      id del libro riguardante
+     * @param idLibroConsigliato id del libro consigliato
+     * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL, 4 errore nella ricerca dei consigli, 5 se il libro è già presente nei consigli
+     */
+    Eccezione AggiungiLibroAConsiglio(int idUtente, int idRiguardante, int idLibroConsigliato) throws RemoteException;
 
+    /**
+     * Restituisce i libri consigliati da parte di tutti gli utenti per un libro specifico tenendo i duplicati
+     *
+     * @param idLibro id del libro
+     * @return un array di Libri
+     * @throws RemoteException tutte le eccezioni
+     */
     Libri[] RicercaConsigliDatoLibro(int idLibro) throws RemoteException;
 
-    ConsigliLibri RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws RemoteException;
+    /**
+     * Restituisce i libri consigliati da parte di un utente per un libro specifico
+     *
+     * @param idUtente id dell'utente
+     * @param idLibro  id del libro
+     * @return un oggetto ConsigliLibri contenente i libri consigliati
+     * @throws RemoteException tutte le eccezioni
+     */
+    Libri[] RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws RemoteException;
 
     //valutazioni
+
+    /**
+     * Aggiunge una valutazione al database
+     *
+     * @param v oggetto ValutazioniLibri contenente i dati della valutazione
+     * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL
+     * @throws RemoteException altre eccezioni
+     */
     Eccezione AggiungiValutazione(ValutazioniLibri v) throws RemoteException;
 
+    /**
+     * Restituisce la valutazione di un libro da parte di un utente
+     *
+     * @param idUtente id dell'utente
+     * @param idLibro  id del libro
+     * @return oggetto ValutazioniLibri con i dati della valutazione
+     * @throws RemoteException tutte le eccezioni
+     */
     ValutazioniLibri RicercaValutazione(int idUtente, int idLibro) throws RemoteException;
 
+    /**
+     * Restituisce la valutazione media di un libro
+     *
+     * @param idLibro id del libro
+     * @return oggetto ValutazioniLibri con i dati della valutazione media
+     * @throws RemoteException tutte le eccezioni
+     */
     ValutazioniLibri RicercaValutazioneMedia(int idLibro) throws RemoteException;
 
 

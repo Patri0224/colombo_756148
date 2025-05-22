@@ -427,12 +427,16 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         q.Connect();
         Eccezione ec = q.RimuoviLibreria(idLibreria);
         q.Disconnect();
-        if (ec == null) {
-            return new Eccezione(0, "");
-        }
         return ec;
     }
 
+    /**
+     * Aggiunge un consiglio al database
+     *
+     * @param consiglio oggetto ConsigliLibri contenente i dati del consiglio
+     * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL, 4 se non ci sono libri consigliati
+     * @throws RemoteException altre eccezioni
+     */
     @Override
     public Eccezione AggiungiConsiglio(ConsigliLibri consiglio) throws RemoteException {
         q.Connect();
@@ -441,14 +445,53 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         return ec;
     }
 
+    /**
+     * Aggiunge un libro a un consiglio esistente
+     *
+     * @param idUtente           id dell'utente
+     * @param idRiguardante      id del libro riguardante
+     * @param idLibroConsigliato id del libro consigliato
+     * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL, 4 errore nella ricerca dei consigli, 5 se il libro è già presente nei consigli
+     */
     @Override
-    public Eccezione AggiungiLibroAConsiglio(ConsigliLibri consiglio, int idLibroConsigliato) throws RemoteException {
+    public Eccezione AggiungiLibroAConsiglio(int idUtente, int idRiguardante, int idLibroConsigliato) throws RemoteException {
         q.Connect();
-        Eccezione ec = q.AggiungiLibroAConsiglio(consiglio, idLibroConsigliato);
+        ConsigliLibri cons;
+
+        try {
+            cons = q.RicercaConsigliDatoUtenteELibro(idUtente, idRiguardante);
+        } catch (SQLException e) {
+            q.Disconnect();
+            return new Eccezione(4, "err nella ricerca dei consigli" + e.getMessage());
+        }
+        int[] libri = cons.getConsigliLibri();
+        boolean exist = false;
+        for (int j : libri) {
+            if (j == idLibroConsigliato) {
+                q.Disconnect();
+                return new Eccezione(5, "Il libro è già presente nei consigli");
+            }
+            if (j != -1) {
+                exist = true;
+            }
+        }
+        Eccezione ec;
+        if (exist)
+            ec = q.AggiungiLibroAConsiglio(idUtente, idRiguardante, idLibroConsigliato);
+        else {
+            ec = q.AggiungiConsiglio(new ConsigliLibri(idUtente, idRiguardante, idLibroConsigliato, -1, -1));
+        }
         q.Disconnect();
         return ec;
     }
 
+    /**
+     * Restituisce i libri consigliati da parte di tutti gli utenti per un libro specifico tenendo i duplicati
+     *
+     * @param idLibro id del libro
+     * @return un array di Libri
+     * @throws RemoteException tutte le eccezioni
+     */
     @Override
     public Libri[] RicercaConsigliDatoLibro(int idLibro) throws RemoteException {
         try {
@@ -462,13 +505,33 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         }
     }
 
+    /**
+     * Restituisce i libri consigliati da parte di un utente per un libro specifico
+     *
+     * @param idUtente id dell'utente
+     * @param idLibro  id del libro
+     * @return un oggetto ConsigliLibri contenente i libri consigliati
+     * @throws RemoteException tutte le eccezioni
+     */
     @Override
-    public ConsigliLibri RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws RemoteException {
+    public Libri[] RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws RemoteException {
         try {
             q.Connect();
             ConsigliLibri c = q.RicercaConsigliDatoUtenteELibro(idUtente, idLibro);
-            q.Disconnect();
-            return c;
+            if (c != null) {
+                int[] libri = c.getConsigliLibri();
+                if (c.isEmpty()) {
+                    q.Disconnect();
+                    return new Libri[0];
+                } else {
+                    Libri[] l = q.RicercaLibriDaIds(libri);
+                    q.Disconnect();
+                    return l;
+                }
+            } else {
+                q.Disconnect();
+                return new Libri[0];
+            }
         } catch (SQLException e) {
             q.Disconnect();
             throw new RemoteException("Errore in QueryList: " + e.getMessage());
