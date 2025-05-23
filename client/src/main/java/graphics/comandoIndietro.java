@@ -25,27 +25,32 @@ public class comandoIndietro {
         }
     }
 
-    public static void aggiungiOggetto(oggettoIndietro oggetto) {
-        pila.push(oggetto);
+    public static void aggiungiOggetto(String paginaCorrente, String opzione) {
+        pila.push(new oggettoIndietro(paginaCorrente, opzione));
     }
 
 
     private static void azioneIndietro(oggettoIndietro oggetto) {
         switch (oggetto.getPagina()) {
-            case PAGINA_HOME -> {
+            case PAGINA_HOME : {
 
+                break;
             }
-            case PAGINA_LIBRERIA -> {
+            case PAGINA_LIBRERIA : {
 
+                break;
             }
-            case PAGINA_LIBRO -> {
+            case PAGINA_LIBRO : {
 
+                break;
             }
-            case PAGINA_AGGIUNGI_VALUTAZIONE -> {
+            case PAGINA_AGGIUNGI_VALUTAZIONE : {
 
+                break;
             }
-            case PAGINA_AUTENTICAZIONE -> {
+            case PAGINA_AUTENTICAZIONE : {
 
+                break;
             }
         }
 
