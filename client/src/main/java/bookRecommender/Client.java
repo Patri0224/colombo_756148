@@ -4,6 +4,7 @@ package bookRecommender;
 import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.entita.Libri;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
+import graphics.BookRecommender;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -14,6 +15,7 @@ public class Client {
     static int PORT = 10001;
     static ServerBookRecommenderInterface stub;
     static UtenteGestore utenteGestore;
+    static BookRecommender gui;
 
     public static void main(String[] args) {
         try {
@@ -22,13 +24,14 @@ public class Client {
             stub = (ServerBookRecommenderInterface) registry.lookup("BookRecommender");
             //creazione componenti client
             LibriRicercaGestore.CreateInstance(stub);
-            LibrerieGestore.CreateInstance(stub);
             UtenteGestore.CreateInstance(stub);
+            LibrerieGestore.CreateInstance(stub);
             ConsigliGestore.CreateInstance(stub);
             ValutazioniGestore.CreateInstance(stub);
 
             //crezione GUI
-
+            gui = new BookRecommender();
+            gui.setVisible(true);
 
 //test
 

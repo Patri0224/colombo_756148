@@ -17,11 +17,6 @@
     <dependencies>
         <!-- JavaFX dependencies -->
         <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>21</version>
-        </dependency>
-        <dependency>
             <groupId>bookRecommender</groupId>
             <artifactId>common</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -42,14 +37,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <configuration>
-                    <mainClass>graphics.BookRecommender.fxml</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>
