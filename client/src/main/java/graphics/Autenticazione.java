@@ -23,18 +23,24 @@ public class Autenticazione extends JPanel {
     private JButton bottoneLogin;
 
 
-    public Autenticazione(BookRecommender bookRecommender) {
-        gui = bookRecommender;
+    public Autenticazione() {
+        gui = BookRecommender.GetInstance();
         Config.setPanel1(this);
+        setLayout(new BorderLayout(1, 1));
+        JPanel menuRidotto = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        Config.setPanel1(menuRidotto);
+        menuRidotto.add(ComandoIndietro.getBottoneHome());
+        menuRidotto.add(ComandoIndietro.getBottoneIndietro());
+        menuRidotto.add(new JLabel("Login e Regitrazione"));
+        add(menuRidotto, BorderLayout.NORTH);
         panelRegistrazione = new JPanel();
         panelLogin = new JPanel();
         Config.setPanel1(panelLogin);
         panelLogin.setLayout(new GridLayout(3, 3));
-        email.setText("Email o Id");
-        password.setText("Password");
-
-        bottoneLogin.setText("Login");
-        bottoneLogin.addActionListener(e -> controlloLogin();
+        email = new JLabel("Email o Id: ");
+        password = new JLabel("Password: ");
+        bottoneLogin = new JButton("Login");
+        bottoneLogin.addActionListener(e -> controlloLogin());
 
 
     }
@@ -60,7 +66,7 @@ public class Autenticazione extends JPanel {
             }
             Eccezione ecc = utenteGestore.Login(Integer.parseInt(email.getText()), password.getText());
             if (ecc.getErrorCode() == 0) {
-                indietro();
+                ComandoIndietro.indietro();
             }
 
         } else {

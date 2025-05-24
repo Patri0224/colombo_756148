@@ -1,9 +1,10 @@
 package graphics;
 
+import javax.swing.*;
 import java.util.Stack;
 
+public class ComandoIndietro {
 
-public class comandoIndietro {
     private static BookRecommender gui;
     private static Stack<oggettoIndietro> pila = new Stack<>();
     public static final String PAGINA_HOME = "Pagina Home";
@@ -12,14 +13,15 @@ public class comandoIndietro {
     public static final String PAGINA_AGGIUNGI_VALUTAZIONE = "Pagina Aggiungi Valutazione";
     public static final String PAGINA_AUTENTICAZIONE = "Pagina Autenticazione";
 
-    private static void setGui(BookRecommender bookRecommender) {
-        gui = bookRecommender;
+    public static void setGui() {
+        gui = BookRecommender.GetInstance();
         pila.clear();
         pila.push(new oggettoIndietro(PAGINA_HOME, ""));
     }
 
     public static void indietro() {
-        if (pila.size() > 1) {
+        if (pila.size() > 2) {
+            pila.pop();
             oggettoIndietro oggetto = pila.pop();
             azioneIndietro(oggetto);
         }
@@ -32,29 +34,42 @@ public class comandoIndietro {
 
     private static void azioneIndietro(oggettoIndietro oggetto) {
         switch (oggetto.getPagina()) {
-            case PAGINA_HOME : {
-
+            case PAGINA_HOME: {
+                gui.showHome();
                 break;
             }
-            case PAGINA_LIBRERIA : {
-
+            case PAGINA_LIBRERIA: {
+                gui.showLibreria(oggetto.getOpzione());
                 break;
             }
-            case PAGINA_LIBRO : {
-
+            case PAGINA_LIBRO: {
+                gui.showLibro(oggetto.getOpzione());
                 break;
             }
-            case PAGINA_AGGIUNGI_VALUTAZIONE : {
-
+            case PAGINA_AGGIUNGI_VALUTAZIONE: {
+                gui.showValutazione(oggetto.getOpzione());
                 break;
             }
-            case PAGINA_AUTENTICAZIONE : {
-
+            case PAGINA_AUTENTICAZIONE: {
+                gui.showLogin();
                 break;
             }
         }
 
     }
 
-
+    public static JButton getBottoneIndietro() {
+        JButton bottone = new JButton("<-");
+        bottone.addActionListener(e -> indietro());
+        Config.setButton1(bottone);
+        return bottone;
+    }
+    public static JButton getBottoneHome() {
+        JButton bottone = new JButton("H");
+        bottone.addActionListener(e -> gui.showHome());
+        Config.setButton1(bottone);
+        return bottone;
+    }
 }
+
+

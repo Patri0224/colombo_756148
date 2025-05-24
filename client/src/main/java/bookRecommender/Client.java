@@ -30,7 +30,8 @@ public class Client {
             ValutazioniGestore.CreateInstance(stub);
 
             //crezione GUI
-            gui = new BookRecommender();
+            gui = BookRecommender.CreateInstance();
+            gui.creaGrafica(gui);
             gui.setVisible(true);
 
 //test
@@ -55,7 +56,7 @@ public class Client {
 
             System.out.println("output: errorCode 0,1,errorCode 0,dati utente,errorCode 0,errorCode 1,dati -1 e null");
             UtenteGestore.CreateInstance(stub);
-            utenteGestore = UtenteGestore.GetInstance();
+            UtenteGestore utenteGestore = UtenteGestore.GetInstance();
             Eccezione e = utenteGestore.Login("colombo@g", "Patrizio.24");
             System.out.println(e.toString());
             /*e = utenteGestore.RimuoviUtente();

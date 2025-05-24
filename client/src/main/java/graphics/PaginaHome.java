@@ -1,7 +1,5 @@
 package graphics;
 
-import bookRecommender.entita.Libri;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -14,14 +12,14 @@ public class PaginaHome extends JPanel {
     private String paginaPrecedente;
     private JScrollPane librerie;
 
-    public PaginaHome(BookRecommender bookRecommender) {
-        gui = bookRecommender;
+    public PaginaHome() {
+        gui = BookRecommender.GetInstance();
         setLayout(new BorderLayout(1, 1));
-        menu = new menu("Pagina Home", paginaPrecedente,librerie, bookRecommender);
+        menu = new menu("Pagina Home",librerie);
         add(menu, BorderLayout.NORTH);
         main = new JPanel();
         main.setLayout(new BorderLayout());
-        /*ricerca = new Ricerca("Pagina Home",scroll, bookRecommender);*/
+        ricerca = new Ricerca("Pagina Home",scroll,0);
         main.add(ricerca, BorderLayout.NORTH);
         scroll = new JScrollPane();
 

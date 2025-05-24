@@ -11,12 +11,18 @@ import java.awt.*;
 public class menu extends JPanel {
     UtenteGestore utente;
     JScrollPane scroll;
+    BookRecommender gui;
 
-    public menu(String titoloPagina, String paginaPrecendete, JScrollPane librerie, BookRecommender gui) {
+    public menu(String titoloPagina, JScrollPane librerie) {
         scroll = librerie;
+        this.gui = BookRecommender.GetInstance();
         setLayout(new BorderLayout());
-        JLabel titolo = new JLabel(titoloPagina, JLabel.EAST);
-        add(titolo, BorderLayout.WEST);
+        // Impostazione del titolo della pagina
+        JPanel panel = new JPanel(new FlowLayout( FlowLayout.LEFT));
+        panel.add(ComandoIndietro.getBottoneHome());
+        panel.add(ComandoIndietro.getBottoneIndietro());
+        panel.add(new JLabel(titoloPagina));
+        add(panel, BorderLayout.WEST);
         //controllo login
         utente = UtenteGestore.GetInstance();
         JPanel panel1 = new JPanel();
@@ -30,7 +36,7 @@ public class menu extends JPanel {
             panel1.add(Logout);
         } else {
             JButton Login = new JButton("Logout");
-            Login.addActionListener(e -> gui.showLogin(titoloPagina));
+            Login.addActionListener(e -> gui.showLogin());
         }
         add(panel1, BorderLayout.EAST);
     }
@@ -44,7 +50,7 @@ public class menu extends JPanel {
         for (Librerie libreria : libG.GetLibrerie()){
             JButton b = new JButton(libreria.getNome());
             b.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            b.addActionListener(e -> gui.showLibreria());
+            b.addActionListener(e -> gui.showLibreria(libreria.getNome()));
         }
     }
 
