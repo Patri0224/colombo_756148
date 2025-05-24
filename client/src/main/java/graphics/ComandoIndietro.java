@@ -59,13 +59,13 @@ public class ComandoIndietro {
     }
 
     public static JButton getBottoneIndietro() {
-        JButton bottone = new JButton("<-");
+        JButton bottone = new JButton("Back");
         bottone.addActionListener(e -> indietro());
         Config.setButton1(bottone);
         return bottone;
     }
     public static JButton getBottoneHome() {
-        JButton bottone = new JButton("H");
+        JButton bottone = new JButton("Home");
         bottone.addActionListener(e -> gui.showHome());
         Config.setButton1(bottone);
         return bottone;
