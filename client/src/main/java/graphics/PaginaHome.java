@@ -24,13 +24,20 @@ public class PaginaHome extends JPanel {
         main = new JPanel();
         Config.setPanel1(main);
         main.setLayout(new BorderLayout());
-        ricerca = new Ricerca("Pagina Home", libri, 0);
-        main.add(ricerca, BorderLayout.NORTH);
         scroll = new JScrollPane();
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         Config.setScrollPane(scroll);
         libri = new JPanel();
+        libri.setLayout(new BorderLayout());
         Config.setPanel1(libri);
-        scroll.setViewportView(libri);
+        JViewport viewport = new JViewport();
+        viewport.setView(libri);
+        scroll.setViewport(viewport);
+        scroll.getVerticalScrollBar().setUnitIncrement(7);
+        scroll.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+
+        ricerca = new Ricerca("Pagina Home", libri, 0);
+        main.add(ricerca, BorderLayout.NORTH);
         main.add(scroll, BorderLayout.CENTER);
         add(scrollLibrerie, BorderLayout.EAST);
         add(main, BorderLayout.CENTER);

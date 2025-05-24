@@ -1,5 +1,7 @@
 package graphics;
 
+import bookRecommender.LibriRicercaGestore;
+import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.entita.Libri;
 
 import javax.swing.*;
@@ -40,7 +42,8 @@ public class Ricerca extends JPanel {
         JButton ricerca = new JButton("Cerca");
         Config.setButton1(ricerca);
         ricerca.addActionListener(e -> {
-            cercaLibri();
+            if (opzioneRicerca == 0)
+                cercaLibri();
         });
         spazioInterno.add(titoloL);
         spazioInterno.add(autoreL);
@@ -55,15 +58,62 @@ public class Ricerca extends JPanel {
     }
 
     public void cercaLibri() {
+        String titoloRicerca = titolo.getText().trim();
+        String autoreRicerca = autore.getText().trim();
+        String annoRicerca = anno.getText().trim();
+        int annoR = -1;
+        if (annoRicerca.equals("")) {
+            annoR = -1; // Se l'anno non è specificato, lo consideriamo come 0
+        } else if (!annoRicerca.matches("\\d+")) {
+            anno.setText("valore non valido");
+            annoR = -1;
+            return;
+        } else {
+            annoR = Integer.parseInt(annoRicerca);
+        }
 
+        LibriRicercaGestore ricerca = LibriRicercaGestore.GetInstance();
+        Libri[] libri = null;
+        Eccezione ecc = ricerca.RicercaLibri(titoloRicerca, autoreRicerca, annoR);
+        if (ecc.getErrorCode() == 0) {
+            libri = ricerca.GetLibri();
+            risultati.removeAll();
+            if (libri.length == 0) {
+                JLabel label = new JLabel("Nessun libro trovato");
+                Config.setLabel1(label);
+                risultati.add(label, BorderLayout.NORTH);
+            } else {
+                mostraLibri(libri);
+            }
+        } else {
+            JLabel label = new JLabel(ecc.getErrorCode() + ecc.getMessage());
+            Config.setLabel1(label);
+            risultati.add(label, BorderLayout.NORTH);
+        }
+        risultati.revalidate();
+        risultati.repaint();
     }
 
     public void mostraLibri(Libri[] libri) {
+        JPanel spazioInterno = new JPanel();
+        Config.setPanel1(spazioInterno);
+        spazioInterno.setLayout(new GridLayout(libri.length, 1, 0, 5));
+
         for (Libri lib : libri) {
-            JButton button = new JButton("Apri " + lib.getTitolo());
+            JPanel libroPanel = new JPanel(new BorderLayout());
+            libroPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); // Margine interno
+            Config.setPanel1(libroPanel);
+            JLabel titoloLabel = new JLabel(lib.getTitolo());
+            Config.setLabel1(titoloLabel);
+            libroPanel.add(titoloLabel, BorderLayout.CENTER);
+
+            JButton button = new JButton("Apri");
             button.addActionListener(e -> gui.showLibro(lib.getId() + ""));
             Config.setButton1(button);
-            risultati.add(button);
+            libroPanel.add(button, BorderLayout.WEST);
+
+            spazioInterno.add(libroPanel);
         }
+        risultati.add(spazioInterno, BorderLayout.WEST);
     }
 }

@@ -72,6 +72,7 @@ public class BookRecommender extends JFrame {
         cardPanel.add(aggiungiValutazione, "VALUTAZIONE");
         showHome();
         frame.add(cardPanel, BorderLayout.CENTER);
+
         frame.setVisible(true);
     }
 
