@@ -384,10 +384,10 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException tutte le eccezioni
      */
     @Override
-    public Libri[] RicercaLibriDaLibrerie(int idUtente) throws RemoteException {
+    public Libri[] RicercaLibriDaLibrerie(int idUtente,String titoloRicerca, String autoreRicerca, int annoR) throws RemoteException {
         try {
             q.Connect();
-            Libri[] libri = q.RicercaLibriDaLibrerie(idUtente);
+            Libri[] libri = q.RicercaLibriDaLibrerie(idUtente,titoloRicerca,  autoreRicerca, annoR);
             q.Disconnect();
             if (libri == null) {
                 return new Libri[0];

@@ -215,12 +215,12 @@ public class LibrerieGestore {
         }
     }
 
-    public Libri[] GetLibriDaTutteLibrerie() {
+    public Libri[] GetLibriDaTutteLibrerie(String titoloRicerca, String autoreRicerca, int annoR) throws RuntimeException{
         if (utenteGestore.UtenteLoggato()) {
             try {
-                return stub.RicercaLibriDaLibrerie(utenteGestore.GetIdUtente());
+                return stub.RicercaLibriDaLibrerie(utenteGestore.GetIdUtente(), titoloRicerca, autoreRicerca, annoR);
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Errore durante la ricerca dei libri nelle librerie: " + e.getMessage());
             }
         }
         return new Libri[0];

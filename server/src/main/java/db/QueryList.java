@@ -3,7 +3,6 @@ package db;
 import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.entita.*;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -274,14 +273,6 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public Libri[] RicercaLibri(String titolo, String autore, int anno) throws SQLException {
-
-        //test
-       /* if (anno == 0) {
-            Libri[] l = new Libri[2];
-            l[0] = new Libri(1, "titolo", "autore", "descrizione", "categorie", "editori", 10.0f, "mese", 2023);
-            l[1] = new Libri(2, "titolo", "autore", "descrizione", "categorie", "editori", 10.0f, "mese", 2023);
-            return l;
-        }*/
         String dataSql = """
                 SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori, d.descrizione, d.categorie, d.editori, d.prezzo
                 FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id
@@ -321,6 +312,87 @@ public class QueryList {
 
             try (ResultSet rs = dataStmt.executeQuery()) {
                 int i = 0;
+                while (rs.next()) {
+                    Libri libro = new Libri();
+                    libro.setId(rs.getInt("libro_id"));
+                    libro.setTitolo(rs.getString("titolo"));
+                    libro.setAnnoPubblicazione(rs.getInt("anno_pubblicazione"));
+                    libro.setMesePubblicazione(rs.getString("mese_pubblicazione"));
+                    libro.setAutori(rs.getString("autori"));
+                    libro.setDescrizione(rs.getString("descrizione"));
+                    libro.setCategorie(rs.getString("categorie"));
+                    libro.setEditore(rs.getString("editori"));
+                    libro.setPrezzoPartenza(rs.getBigDecimal("prezzo").floatValue());
+
+                    risultati[i] = libro;
+                    i++;
+                }
+            }
+        }
+
+        return risultati;
+    }
+
+    /**
+     * Ricerca i libri in base ai parametri forniti
+     *
+     * @param ids    array di id dei libri da cercare, se vuoto o null ritorna un array vuoto
+     * @param titolo titolo del libro, null o "" se non specificato
+     * @param autore autore del libro, null o "" se non specificato
+     * @param anno   anno di pubblicazione, -1 se non specificato
+     * @return un array di Libri che soddisfano i criteri di ricerca
+     * @throws SQLException da gestire fuori
+     */
+    public Libri[] RicercaLibriDaIds(int[] ids, String titolo, String autore, int anno) throws SQLException {
+        if (ids.length == 0) return new Libri[0];
+        StringBuilder str = new StringBuilder();
+        int i = 0;
+        for (int id : ids) {
+            if (id < 0) i++;
+            else str.append(id).append(", ");
+        }
+        str = new StringBuilder(str.substring(0, str.length() - 2));
+        String dataSql = """
+                SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori, d.descrizione, d.categorie, d.editori, d.prezzo
+                FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id
+                WHERE (? IS NULL OR LOWER(p.titolo) LIKE LOWER(CONCAT('%', ?, '%')))
+                AND (? IS NULL OR LOWER(p.autori) LIKE LOWER(CONCAT('%', ?, '%')))
+                AND (? IS NULL OR p.anno_pubblicazione = ?)
+                AND p.libro_id IN (""" + str + ")";
+        String countSql = """
+                SELECT COUNT(*) FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id
+                WHERE (? IS NULL OR LOWER(p.titolo) LIKE LOWER(CONCAT('%', ?, '%')))
+                AND (? IS NULL OR LOWER(p.autori) LIKE LOWER(CONCAT('%', ?, '%')))
+                AND (? IS NULL OR p.anno_pubblicazione = ?)
+                AND p.libro_id IN (""" + str + ")";
+        int count = 0;
+        try (PreparedStatement countStmt = conn.prepareStatement(countSql)) {
+            int idx = 1;
+            idx = setStringParam(countStmt, idx, titolo);
+            idx = setStringParam(countStmt, idx, autore);
+            setIntParam(countStmt, idx, anno);
+
+            try (ResultSet rsCount = countStmt.executeQuery()) {
+                if (rsCount.next()) {
+                    count = rsCount.getInt(1);
+                }
+            }
+        }
+
+        if (count == 0) {
+            return new Libri[0];  // Nessun risultato
+        }
+
+        Libri[] risultati = new Libri[count];
+
+        try (PreparedStatement dataStmt = conn.prepareStatement(dataSql)) {
+            int idx = 1;
+            idx = setStringParam(dataStmt, idx, titolo);
+            idx = setStringParam(dataStmt, idx, autore);
+            setIntParam(dataStmt, idx, anno);
+
+            try (ResultSet rs = dataStmt.executeQuery()) {
+                i = 0;
                 while (rs.next()) {
                     Libri libro = new Libri();
                     libro.setId(rs.getInt("libro_id"));
@@ -565,7 +637,7 @@ public class QueryList {
      * @return un array di Libri
      * @throws SQLException da gestire fuori
      */
-    public Libri[] RicercaLibriDaLibrerie(int idUtente) throws SQLException {
+    public Libri[] RicercaLibriDaLibrerie(int idUtente,String titoloRicerca, String autoreRicerca, int annoR) throws SQLException {
         String sql = """
                 SELECT c.libro_id
                 FROM librerie l JOIN contenuto_libreria c ON l.libreria_id = c.libreria_id
@@ -584,7 +656,8 @@ public class QueryList {
         if (ids.isEmpty()) return new Libri[0];
 
         int[] uniqueIds = ids.stream().distinct().mapToInt(i -> i).toArray();
-        return RicercaLibriDaIds(uniqueIds);
+        Libri[] libri = RicercaLibriDaIds(uniqueIds, titoloRicerca, autoreRicerca, annoR);
+        return libri;
     }
 
     /**
@@ -736,6 +809,7 @@ public class QueryList {
     }
 
     //consigli
+
     /**
      * Aggiunge un consiglio al database
      *
@@ -798,8 +872,8 @@ public class QueryList {
     /**
      * Aggiunge un libro a un consiglio esistente
      *
-     * @param idUtente         id dell'utente
-     * @param idRiguardante    id del libro riguardante
+     * @param idUtente           id dell'utente
+     * @param idRiguardante      id del libro riguardante
      * @param idLibroConsigliato id del libro consigliato
      * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL
      */

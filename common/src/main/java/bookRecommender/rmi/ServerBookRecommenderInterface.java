@@ -188,13 +188,13 @@ public interface ServerBookRecommenderInterface extends Remote {
     boolean ControlloLibroInLibrerie(int idUtente, int idLibro) throws RemoteException;
 
     /**
-     * Restituisce i libri presenti in tutte le librerie dell'utente
+     * Restituisce i libri presenti in tutte le librerie dell'utente dato un titolo, autore e anno di pubblicazione
      *
      * @param idUtente id dell'utente
      * @return un array di Libri
      * @throws RemoteException tutte le eccezioni
      */
-    Libri[] RicercaLibriDaLibrerie(int idUtente) throws RemoteException;
+    Libri[] RicercaLibriDaLibrerie(int idUtente, String titoloRicerca, String autoreRicerca, int annoR) throws RemoteException;
 
     /**
      * Rimuove un libro dalla libreria

@@ -13,7 +13,7 @@ public class Libri implements Serializable {
     private float PrezzoPartenza = 0;
     private String MesePubblicazione = "";
     private int AnnoPubblicazione = 0;
-    private static float CambioInEuro = 0.92F;
+    private static final float CambioInEuro = 0.92F;
 
 
     public Libri() {
@@ -66,7 +66,7 @@ public class Libri implements Serializable {
         return Titolo;
     }
 
-    public String getAutoriArray() {
+    public String getAutori() {
         return Autori;
     }
 
@@ -74,7 +74,7 @@ public class Libri implements Serializable {
         return Descrizione;
     }
 
-    public String getCategorieArray() {
+    public String getCategorie() {
         return Categorie;
     }
 

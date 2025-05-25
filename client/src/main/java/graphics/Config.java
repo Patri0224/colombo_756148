@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 public class Config {
     public final static Color COLORE_SFONDO = new Color(43, 43, 43);
     public final static Color COLORE_SFONDO1 = new Color(18, 18, 18);
+    public final static Color COLORE_SFONDO2 = new Color(101, 101, 101);
     public final static Color COLORE_SFONDO_BOTTONE = new Color(46, 46, 76);
     public final static Color COLORE_HOVER_BOTTONE = new Color(93, 85, 158);
     public final static Font FONT = new Font("Arial", Font.PLAIN, 14);
@@ -84,4 +85,21 @@ public class Config {
         scrollPane.setBorder(BORDO_OP1);
     }
 
+    public static void setTextArea1(JTextArea textArea) {
+        textArea.setBackground(COLORE_SFONDO);
+        textArea.setBorder(BORDO_OP3);
+        textArea.setForeground(COLORE_TEXT_1);
+        textArea.setCaretColor(COLORE_TEXT_1);
+        textArea.setFont(FONT);
+        textArea.setOpaque(true);
+    }
+
+    public static void setTextArea2(JTextArea textArea) {
+        textArea.setBackground(COLORE_SFONDO2);
+        textArea.setBorder(BORDO_OP3);
+        textArea.setForeground(COLORE_TEXT_1);
+        textArea.setCaretColor(COLORE_TEXT_1);
+        textArea.setFont(FONT);
+        textArea.setOpaque(true);
+    }
 }
