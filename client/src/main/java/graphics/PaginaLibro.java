@@ -4,17 +4,14 @@ import bookRecommender.ConsigliGestore;
 import bookRecommender.LibriRicercaGestore;
 import bookRecommender.UtenteGestore;
 import bookRecommender.ValutazioniGestore;
-import bookRecommender.entita.ConsigliLibri;
 import bookRecommender.entita.Libri;
 import bookRecommender.entita.ValutazioniLibri;
 
 import javax.swing.*;
 import java.awt.*;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class PaginaLibro extends JPanel {
     private BookRecommender gui;
@@ -50,28 +47,21 @@ public class PaginaLibro extends JPanel {
         setBackground(Config.COLORE_SFONDO);
 
         setLayout(new BorderLayout(1, 1));
-        scrollLibrerie = new
-
-                JScrollPane();
+        scrollLibrerie = new JScrollPane();
         Config.setScrollPane(scrollLibrerie);
         scrollLibrerie.setVisible(false);
-        menu = new
+        menu = new menu("Pagina Libro " + libro.getTitolo(), scrollLibrerie);
 
-                menu("Pagina Libro " + libro.getTitolo(), scrollLibrerie);
-
-        main = new
-
-                JPanel();
+        main = new JPanel();
         Config.setPanel1(main);
-        if (UtenteGestore.GetInstance().
-
-                UtenteLoggato()) {
+        if (UtenteGestore.GetInstance().UtenteLoggato()) {
             creaMainUtenteLoggato();
         } else {
             creaMainUtenteNonLoggato();
         }
 
         add(menu, BorderLayout.NORTH);
+        add(main, BorderLayout.CENTER);
     }
 
     private void creaMainUtenteLoggato() {
@@ -79,63 +69,51 @@ public class PaginaLibro extends JPanel {
         JPanel datiLibro = creaDatiLibro();
         JPanel valConLibro = ValutazioniConsigliLibro();
         JPanel valConUtente = ValutazioniConsigliLibroPersonali();
+        main.add(datiLibro);
+        main.add(valConLibro);
+        main.add(valConUtente);
     }
 
     private void creaMainUtenteNonLoggato() {
         main.setLayout(new GridLayout(1, 2));
         JPanel datiLibro = creaDatiLibro();
         JPanel valConLibro = ValutazioniConsigliLibro();
+        main.add(datiLibro);
+        main.add(valConLibro);
 
 
     }
 
     private JPanel creaDatiLibro() {
-        JPanel datiLibro = new JPanel();
-        datiLibro.setLayout(new GridLayout(7, 2));
+        JPanel datiLibro = new JPanel(new GridLayout(7, 1));
         Config.setPanel1(datiLibro);
-        JLabel lTitolo = new JLabel("Titolo");
-        JLabel lAutore = new JLabel("Autore");
-        JLabel lAnno = new JLabel("Pubblicazione");
-        JLabel lCategoria = new JLabel("Categoria");
-        JLabel lEditore = new JLabel("Editore");
-        JLabel lPrezzo = new JLabel("Prezzo");
-        JLabel lDescrizione = new JLabel("Descrizione");
-        Config.setLabel1(lTitolo);
-        Config.setLabel1(lAutore);
-        Config.setLabel1(lAnno);
-        Config.setLabel1(lCategoria);
-        Config.setLabel1(lEditore);
-        Config.setLabel1(lPrezzo);
-        Config.setLabel1(lDescrizione);
-        JTextArea tTitolo = new JTextArea(libro.getTitolo());
-        JTextArea tAutore = new JTextArea(libro.getAutori());
-        JTextArea tAnno = new JTextArea(libro.getMesePubblicazione() + " " + libro.getAnnoPubblicazione());
-        JTextArea tCategoria = new JTextArea(libro.getCategorie());
-        JTextArea tEditore = new JTextArea(libro.getEditore());
-        JTextArea tPrezzo = new JTextArea(libro.getPrezzoPartenzaEuro() + "");
-        JTextArea tDescrizione = new JTextArea(libro.getDescrizione());
-        Config.setTextArea1(tTitolo);
-        Config.setTextArea1(tAutore);
-        Config.setTextArea1(tAnno);
-        Config.setTextArea1(tCategoria);
-        Config.setTextArea1(tEditore);
-        Config.setTextArea1(tPrezzo);
-        Config.setTextArea1(tDescrizione);
-        datiLibro.add(lTitolo);
-        datiLibro.add(tTitolo);
-        datiLibro.add(lAutore);
-        datiLibro.add(tAutore);
-        datiLibro.add(lAnno);
-        datiLibro.add(tAnno);
-        datiLibro.add(lCategoria);
-        datiLibro.add(tCategoria);
-        datiLibro.add(lEditore);
-        datiLibro.add(tEditore);
-        datiLibro.add(lPrezzo);
-        datiLibro.add(tPrezzo);
-        datiLibro.add(lDescrizione);
-        datiLibro.add(tDescrizione);
+
+        // Helper method
+        datiLibro.add(creaCampo("Titolo", libro.getTitolo()));
+        datiLibro.add(creaCampo("Autore", libro.getAutori()));
+        datiLibro.add(creaCampo("Pubblicazione", libro.getMesePubblicazione() + " " + libro.getAnnoPubblicazione()));
+        datiLibro.add(creaCampo("Categoria", libro.getCategorie()));
+        datiLibro.add(creaCampo("Editore", libro.getEditore()));
+        datiLibro.add(creaCampo("Prezzo", String.valueOf(libro.getPrezzoPartenzaEuro())));
+        datiLibro.add(creaCampo("Descrizione", libro.getDescrizione()));
+
         return datiLibro;
+    }
+
+    private JPanel creaCampo(String etichetta, String valore) {
+        JPanel pannello = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        Config.setPanel1(pannello);
+
+        JLabel label = new JLabel(etichetta);
+        Config.setLabel1(label);
+
+        JTextArea campo = new JTextArea(valore);
+        campo.setEditable(false);
+        Config.setTextArea1(campo); // Supponendo che la funzione funzioni anche con JTextField
+
+        pannello.add(label);
+        pannello.add(campo);
+        return pannello;
     }
 
     private JPanel ValutazioniConsigliLibro() {
@@ -161,24 +139,29 @@ public class PaginaLibro extends JPanel {
 
         ConsigliGestore cG = ConsigliGestore.GetInstance();
         Libri[] libriConsigliati = cG.RicercaConsigliDatoLibro(libro.getId());
+        if (libriConsigliati == null) {
+            JTextArea consigli = new JTextArea();
+            consigli.setText("Nessun libro è stato consigliato per questo libro.");
 
-        // Conteggio delle occorrenze
-        Map<Libri, Integer> conteggio = new HashMap<>();
-        for (Libri lib : libriConsigliati) {
-            conteggio.put(lib, conteggio.getOrDefault(lib, 0) + 1);
+        } else {
+            // Conteggio delle occorrenze
+            Map<Libri, Integer> conteggio = new HashMap<>();
+            for (Libri lib : libriConsigliati) {
+                conteggio.put(lib, conteggio.getOrDefault(lib, 0) + 1);
+            }
+            StringBuilder consigliStrBuilder = new StringBuilder();
+
+            conteggio.forEach((libro, occorrenze) -> {
+                consigliStrBuilder.append("Libro: ")
+                        .append(libro.getTitolo())
+                        .append(" -> ")
+                        .append(occorrenze)
+                        .append(" occorrenze\n");
+            });
+
+            JTextArea consigli = new JTextArea();
+            consigli.setText(consigliStrBuilder.toString());
         }
-        StringBuilder consigliStrBuilder = new StringBuilder();
-
-        conteggio.forEach((libro, occorrenze) -> {
-            consigliStrBuilder.append("Libro: ")
-                    .append(libro.getTitolo())
-                    .append(" -> ")
-                    .append(occorrenze)
-                    .append(" occorrenze\n");
-        });
-
-        JTextArea consigli = new JTextArea();
-        consigli.setText(consigliStrBuilder.toString());
         return datiLibro;
     }
 

@@ -66,7 +66,6 @@ public class Ricerca extends JPanel {
             @Override
             public void componentResized(ComponentEvent e) {
                 int larghezza = spazioInterno.getWidth();
-                System.out.println("Spazio interno larghezza: " + larghezza);
                 for (JTextArea area : textAreas) {
                     Dimension nuovaDimensione = new Dimension(larghezza - 20, area.getPreferredSize().height);
                     area.setMaximumSize(nuovaDimensione);

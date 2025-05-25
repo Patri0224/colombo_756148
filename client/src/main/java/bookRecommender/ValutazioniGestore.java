@@ -4,6 +4,7 @@ import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.entita.Score;
 import bookRecommender.entita.ValutazioniLibri;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
+import graphics.PopupError;
 
 public class ValutazioniGestore {
     private static ValutazioniGestore instance;
@@ -89,6 +90,7 @@ public class ValutazioniGestore {
         try {
             return stub.RicercaValutazioneMedia(idLibro);
         } catch (Exception e) {
+            PopupError.mostraErrore(e.getMessage());
             return null;
         }
     }

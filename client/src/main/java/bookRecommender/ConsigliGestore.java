@@ -115,10 +115,6 @@ public class ConsigliGestore {
     }
 
     public Libri[] RicercaConsigliDatoLibro(int idLibro) {
-        if (!utenteGestore.UtenteLoggato()) {
-            PopupError.mostraErrore("utente non loggato");
-            return null;
-        }
         if (idLibro == -1) {
             PopupError.mostraErrore("Id libro non valido");
             return null;
@@ -134,7 +130,7 @@ public class ConsigliGestore {
 
     public Libri[] RicercaConsigliDatoUtenteELibro(int idLibro) throws RemoteException {
         if (!utenteGestore.UtenteLoggato()) {
-            PopupError.mostraErrore("utente non loggato");
+            PopupError.mostraErrore("utente non loggato2");
             return null;
         }
         if (idLibro == -1) {

@@ -12,6 +12,7 @@ public class ComandoIndietro {
     public static final String PAGINA_LIBRO = "Pagina Libro";
     public static final String PAGINA_AGGIUNGI_VALUTAZIONE = "Pagina Aggiungi Valutazione";
     public static final String PAGINA_AUTENTICAZIONE = "Pagina Autenticazione";
+    public static final String PAGINA_IMPOSTAZIONI = "Pagina Impostazioni";
 
     public static void setGui() {
         gui = BookRecommender.GetInstance();
@@ -20,6 +21,7 @@ public class ComandoIndietro {
     }
 
     public static void indietro() {
+        System.out.println(pila.toString());
         if (pila.size() > 2) {
             pila.pop();
             oggettoIndietro oggetto = pila.pop();
@@ -54,6 +56,10 @@ public class ComandoIndietro {
                 gui.showLogin();
                 break;
             }
+            case PAGINA_IMPOSTAZIONI: {
+                gui.showImpostazioni();
+                break;
+            }
         }
 
     }
@@ -64,11 +70,20 @@ public class ComandoIndietro {
         Config.setButton1(bottone);
         return bottone;
     }
+
     public static JButton getBottoneHome() {
         JButton bottone = new JButton("Home");
         bottone.addActionListener(e -> gui.showHome());
         Config.setButton1(bottone);
         return bottone;
+    }
+
+    public static void indietroI() {
+        System.out.println(pila.toString());
+        if (pila.size() > 2) {
+            oggettoIndietro oggetto = pila.pop();
+            azioneIndietro(oggetto);
+        }
     }
 }
 

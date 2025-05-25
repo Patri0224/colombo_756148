@@ -49,37 +49,30 @@ public class UtenteGestore {
     }
 
     public Eccezione Registrazione(String email, String password, String codiceFiscale, String nome, String cognome) {
-        if (ControlloCodiceFiscale(codiceFiscale))
-            codiceFiscale = codiceFiscale;
-        else
+        if (!ControlloCodiceFiscale(codiceFiscale)) {
             return new Eccezione(2, "Codice fiscale non valido");
-        if (ControlloCaratteriPassword(password))
-            password = CrittografiaPassword(password);
-        else
-            return new Eccezione(3, "Password non valida");
+        }
 
-        Eccezione ecc = null;
+        if (!ControlloCaratteriPassword(password)) {
+            return new Eccezione(3, "Password non valida");
+        }
+
+        String passwordCriptata = CrittografiaPassword(password);
+
         try {
-            ecc = stub.Registrazione(email, password, nome, cognome, codiceFiscale);
+            Eccezione ecc = stub.Registrazione(email, passwordCriptata, nome, cognome, codiceFiscale);
             if (ecc.getErrorCode() == 0) {
                 idUtente = GetIdUtente(email);
                 this.email = email;
                 this.nome = nome;
                 this.cognome = cognome;
                 this.codiceFiscale = codiceFiscale;
-                this.passwordCriptata = password;
-                return ecc;
+                this.passwordCriptata = passwordCriptata;
             }
-        } catch (Exception e) {
-            return new Eccezione(5, "Remote Error" + e.getMessage());
-        }
-        if (ecc.getErrorCode() == 1)//utente esiste già
             return ecc;
-        if (ecc.getErrorCode() > 1)
-            return new Eccezione(4, "Errore SQL" + ecc.getMessage());
-        else
-            return new Eccezione(20, "last");
-
+        } catch (Exception e) {
+            return new Eccezione(5, "Remote Error: " + e.getMessage());
+        }
     }
 
     public int GetIdUtente(String email) {
@@ -103,6 +96,9 @@ public class UtenteGestore {
     public int GetIdUtente() {
         if (idUtente != -1)
             return idUtente;
+        if (email == null || email.isEmpty()) {
+            return -1;
+        }
         try {
             idUtente = stub.getIdUtente(email);
             return idUtente;
@@ -120,11 +116,20 @@ public class UtenteGestore {
     public String GetNome() {
         return nome;
     }
+    public String GetCognome() {
+        return cognome;
+    }
+    public String GetEmail() {
+        return email;
+    }
+    public String GetCF() {
+        return codiceFiscale;
+    }
 
     public Eccezione Login(String email, String password) {
         Eccezione ecc = null;
         try {
-            ecc = stub.login(email, password);
+            ecc = stub.login(email, CrittografiaPassword(password));
             if (ecc.getErrorCode() == 0) {
                 this.email = email;
                 this.passwordCriptata = CrittografiaPassword(password);
@@ -183,7 +188,7 @@ public class UtenteGestore {
     }
 
     public String CrittografiaPassword(String password) {
-        // Implement password encryption logic here
+        String hashed = PasswordUtils.crittografaPassword(password);
         return password; // Placeholder, replace with actual encryption logic
     }
 
@@ -244,13 +249,13 @@ public class UtenteGestore {
     @Override
     public String toString() {
         return "UtenteGestore{" +
-                "idUtente=" + idUtente +
-                ", email='" + email + '\'' +
-                ", passwordCriptata='" + passwordCriptata + '\'' +
-                ", codiceFiscale='" + codiceFiscale + '\'' +
-                ", nome='" + nome + '\'' +
-                ", cognome='" + cognome + '\'' +
-                '}';
+               "idUtente=" + idUtente +
+               ", email='" + email + '\'' +
+               ", passwordCriptata='" + passwordCriptata + '\'' +
+               ", codiceFiscale='" + codiceFiscale + '\'' +
+               ", nome='" + nome + '\'' +
+               ", cognome='" + cognome + '\'' +
+               '}';
     }
 
 

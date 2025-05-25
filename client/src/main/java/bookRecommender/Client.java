@@ -28,8 +28,8 @@ public class Client {
             ConsigliGestore.CreateInstance(stub);
             ValutazioniGestore.CreateInstance(stub);
             UtenteGestore u = UtenteGestore.GetInstance();
-            //u.Login("falafel@g","Ciao.987");
-            //u.Registrazione("falafel@g","Ciao.987","FFL78C","Fabio", "Falafel");
+            //u.Login("pat@g","Patrizio.25");
+            u.Registrazione("falafel@g","Ciao.987","FFL78C","Fabio", "Falafel");
             //crezione GUI
             gui = BookRecommender.CreateInstance();
             gui.creaGrafica(gui);

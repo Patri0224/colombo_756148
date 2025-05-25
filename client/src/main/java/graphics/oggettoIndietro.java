@@ -14,4 +14,11 @@ public class oggettoIndietro {
     public String getOpzione() {
         return opzione;
     }
+    @Override
+    public String toString() {
+        return "oggettoIndietro{" +
+                "pagina='" + pagina + '\'' +
+                ", opzione='" + opzione + '\'' +
+                '}';
+    }
 }

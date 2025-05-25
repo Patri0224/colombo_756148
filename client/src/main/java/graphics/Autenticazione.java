@@ -30,8 +30,12 @@ public class Autenticazione extends JPanel {
     private JPasswordField inputPasswordLogin;
     private JLabel errPasswordLogin;
 
-
     public Autenticazione() {
+        reload();
+    }
+
+    public void reload() {
+        removeAll();
         gui = BookRecommender.GetInstance();
         Config.setPanel1(this);
         setLayout(new BorderLayout(1, 1));
@@ -43,14 +47,16 @@ public class Autenticazione extends JPanel {
         menuRidotto.add(ComandoIndietro.getBottoneIndietro());
         menuRidotto.add(t);
         add(menuRidotto, BorderLayout.NORTH);
-        JPanel main = new JPanel(new GridLayout(2, 3));
-Config.setPanel1(main);
+        JPanel main = new JPanel(new GridLayout(2, 1));
+        Config.setPanel1(main);
         panelLogin = new JPanel();
         panelRegistrazione = new JPanel();
         Config.setPanel2(panelLogin);
         Config.setPanel2(panelRegistrazione);
         panelLogin.setLayout(new BoxLayout(panelLogin, BoxLayout.Y_AXIS));
         panelRegistrazione.setLayout(new BoxLayout(panelRegistrazione, BoxLayout.Y_AXIS));
+        panelLogin.setBorder(BorderFactory.createEmptyBorder(5,40,5,40));
+        panelRegistrazione.setBorder(BorderFactory.createEmptyBorder(5,40,5,40));
 
         JPanel em = new JPanel();
         JPanel p = new JPanel();
@@ -147,9 +153,9 @@ Config.setPanel1(main);
         panelRegistrazione.add(emailRegistrazione);
         panelRegistrazione.add(passwordRegistrazione);
         panelRegistrazione.add(btnRegistrazione);
-        main.add(new JLabel());
+        //main.add(new JLabel());
         main.add(panelRegistrazione);
-        main.add(new JLabel());
+        //main.add(new JLabel());
 
 
         inputEmailLogin = new JTextField();
@@ -176,9 +182,9 @@ Config.setPanel1(main);
         panelLogin.add(em);
         panelLogin.add(p);
         panelLogin.add(b);
-        main.add(new JLabel());
+        //main.add(new JLabel());
         main.add(panelLogin);
-        main.add(new JLabel());
+        //main.add(new JLabel());
         add(main, BorderLayout.CENTER);
 
     }
@@ -251,7 +257,7 @@ Config.setPanel1(main);
         if (!UtenteGestore.ControlloCaratteriPassword(inputPasswordRegistrazione.getText())) {
             errPasswordRegistrazione.setText("Mancano caratteri");
         }
-        Eccezione e = utenteGestore.Registrazione(inputEmailRegistrazione.getText(),inputPasswordRegistrazione.getText(),inputCodiceFiscaleRegistrazione.getText(),inputNomeRegistrazione.getText(),inputCognomeRegistrazione.getText());
+        Eccezione e = utenteGestore.Registrazione(inputEmailRegistrazione.getText(), inputPasswordRegistrazione.getText(), inputCodiceFiscaleRegistrazione.getText(), inputNomeRegistrazione.getText(), inputCognomeRegistrazione.getText());
         if (e.getErrorCode() == 0) {
             gui.reloadHome();
             ComandoIndietro.indietro();

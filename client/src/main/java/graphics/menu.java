@@ -23,6 +23,7 @@ public class menu extends JPanel {
         // Impostazione del titolo della pagina
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         Config.setPanel1(panel);
+        panel.add(Impostazioni.buttonImpostazioni());
         panel.add(ComandoIndietro.getBottoneHome());
         panel.add(ComandoIndietro.getBottoneIndietro());
         titolo = new JLabel(titoloPagina);
@@ -35,10 +36,10 @@ public class menu extends JPanel {
         JPanel panel1 = new JPanel();
         Config.setPanel1(panel1);
         panel1.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        scrollLibrerie.setPreferredSize(new Dimension(200, 0));
+        scrollLibrerie.setMinimumSize(new Dimension(200, 0));
         if (utente.UtenteLoggato()) {
             // Se l'utente è loggato, mostra librerie non ancora caricate
-            titolo.setText(titoloPagina + " di " + utente.GetNome() + ": " + utente.GetIdUtente());
+            titolo.setText(titoloPagina + " di " + utente.GetNome() + ". Id utente: " + utente.GetIdUtente());
             JPanel panel2 = new JPanel();
             Config.setPanel1(panel2);
             panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
@@ -58,7 +59,7 @@ public class menu extends JPanel {
             Config.setButton1(mostraLibreria);
             JButton Logout = new JButton("Logout");
             Config.setButton1(Logout);
-            Logout.addActionListener(e -> gui.logout());
+            Logout.addActionListener(e -> gui.logout(titoloPagina));
             panel1.add(Logout);
             panel1.add(mostraLibreria);
             scrollLibrerie.setVisible(true);
@@ -111,6 +112,7 @@ public class menu extends JPanel {
             panel3.add(a);
             panel3.add(a1);
             panel3.setMinimumSize(new Dimension(300, 0));
+            panel3.add(newLibreria());
             scrollLibrerie.setViewportView(panel3);
             return;
         }
@@ -129,8 +131,38 @@ public class menu extends JPanel {
             Config.setButton1(b);
             panelLibrerie.add(b);
         }
+        panelLibrerie.add(newLibreria());
     }
 
+    private JPanel newLibreria() {
+        JPanel panel = new JPanel();
+        Config.setPanel1(panel);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JLabel label = new JLabel("Nome Libreria:");
+        Config.setLabel1(label);
+        JTextField textField = new JTextField();
+        Config.setTextField1(textField);
+        textField.setMaximumSize(new Dimension(Integer.MAX_VALUE, textField.getPreferredSize().height));
+        JButton button = new JButton("Crea Libreria");
+        Config.setButton1(button);
+        button.addActionListener(e -> {
+            String nomeLibreria = textField.getText();
+            if (nomeLibreria.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Il nome della libreria non può essere vuoto.", "Errore", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            Eccezione ecc = LibrerieGestore.GetInstance().AggiungiLibreria(nomeLibreria);
+            if (ecc.getErrorCode() > 0) {
+                JOptionPane.showMessageDialog(this, ecc.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
+            }
+            LibrerieGestore.GetInstance().caricaLibrerie();
+        });
+        panel.add(label);
+        panel.add(textField);
+        panel.add(button);
+
+        return panel;
+    }
 
     ;
 }

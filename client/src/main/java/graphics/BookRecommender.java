@@ -4,8 +4,6 @@ import bookRecommender.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 public class BookRecommender extends JFrame {
     private UtenteGestore utenteGestore;
@@ -24,6 +22,8 @@ public class BookRecommender extends JFrame {
     private PaginaLibro paginaLibro;
     private PaginaLibreria paginaLibreria;
     private AggiungiValutazione aggiungiValutazione;
+    private PaginaIntermedia paginaIntermedia;
+    private Impostazioni paginaImpostazioni;
 
     public BookRecommender() {
 
@@ -64,12 +64,16 @@ public class BookRecommender extends JFrame {
         paginaLibreria = new PaginaLibreria();
         autenticazione = new Autenticazione();
         aggiungiValutazione = new AggiungiValutazione();
+        paginaIntermedia = new PaginaIntermedia();
+        paginaImpostazioni = new Impostazioni();
 
         cardPanel.add(paginaHome, "HOME");
         cardPanel.add(paginaLibro, "LIBRO");
         cardPanel.add(paginaLibreria, "LIBRERIA");
         cardPanel.add(autenticazione, "AUTENTICAZIONE");
         cardPanel.add(aggiungiValutazione, "VALUTAZIONE");
+        cardPanel.add(paginaIntermedia, "I");
+        cardPanel.add(paginaImpostazioni, "IMPOSTAZIONI");
         showHome();
         frame.add(cardPanel, BorderLayout.CENTER);
 
@@ -81,38 +85,64 @@ public class BookRecommender extends JFrame {
     }
 
     public void showHome() {
+        showI();
         ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_HOME, "");
+        paginaHome.reload();
         cardLayout.show(cardPanel, "HOME");
     }
 
     public void showLibro(String idlibro) {
-        cardLayout.show(cardPanel, "HOME");//inserito per permettere il passaggio da pagina libro a un altra pagina libro
+        showI();//inserito per permettere il passaggio da pagina alla stessa pagina//inserito per permettere il passaggio da pagina libro a un altra pagina libro
         ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_LIBRO, idlibro);
         paginaLibro.setLibro(Integer.parseInt(idlibro));
         cardLayout.show(cardPanel, "LIBRO");
     }
 
     public void showLogin() {
+        showI();
         ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_AUTENTICAZIONE, "");
         cardLayout.show(cardPanel, "AUTENTICAZIONE");
     }
 
     public void showLibreria(String nomeLibreria) {
-        cardLayout.show(cardPanel, "HOME");//inserito per permettere il passaggio da pagina libreria a un altra pagina libreria
+        showI();//inserito per permettere il passaggio da pagina alla stessa pagina
         ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_LIBRERIA, nomeLibreria);
         paginaLibreria.setLibreria(nomeLibreria);
         cardLayout.show(cardPanel, "LIBRERIA");
     }
 
     public void showValutazione(String idlibro) {
+        showI();
         ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_LIBRERIA, idlibro);
         cardLayout.show(cardPanel, "LIBRERIA");
     }
 
-    public void logout() {
-        reloadHome();
-        utenteGestore.Logout();
-
+    public void showImpostazioni() {
+        showI();
+        paginaImpostazioni.reload();
+        ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_IMPOSTAZIONI, "");
+        cardLayout.show(cardPanel, "IMPOSTAZIONI");
     }
 
+    public void showI() {
+        cardLayout.show(cardPanel, "I");
+    }
+
+
+    public void logout(String titoloPagina) {
+        utenteGestore.Logout();
+        showI();//inserito per permettere il passaggio da pagina alla stessa pagina
+        if (titoloPagina == ComandoIndietro.PAGINA_LIBRERIA || titoloPagina == ComandoIndietro.PAGINA_AGGIUNGI_VALUTAZIONE) {
+            ComandoIndietro.setGui();
+        } else {
+            ComandoIndietro.indietroI();
+        }
+    }
+
+
+    public void reloadAll() {
+        paginaImpostazioni.reload();
+        reloadHome();
+        autenticazione.reload();
+    }
 }

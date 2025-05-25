@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class PopupError extends JWindow {
+public class PopupError extends JFrame {
     public PopupError(String str) {
         setSize(200, 200);
         setAlwaysOnTop(true);
