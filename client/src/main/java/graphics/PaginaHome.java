@@ -36,7 +36,7 @@ public class PaginaHome extends JPanel {
         scroll.getVerticalScrollBar().setUnitIncrement(7);
         scroll.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 
-        ricerca = new Ricerca("Pagina Home", libri, 0);
+        ricerca = new Ricerca(libri, 0);
         main.add(ricerca, BorderLayout.NORTH);
         main.add(scroll, BorderLayout.CENTER);
         add(scrollLibrerie, BorderLayout.EAST);

@@ -60,6 +60,7 @@ public class menu extends JPanel {
             panel1.add(Logout);
             panel1.add(mostraLibreria);
             scrollLibrerie.setVisible(true);
+            mostraLibrerie();
         } else {
             // Se l'utente è non loggato, nasconde la parte delle librerie
             scrollLibrerie.setVisible(false);

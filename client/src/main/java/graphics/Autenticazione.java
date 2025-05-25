@@ -8,7 +8,6 @@ import java.awt.*;
 
 public class Autenticazione extends JPanel {
     private BookRecommender gui;
-    private String paginaPrecedente;
     private JPanel panelLogin;
     private JPanel panelRegistrazione;
     private UtenteGestore utente;
@@ -45,9 +44,6 @@ public class Autenticazione extends JPanel {
 
     }
 
-    public void setRitorno(String paginaPrecedente) {
-        this.paginaPrecedente = paginaPrecedente;
-    }
 
     public void controlloLogin() {
         UtenteGestore utenteGestore = UtenteGestore.GetInstance();

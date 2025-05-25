@@ -82,6 +82,7 @@ public class BookRecommender extends JFrame {
     }
 
     public void showLibro(String idlibro) {
+        cardLayout.show(cardPanel, "HOME");//inserito per permettere il passaggio da pagina libro a un altra pagina libro
         ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_LIBRO, idlibro);
         cardLayout.show(cardPanel, "LIBRO");
     }
@@ -92,7 +93,9 @@ public class BookRecommender extends JFrame {
     }
 
     public void showLibreria(String nomeLibreria) {
+        cardLayout.show(cardPanel, "HOME");//inserito per permettere il passaggio da pagina libreria a un altra pagina libreria
         ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_LIBRERIA, nomeLibreria);
+        paginaLibreria.setLibreria(nomeLibreria);
         cardLayout.show(cardPanel, "LIBRERIA");
     }
 

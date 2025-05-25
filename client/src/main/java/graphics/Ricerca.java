@@ -15,7 +15,6 @@ import java.awt.event.MouseEvent;
 public class Ricerca extends JPanel {
     JPanel risultati;
     BookRecommender gui;
-    String paginaCorrente;
     int opzioneRicerca;
     JTextField titolo;
     JTextField autore;
@@ -23,8 +22,7 @@ public class Ricerca extends JPanel {
     JPanel spazioInterno;
     JTextArea[] textAreas = new JTextArea[0];
 
-    public Ricerca(String paginaCorrente, JPanel panel, int opzioneRicerca) {
-        this.paginaCorrente = paginaCorrente;
+    public Ricerca(JPanel panel, int opzioneRicerca) {
         this.risultati = panel;
         this.gui = BookRecommender.GetInstance();
         this.opzioneRicerca = opzioneRicerca;
@@ -110,6 +108,9 @@ public class Ricerca extends JPanel {
                 JLabel label = new JLabel(ecc.getErrorCode() + ecc.getMessage());
                 Config.setLabel1(label);
                 risultati.add(label, BorderLayout.NORTH);
+                risultati.revalidate();
+                risultati.repaint();
+                return;
             }
             libri = ricerca.GetLibri();
             risultati.removeAll();
@@ -121,6 +122,9 @@ public class Ricerca extends JPanel {
                 JLabel label = new JLabel(e.getMessage());
                 Config.setLabel1(label);
                 risultati.add(label, BorderLayout.NORTH);
+                risultati.revalidate();
+                risultati.repaint();
+                return;
             }
         }
         if (libri.length == 0) {
