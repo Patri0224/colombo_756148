@@ -15,16 +15,30 @@ public class Config {
     public final static Font FONT = new Font("Arial", Font.PLAIN, 14);
     public final static Color COLORE_TEXT_1 = new Color(255, 255, 255);
     public final static Color COLORE_TEXT_2 = new Color(200, 200, 200);
+    public final static Color COLORE_TEXT_ERR = new Color(223, 62, 62, 255);
     private final static Color COLORE_BORDO1 = new Color(71, 71, 71);
     private final static Color COLORE_BORDO2 = new Color(255, 255, 255);
     public static final Border BORDO_OP1 = BorderFactory.createLineBorder(COLORE_BORDO1);
     public static final Border BORDO_OP2 = BorderFactory.createEmptyBorder(4, 8, 4, 8);
     public static final Border BORDO_OP3 = BorderFactory.createEmptyBorder(1, 1, 1, 1);
+    public static final Border BORDO_OP4 = BorderFactory.createLineBorder(COLORE_BORDO1);
+    public static final Border BORDO_OP5 = BorderFactory.createEmptyBorder(10, 40, 10, 40);;
 
     public static void setPanel1(JPanel panel) {
         panel.setBackground(COLORE_SFONDO);
         panel.setBorder(BORDO_OP3);
         panel.setOpaque(true);
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                panel.setBackground(COLORE_SFONDO2);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                panel.setBackground(COLORE_SFONDO);
+            }
+        });
     }
 
     public static void setPanel2(JPanel panel) {
@@ -32,7 +46,22 @@ public class Config {
         panel.setBorder(BORDO_OP1);
         panel.setOpaque(true);
     }
+    public static void setPanel3(JPanel panel) {
+        panel.setBackground(new Color(56, 56, 56));
+        panel.setBorder(BORDO_OP5);
+        panel.setOpaque(true);
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                panel.setBackground(COLORE_SFONDO2);
+            }
 
+            @Override
+            public void mouseExited(MouseEvent e) {
+                panel.setBackground(COLORE_SFONDO);
+            }
+        });
+    }
     public static void setButton1(JButton button) {
         button.setBackground(COLORE_SFONDO_BOTTONE);
         button.setBorder(BORDO_OP2);
@@ -79,6 +108,11 @@ public class Config {
         label.setFont(FONT);
     }
 
+    public static void setLabelError(JLabel label) {
+        label.setForeground(COLORE_TEXT_ERR);
+        label.setFont(FONT);
+    }
+
     public static void setScrollPane(JScrollPane scrollPane) {
         scrollPane.setBackground(COLORE_SFONDO);
         scrollPane.setOpaque(true);
@@ -102,4 +136,14 @@ public class Config {
         textArea.setFont(FONT);
         textArea.setOpaque(true);
     }
+    public static void setTextArea3(JTextArea textArea) {
+        textArea.setBackground(COLORE_SFONDO);
+        textArea.setBorder(BORDO_OP3);
+        textArea.setForeground(COLORE_TEXT_1);
+        textArea.setCaretColor(COLORE_TEXT_ERR);
+        textArea.setFont(FONT);
+        textArea.setOpaque(true);
+    }
+
+
 }

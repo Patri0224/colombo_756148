@@ -76,6 +76,10 @@ public class BookRecommender extends JFrame {
         frame.setVisible(true);
     }
 
+    public void reloadHome() {
+        paginaHome.reload();
+    }
+
     public void showHome() {
         ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_HOME, "");
         cardLayout.show(cardPanel, "HOME");
@@ -106,6 +110,7 @@ public class BookRecommender extends JFrame {
     }
 
     public void logout() {
+        reloadHome();
         utenteGestore.Logout();
 
     }

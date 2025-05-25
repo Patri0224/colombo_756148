@@ -2,6 +2,7 @@ package bookRecommender;
 
 import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
+import graphics.PopupError;
 
 public class UtenteGestore {
     private static UtenteGestore instance = null;
@@ -93,6 +94,7 @@ public class UtenteGestore {
                 idUtente = stub.getIdUtente(email);
                 return idUtente;
             } catch (Exception e1) {
+                PopupError.mostraErrore(e.getMessage());
                 return -1;
             }
         }
@@ -109,6 +111,7 @@ public class UtenteGestore {
                 idUtente = stub.getIdUtente(email);
                 return idUtente;
             } catch (Exception e1) {
+                PopupError.mostraErrore(e.getMessage());
                 return -1;
             }
         }
@@ -174,6 +177,7 @@ public class UtenteGestore {
             this.cognome = str[2];
             this.codiceFiscale = str[3];
         } catch (Exception e) {
+            PopupError.mostraErrore(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -195,6 +199,7 @@ public class UtenteGestore {
         codiceFiscale = null;
         nome = null;
         cognome = null;
+
     }
 
     public Eccezione RimuoviUtente() {

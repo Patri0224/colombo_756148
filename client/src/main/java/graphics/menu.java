@@ -13,6 +13,7 @@ public class menu extends JPanel {
     JScrollPane scrollLibrerie;
     BookRecommender gui;
     JLabel titolo;
+
     public menu(String titoloPagina, JScrollPane scrollLibrerie) {
         this.scrollLibrerie = scrollLibrerie;
         this.gui = BookRecommender.GetInstance();
@@ -37,7 +38,7 @@ public class menu extends JPanel {
         scrollLibrerie.setPreferredSize(new Dimension(200, 0));
         if (utente.UtenteLoggato()) {
             // Se l'utente è loggato, mostra librerie non ancora caricate
-            titolo.setText(titoloPagina + " di " + utente.GetNome());
+            titolo.setText(titoloPagina + " di " + utente.GetNome() + ": " + utente.GetIdUtente());
             JPanel panel2 = new JPanel();
             Config.setPanel1(panel2);
             panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));

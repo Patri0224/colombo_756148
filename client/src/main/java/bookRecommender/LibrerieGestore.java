@@ -4,6 +4,7 @@ import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.entita.Librerie;
 import bookRecommender.entita.Libri;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
+import graphics.PopupError;
 
 import java.rmi.RemoteException;
 
@@ -57,14 +58,16 @@ public class LibrerieGestore {
 
     public Librerie[] GetLibrerie() {
         if (librerie.length == 0) {
-            caricaLibrerie();
+            Eccezione e = caricaLibrerie();
+            if (e.getErrorCode() > 0) PopupError.mostraErrore(e.getMessage());
         }
         return librerie;
     }
 
     public int GetNumeroLibrerie() {
         if (librerie.length == 0) {
-            caricaLibrerie();
+            Eccezione e = caricaLibrerie();
+            if (e.getErrorCode() > 0) PopupError.mostraErrore(e.getMessage());
         }
         return librerie.length;
     }
@@ -215,7 +218,7 @@ public class LibrerieGestore {
         }
     }
 
-    public Libri[] GetLibriDaTutteLibrerie(String titoloRicerca, String autoreRicerca, int annoR) throws RuntimeException{
+    public Libri[] GetLibriDaTutteLibrerie(String titoloRicerca, String autoreRicerca, int annoR) throws RuntimeException {
         if (utenteGestore.UtenteLoggato()) {
             try {
                 return stub.RicercaLibriDaLibrerie(utenteGestore.GetIdUtente(), titoloRicerca, autoreRicerca, annoR);
@@ -225,6 +228,7 @@ public class LibrerieGestore {
         }
         return new Libri[0];
     }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

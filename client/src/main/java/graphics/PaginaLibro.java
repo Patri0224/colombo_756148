@@ -10,6 +10,7 @@ import bookRecommender.entita.ValutazioniLibri;
 
 import javax.swing.*;
 import java.awt.*;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,6 +143,7 @@ public class PaginaLibro extends JPanel {
         Config.setPanel1(datiLibro);
         if (id == -1) return datiLibro;
         String valutazioneStr = "";
+        String consigliStr = "";
         short[] scores;
         datiLibro.setLayout(new GridLayout(2, 1));
         JTextArea valutazioni = new JTextArea();
@@ -149,12 +151,12 @@ public class PaginaLibro extends JPanel {
         ValutazioniGestore vG = ValutazioniGestore.GetInstance();
         ValutazioniLibri valutazioneLibro = vG.RicercaValutazioneMedia(libro.getId());
         scores = valutazioneLibro.getPunteggi();
-        valutazioneStr += "Stile: " + Short.toString(scores[0]);
-        valutazioneStr += "Contenuto: " + Short.toString(scores[1]);
-        valutazioneStr += "Gradevolezza: " + Short.toString(scores[2]);
-        valutazioneStr += "Originalità: " + Short.toString(scores[3]);
-        valutazioneStr += "Edizione: " + Short.toString(scores[4]);
-        valutazioneStr += "Media: " + Short.toString(scores[5]);
+        valutazioneStr += "Stile: " + creaStelle(scores[0]);
+        valutazioneStr += "Contenuto: " + creaStelle(scores[1]);
+        valutazioneStr += "Gradevolezza: " + creaStelle(scores[2]);
+        valutazioneStr += "Originalità: " + creaStelle(scores[3]);
+        valutazioneStr += "Edizione: " + creaStelle(scores[4]);
+        valutazioneStr += "Media: " + creaStelle(scores[5]);
         valutazioni.setText(valutazioneStr);
 
         ConsigliGestore cG = ConsigliGestore.GetInstance();
@@ -165,20 +167,36 @@ public class PaginaLibro extends JPanel {
         for (Libri lib : libriConsigliati) {
             conteggio.put(lib, conteggio.getOrDefault(lib, 0) + 1);
         }
+        StringBuilder consigliStrBuilder = new StringBuilder();
 
-        return null;
+        conteggio.forEach((libro, occorrenze) -> {
+            consigliStrBuilder.append("Libro: ")
+                    .append(libro.getTitolo())
+                    .append(" -> ")
+                    .append(occorrenze)
+                    .append(" occorrenze\n");
+        });
+
+        JTextArea consigli = new JTextArea();
+        consigli.setText(consigliStrBuilder.toString());
+        return datiLibro;
     }
 
+
     private JPanel ValutazioniConsigliLibroPersonali() {
+        JPanel datiLibro = new JPanel();
+        datiLibro.setLayout(new GridLayout(2, 1));
+        Config.setPanel1(datiLibro);
+        if (id == -1) return datiLibro;
+
         JPanel valLibro = new JPanel();
         valLibro.setLayout(new GridLayout(2, 1));
         Config.setPanel1(valLibro);
-        if (id == -1) return valLibro;
-        JLabel lVal = new JLabel();
+
+        JLabel lVal = new JLabel("Valutazione");
         Config.setLabel1(lVal);
         valLibro.add(lVal);
         ValutazioniGestore v = ValutazioniGestore.GetInstance();
-        ConsigliGestore c = ConsigliGestore.GetInstance();
         ValutazioniLibri valutazioniLibri = v.RicercaValutazione(id);
         if (valutazioniLibri == null) {
             JButton aggButton = new JButton("Aggiungi");
@@ -192,10 +210,81 @@ public class PaginaLibro extends JPanel {
             valutazioni.setText(valutazioniLibri.toString());
             valLibro.add(valutazioni);
         }
+        JPanel conLibro = new JPanel();
+        conLibro.setLayout(new GridLayout(2, 1));
+        Config.setPanel1(conLibro);
+        JLabel lCon = new JLabel("Consigli");
+        Config.setLabel1(lCon);
+        conLibro.add(lCon);
+        ConsigliGestore c = ConsigliGestore.GetInstance();
+        Libri[] lib = null;
+        JLabel er = new JLabel();
+        try {
+            lib = c.RicercaConsigliDatoUtenteELibro(id);
+        } catch (RemoteException e) {
+            er.setText("errore");
+            //launch error            popup
+        }
+
+        if (lib == null) {
+            Config.setLabel1(er);
+            lCon.add(er);
+        } else if (lib.length == 0) {
+            JButton aggButton1 = new JButton("primo Consiglio");
+            JButton aggButton2 = new JButton("secondo Consiglio");
+            JButton aggButton3 = new JButton("terzo Consiglio");
+            Config.setButton1(aggButton1);
+            Config.setButton1(aggButton2);
+            Config.setButton1(aggButton3);
+            aggButton1.addActionListener(e -> setConsiglio());
+            aggButton2.addActionListener(e -> setConsiglio());
+            aggButton3.addActionListener(e -> setConsiglio());
+            JPanel consigli = new JPanel();
+            consigli.setLayout(new GridLayout(3, 1));
+            Config.setPanel1(consigli);
+            consigli.add(aggButton1);
+            consigli.add(aggButton2);
+            consigli.add(aggButton3);
+            conLibro.add(consigli);
+        } else {
+            JPanel consigli = new JPanel();
+            consigli.setLayout(new GridLayout(3, 1));
+            Config.setPanel1(consigli);
+            Libri[] finalLib = lib;
+
+            JButton aggButton1 = new JButton(lib[0].getTitolo());
+            Config.setButton1(aggButton1);
+            aggButton1.addActionListener(e -> gui.showLibro(finalLib[0].getId() + ""));
+            consigli.add(aggButton1);
+
+            JButton aggButton2 = new JButton("secondo Consiglio");
+            Config.setButton1(aggButton2);
+            aggButton2.addActionListener(e -> setConsiglio());
+            if (finalLib.length == 2) {
+                aggButton2.setText(finalLib[1].getTitolo());
+                aggButton2.addActionListener(e -> gui.showLibro(finalLib[1].getId() + ""));
+            }
+            consigli.add(aggButton2);
+
+            JButton aggButton3 = new JButton("terzo Consiglio");
+            Config.setButton1(aggButton3);
+            aggButton3.addActionListener(e -> setConsiglio());
+            if (finalLib.length == 3) {
+                aggButton3.setText(finalLib[2].getTitolo());
+                aggButton3.addActionListener(e -> gui.showLibro(finalLib[2].getId() + ""));
+            }
+            consigli.add(aggButton3);
+            conLibro.add(consigli);
+        }
         return valLibro;
+
+
     }
 
-    private static String creaStelle(double voto) {
+    private void setConsiglio() {
+    }
+
+    private static String creaStelle(float voto) {
         int piene = (int) voto;
         boolean mezza = (voto - piene) >= 0.5;
         int vuote = 5 - piene - (mezza ? 1 : 0);

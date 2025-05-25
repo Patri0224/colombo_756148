@@ -4,6 +4,9 @@ import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.entita.ConsigliLibri;
 import bookRecommender.entita.Libri;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
+import graphics.PopupError;
+
+import java.rmi.RemoteException;
 
 public class ConsigliGestore {
     private static ConsigliGestore instance = null;
@@ -113,31 +116,37 @@ public class ConsigliGestore {
 
     public Libri[] RicercaConsigliDatoLibro(int idLibro) {
         if (!utenteGestore.UtenteLoggato()) {
-            return new Libri[0];
+            PopupError.mostraErrore("utente non loggato");
+            return null;
         }
         if (idLibro == -1) {
-            return new Libri[0];
+            PopupError.mostraErrore("Id libro non valido");
+            return null;
         }
         try {
             return stub.RicercaConsigliDatoLibro(idLibro);
         } catch (Exception e) {
+            PopupError.mostraErrore(e.getMessage());
             e.printStackTrace();
-            return new Libri[0];
+            return null;
         }
     }
 
-    public Libri[] RicercaConsigliDatoUtenteELibro(int idLibro) {
+    public Libri[] RicercaConsigliDatoUtenteELibro(int idLibro) throws RemoteException {
         if (!utenteGestore.UtenteLoggato()) {
+            PopupError.mostraErrore("utente non loggato");
             return null;
         }
         if (idLibro == -1) {
+            PopupError.mostraErrore("Id libro non valido");
             return null;
         }
         try {
             return stub.RicercaConsigliDatoUtenteELibro(utenteGestore.GetIdUtente(), idLibro);
         } catch (Exception e) {
+            PopupError.mostraErrore(e.getMessage());
             e.printStackTrace();
-            return null;
+            return new Libri[0];
         }
     }
 }

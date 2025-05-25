@@ -12,6 +12,11 @@ public class PaginaHome extends JPanel {
     private JPanel libri;
 
     public PaginaHome() {
+        reload();
+    }
+
+    public void reload() {
+        removeAll();
         gui = BookRecommender.GetInstance();
         setBackground(Config.COLORE_SFONDO);
         setLayout(new BorderLayout(1, 1));

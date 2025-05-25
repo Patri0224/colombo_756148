@@ -3,6 +3,7 @@ package bookRecommender;
 import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.entita.Libri;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
+import graphics.PopupError;
 
 import java.rmi.RemoteException;
 
@@ -70,6 +71,7 @@ public class LibriRicercaGestore {
             else
                 return null;
         } catch (RemoteException e) {
+            PopupError.mostraErrore(e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -92,6 +94,7 @@ public class LibriRicercaGestore {
             Libri[] libs = stub.RicercaLibriDaIds(idLibri);
             return libs;//se non trova nessuno ritorna un array vuoto (creato dallo stub)
         } catch (RemoteException e) {
+            PopupError.mostraErrore(e.getMessage());
             throw new RuntimeException(e);
         }
     }

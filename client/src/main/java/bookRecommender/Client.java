@@ -3,6 +3,7 @@ package bookRecommender;
 
 import bookRecommender.rmi.ServerBookRecommenderInterface;
 import graphics.BookRecommender;
+import graphics.PopupError;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -35,6 +36,7 @@ public class Client {
 
 
         } catch (RemoteException | NotBoundException e) {
+            PopupError.mostraErrore(e.getMessage());
             throw new RuntimeException(e);
         }
 
