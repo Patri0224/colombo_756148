@@ -114,6 +114,10 @@ public class UtenteGestore {
         }
     }
 
+    public String GetNome() {
+        return nome;
+    }
+
     public Eccezione Login(String email, String password) {
         Eccezione ecc = null;
         try {
@@ -184,6 +188,15 @@ public class UtenteGestore {
         return true; // Placeholder, replace with actual validation logic
     }
 
+    public void Logout() {
+        idUtente = -1;
+        email = null;
+        passwordCriptata = null;
+        codiceFiscale = null;
+        nome = null;
+        cognome = null;
+    }
+
     public Eccezione RimuoviUtente() {
         try {
             Eccezione ecc = stub.RimuoviUtente(idUtente);
@@ -218,6 +231,7 @@ public class UtenteGestore {
             return new Eccezione(5, "Remote Error" + e.getMessage());
         }
     }
+
     public boolean UtenteLoggato() {
         return idUtente != -1;
     }

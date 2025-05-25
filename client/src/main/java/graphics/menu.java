@@ -12,7 +12,7 @@ public class menu extends JPanel {
     UtenteGestore utente;
     JScrollPane scrollLibrerie;
     BookRecommender gui;
-
+    JLabel titolo;
     public menu(String titoloPagina, JScrollPane scrollLibrerie) {
         this.scrollLibrerie = scrollLibrerie;
         this.gui = BookRecommender.GetInstance();
@@ -24,7 +24,7 @@ public class menu extends JPanel {
         Config.setPanel1(panel);
         panel.add(ComandoIndietro.getBottoneHome());
         panel.add(ComandoIndietro.getBottoneIndietro());
-        JLabel titolo = new JLabel(titoloPagina);
+        titolo = new JLabel(titoloPagina);
         Config.setLabel1(titolo);
         panel.add(titolo);
         add(panel, BorderLayout.WEST);
@@ -37,6 +37,7 @@ public class menu extends JPanel {
         scrollLibrerie.setPreferredSize(new Dimension(200, 0));
         if (utente.UtenteLoggato()) {
             // Se l'utente è loggato, mostra librerie non ancora caricate
+            titolo.setText(titoloPagina + " di " + utente.GetNome());
             JPanel panel2 = new JPanel();
             Config.setPanel1(panel2);
             panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
@@ -65,7 +66,7 @@ public class menu extends JPanel {
             // Se l'utente è non loggato, nasconde la parte delle librerie
             scrollLibrerie.setVisible(false);
             //creazione dei bottoni
-            JButton Login = new JButton("Login");
+            JButton Login = new JButton("Accedi");
             Config.setButton1(Login);
             Login.addActionListener(e -> gui.showLogin());
             panel1.add(Login);
@@ -99,9 +100,9 @@ public class menu extends JPanel {
         if (libGs.length == 0) {
             JPanel panel3 = new JPanel();
             Config.setPanel1(panel3);
-            panel3.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
-            JLabel a = new JLabel("Caricamento");
-            JLabel a1 = new JLabel("in corso...");
+            panel3.setLayout(new BoxLayout(panel3, BoxLayout.Y_AXIS));
+            JLabel a = new JLabel("Non hai ancora");
+            JLabel a1 = new JLabel("librerie");
             a.setAlignmentX(Component.CENTER_ALIGNMENT);
             a1.setAlignmentX(Component.CENTER_ALIGNMENT);
             Config.setLabel1(a);
@@ -110,6 +111,7 @@ public class menu extends JPanel {
             panel3.add(a1);
             panel3.setMinimumSize(new Dimension(300, 0));
             scrollLibrerie.setViewportView(panel3);
+            return;
         }
         JPanel panelLibrerie = new JPanel();
         Config.setPanel1(panelLibrerie);

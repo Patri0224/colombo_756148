@@ -27,11 +27,11 @@ public class Client {
             ConsigliGestore.CreateInstance(stub);
             ValutazioniGestore.CreateInstance(stub);
             UtenteGestore u = UtenteGestore.GetInstance();
-            u.Login("colombo@g", "Patrizio.24");
+            //u.Login("falafel@g","Ciao.987");
+            //u.Registrazione("falafel@g","Ciao.987","FFL78C","Fabio", "Falafel");
             //crezione GUI
             gui = BookRecommender.CreateInstance();
             gui.creaGrafica(gui);
-            gui.setVisible(true);
 
 
         } catch (RemoteException | NotBoundException e) {

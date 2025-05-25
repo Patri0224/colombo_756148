@@ -98,5 +98,28 @@ public class ValutazioniLibri  implements Serializable {
     public int getIdUtente() {
         return id_utente;
     }
+    @Override
+    public String toString() {
+        String[] categorie = {
+                "Stile", "Contenuto", "Gradevolezza", "Originalità", "Edizione", "Voto Finale"
+        };
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Valutazioni per il libro ID: ").append(id_libro).append("\n");
+
+        short[] punteggi = score.getPunteggi();
+        String[] note = score.getNote();
+
+        for (int i = 0; i < categorie.length; i++) {
+            sb.append(String.format("%-15s: %d", categorie[i], punteggi[i]));
+            if (note[i] != null && !note[i].isEmpty()) {
+                sb.append(" | Nota: ").append(note[i]);
+            }
+            sb.append("\n");
+        }
+
+        return sb.toString();
+    }
+
 }
 
