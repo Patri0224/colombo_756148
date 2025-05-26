@@ -17,10 +17,19 @@ public class AggiungiConsiglio extends JPanel {
     public int idLibro;
     private JScrollPane scroll;
 
+    /**
+     * Costruttore della classe AggiungiConsiglio
+     * @param idLibro id del libro a cui aggiungere i libri consigliati
+     */
     public AggiungiConsiglio(int idLibro) {
         this.reload(idLibro);
     }
 
+    /**
+     * Pagina che permette la selezione dei libri da consigliare dato un libro scelto dall'utente nella pagina del libro
+     *
+     * @param idLibro id del libro a cui aggiungere i libri consigliati
+     */
     public void reload(int idLibro) {
         removeAll();
         if (idLibro == -1) {
@@ -58,8 +67,5 @@ public class AggiungiConsiglio extends JPanel {
         main.add(ric, BorderLayout.NORTH);
         main.add(scroll, BorderLayout.CENTER);
         add(main, BorderLayout.CENTER);
-
     }
-
-
 }
