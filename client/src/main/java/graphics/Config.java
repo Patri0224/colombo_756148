@@ -161,4 +161,5 @@ public class Config {
         fontSizeSpinner.setForeground(COLORE_TEXT_1);
         fontSizeSpinner.setFont(FONT);
     }
+
 }

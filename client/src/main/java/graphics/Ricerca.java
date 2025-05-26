@@ -1,5 +1,6 @@
 package graphics;
 
+import bookRecommender.ConsigliGestore;
 import bookRecommender.LibrerieGestore;
 import bookRecommender.LibriRicercaGestore;
 import bookRecommender.eccezioni.Eccezione;
@@ -13,14 +14,22 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class Ricerca extends JPanel {
-    JPanel risultati;
-    BookRecommender gui;
+    private JPanel risultati;
+    private BookRecommender gui;
     int opzioneRicerca;
-    JTextField titolo;
-    JTextField autore;
-    JTextField anno;
-    JPanel spazioInterno;
-    JTextArea[] textAreas = new JTextArea[0];
+    private JTextField titolo;
+    private JTextField autore;
+    private JTextField anno;
+    private JPanel spazioInterno;
+    private JTextArea[] textAreas = new JTextArea[0];
+    private AggiungiConsiglio aggiungiConsiglio;
+
+    public Ricerca(JPanel panel, int opzioneRicerca, AggiungiConsiglio aggiungiConsiglio) {
+        this(panel, opzioneRicerca);
+        this.aggiungiConsiglio = aggiungiConsiglio;
+
+
+    }
 
     public Ricerca(JPanel panel, int opzioneRicerca) {
         this.risultati = panel;
@@ -50,8 +59,7 @@ public class Ricerca extends JPanel {
         JButton ricerca = new JButton("Cerca");
         Config.setButton1(ricerca);
         ricerca.addActionListener(e -> {
-            if (opzioneRicerca == 0)
-                cercaLibri();
+            cercaLibri();
         });
         spazioInterno.add(titoloL);
         spazioInterno.add(autoreL);
@@ -87,9 +95,10 @@ public class Ricerca extends JPanel {
         String titoloRicerca = titolo.getText().trim();
         String autoreRicerca = autore.getText().trim();
         String annoRicerca = anno.getText().trim();
-        if (titoloRicerca.length() < 3 && autoreRicerca.length() < 3 && annoRicerca.length() < 4) {
-            return;
-        }
+        if (opzioneRicerca == 0)
+            if (titoloRicerca.length() < 3 && autoreRicerca.length() < 3 && annoRicerca.length() < 4) {
+                return;
+            }
         int annoR;
         if (annoRicerca.isEmpty()) {
             annoR = -1; // Se il campo anno è vuoto, non filtrare per anno
@@ -162,7 +171,17 @@ public class Ricerca extends JPanel {
             textArea.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    gui.showLibro(lib.getId() + "");
+                    if (opzioneRicerca == 1) {
+                        System.out.println(aggiungiConsiglio.idLibro+" "+ lib.getId());
+                        Eccezione ecc = ConsigliGestore.GetInstance().AggiungiLibroAConsiglio(aggiungiConsiglio.idLibro, lib.getId());
+                        if (ecc.getErrorCode() == 0) {
+                            aggiungiConsiglio.dispose();
+                        }
+                        new PopupError(ecc.getErrorCode() + " " + ecc.getMessage());
+
+                    } else
+                        gui.showLibro(lib.getId() + "");
+
                 }
 
                 @Override

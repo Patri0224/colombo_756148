@@ -1,9 +1,6 @@
 package graphics;
 
-import bookRecommender.ConsigliGestore;
-import bookRecommender.LibriRicercaGestore;
-import bookRecommender.UtenteGestore;
-import bookRecommender.ValutazioniGestore;
+import bookRecommender.*;
 import bookRecommender.entita.Libri;
 import bookRecommender.entita.ValutazioniLibri;
 
@@ -50,6 +47,7 @@ public class PaginaLibro extends JPanel {
         scrollLibrerie = new JScrollPane();
         Config.setScrollPane(scrollLibrerie);
         scrollLibrerie.setVisible(false);
+        add(scrollLibrerie, BorderLayout.EAST);
         menu = new menu("Pagina Libro " + libro.getTitolo(), scrollLibrerie);
 
         main = new JPanel();
@@ -85,34 +83,52 @@ public class PaginaLibro extends JPanel {
     }
 
     private JPanel creaDatiLibro() {
-        JPanel datiLibro = new JPanel(new GridLayout(7, 1));
-        Config.setPanel1(datiLibro);
+        JPanel datiLibro = new JPanel(new GridBagLayout());
+        Config.setPanel2(datiLibro);
 
-        // Helper method
-        datiLibro.add(creaCampo("Titolo", libro.getTitolo()));
-        datiLibro.add(creaCampo("Autore", libro.getAutori()));
-        datiLibro.add(creaCampo("Pubblicazione", libro.getMesePubblicazione() + " " + libro.getAnnoPubblicazione()));
-        datiLibro.add(creaCampo("Categoria", libro.getCategorie()));
-        datiLibro.add(creaCampo("Editore", libro.getEditore()));
-        datiLibro.add(creaCampo("Prezzo", String.valueOf(libro.getPrezzoPartenzaEuro())));
-        datiLibro.add(creaCampo("Descrizione", libro.getDescrizione()));
+        int row = 0;
+        datiLibro.add(creaCampo("Titolo", libro.getTitolo()), createGbc(row++));
+        datiLibro.add(creaCampo("Autore", libro.getAutori()), createGbc(row++));
+        datiLibro.add(creaCampo("Pubblicazione", libro.getMesePubblicazione() + " " + libro.getAnnoPubblicazione()), createGbc(row++));
+        datiLibro.add(creaCampo("Categoria", libro.getCategorie()), createGbc(row++));
+        datiLibro.add(creaCampo("Editore", libro.getEditore()), createGbc(row++));
+        datiLibro.add(creaCampo("Prezzo", String.valueOf(libro.getPrezzoPartenzaEuro())), createGbc(row++));
+        datiLibro.add(creaCampo("Descrizione", libro.getDescrizione()), createGbc(row++));
 
         return datiLibro;
     }
 
-    private JPanel creaCampo(String etichetta, String valore) {
-        JPanel pannello = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        Config.setPanel1(pannello);
+    private GridBagConstraints createGbc(int y) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        return gbc;
+    }
 
+    private JPanel creaCampo(String etichetta, String valore) {
+        JPanel pannello = new JPanel();
+        pannello.setLayout(new BoxLayout(pannello, BoxLayout.X_AXIS));
+        Config.setPanel2(pannello);
         JLabel label = new JLabel(etichetta);
         Config.setLabel1(label);
 
         JTextArea campo = new JTextArea(valore);
         campo.setEditable(false);
+        campo.setLineWrap(true);
+        campo.setWrapStyleWord(true);
         Config.setTextArea1(campo); // Supponendo che la funzione funzioni anche con JTextField
-
+        JPanel container = new JPanel(new BorderLayout(5, 5)); // altezza maggiore
+        container.add(campo, BorderLayout.CENTER);
+        Config.setPanel1(container);
         pannello.add(label);
-        pannello.add(campo);
+        pannello.add(container);
         return pannello;
     }
 
@@ -136,12 +152,13 @@ public class PaginaLibro extends JPanel {
         valutazioneStr += "Edizione: " + creaStelle(scores[4]);
         valutazioneStr += "Media: " + creaStelle(scores[5]);
         valutazioni.setText(valutazioneStr);
-
+        Config.setTextArea1(valutazioni);
         ConsigliGestore cG = ConsigliGestore.GetInstance();
         Libri[] libriConsigliati = cG.RicercaConsigliDatoLibro(libro.getId());
         if (libriConsigliati == null) {
             JTextArea consigli = new JTextArea();
             consigli.setText("Nessun libro è stato consigliato per questo libro.");
+            Config.setTextArea1(consigli);
 
         } else {
             // Conteggio delle occorrenze
@@ -167,6 +184,10 @@ public class PaginaLibro extends JPanel {
 
 
     private JPanel ValutazioniConsigliLibroPersonali() {
+        if (!LibrerieGestore.GetInstance().ControlloLibroInLibrerie(libro.getId())) {
+            JPanel panel = aggiungiALibreria();
+            return panel;
+        }
         JPanel datiLibro = new JPanel();
         datiLibro.setLayout(new GridLayout(2, 1));
         Config.setPanel1(datiLibro);
@@ -175,6 +196,7 @@ public class PaginaLibro extends JPanel {
         JPanel valLibro = new JPanel();
         valLibro.setLayout(new GridLayout(2, 1));
         Config.setPanel1(valLibro);
+        valLibro.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
         JLabel lVal = new JLabel("Valutazione");
         Config.setLabel1(lVal);
@@ -193,9 +215,11 @@ public class PaginaLibro extends JPanel {
             valutazioni.setText(valutazioniLibri.toString());
             valLibro.add(valutazioni);
         }
+        datiLibro.add(valLibro);
         JPanel conLibro = new JPanel();
         conLibro.setLayout(new GridLayout(2, 1));
         Config.setPanel1(conLibro);
+        conLibro.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
         JLabel lCon = new JLabel("Consigli");
         Config.setLabel1(lCon);
         conLibro.add(lCon);
@@ -259,12 +283,45 @@ public class PaginaLibro extends JPanel {
             consigli.add(aggButton3);
             conLibro.add(consigli);
         }
-        return valLibro;
+        datiLibro.add(conLibro);
+        return datiLibro;
 
 
     }
 
+    private JPanel aggiungiALibreria() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(3, 1, 10, 20));
+        Config.setPanel1(panel);
+        panel.setBorder(BorderFactory.createEmptyBorder(40, 20, 40, 20));
+        JTextArea info;
+        boolean nonHaLibs = LibrerieGestore.GetInstance().GetLibrerie().length == 0;
+        if (nonHaLibs) {
+            info = new JTextArea("Crea prima una libreria");
+        } else {
+            info = new JTextArea("Il libro non è presente in nessuna delle librerie, aggiungilo per dare una valutazione e aggiungiere consigli");
+        }
+        info.setEditable(false);
+        info.setLineWrap(true);
+        info.setWrapStyleWord(true);
+        Config.setTextArea1(info);
+        panel.add(info);
+        if (nonHaLibs) return panel;
+        LibrerieGestore.GetInstance().caricaLibrerie();
+        String[] nomeLibrerie = LibrerieGestore.GetInstance().getNomeLibrerie();
+        JComboBox<String> libCombo = new JComboBox<>(nomeLibrerie);
+        Config.setComboBox1(libCombo);
+        libCombo.setSelectedItem(nomeLibrerie[0]);
+        panel.add(libCombo);
+        JButton aggiungiButton = new JButton("aggiungi");
+        Config.setButton1(aggiungiButton);
+        aggiungiButton.addActionListener(e -> LibrerieGestore.GetInstance().AggiungiLibroALibreria((String) libCombo.getSelectedItem(), libro.getId()));
+        panel.add(aggiungiButton);
+        return panel;
+    }
+
     private void setConsiglio() {
+        new AggiungiConsiglio(libro.getId());
     }
 
     private static String creaStelle(float voto) {
@@ -277,5 +334,9 @@ public class PaginaLibro extends JPanel {
         if (mezza) sb.append("⯨");
         for (int i = 0; i < vuote; i++) sb.append("☆");
         return sb.toString();
+    }
+
+    public int getLibro() {
+        return libro.getId();
     }
 }

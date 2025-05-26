@@ -12,7 +12,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class PaginaLibreria extends JPanel {
-    String nomeLibreria;
+
+
+    private String nomeLibreria;
     private BookRecommender gui;
     private JPanel menu;
     private JPanel main;
@@ -162,6 +164,9 @@ public class PaginaLibreria extends JPanel {
             i++;
         }
         listaLibri.add(interno, BorderLayout.CENTER);
+    }
+    public String getNomeLibreria() {
+        return nomeLibreria;
     }
 
 }

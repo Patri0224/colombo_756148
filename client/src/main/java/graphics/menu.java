@@ -54,7 +54,7 @@ public class menu extends JPanel {
             panel2.setMinimumSize(new Dimension(300, 0));
             scrollLibrerie.setViewportView(panel2);
             //creazione dei bottoni
-            JButton mostraLibreria = new JButton("Mostra libreria");
+            JButton mostraLibreria = new JButton("Aggiorna libreria");
             mostraLibreria.addActionListener(e -> mostraLibrerie());
             Config.setButton1(mostraLibreria);
             JButton Logout = new JButton("Logout");

@@ -7,6 +7,7 @@ import bookRecommender.rmi.ServerBookRecommenderInterface;
 import graphics.PopupError;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 public class LibrerieGestore {
     private static LibrerieGestore instance = null;
@@ -135,6 +136,7 @@ public class LibrerieGestore {
         }
     }
 
+
     public Eccezione AggiungiLibroALibreria(String nomeLibreria, int idLibro) {
         Librerie libreria = GetLibreria(nomeLibreria);
         if (libreria != null) {
@@ -241,4 +243,11 @@ public class LibrerieGestore {
         return sb.toString();
     }
 
+    public String[] getNomeLibrerie() {
+        ArrayList<String> lista = new ArrayList<String>();
+        for (Librerie l : librerie) {
+            lista.add(l.getNome());
+        }
+        return lista.toArray(new String[lista.size()]);
+    }
 }

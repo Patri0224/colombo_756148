@@ -46,10 +46,10 @@ public class ConsigliGestore {
         if (idLibroRiguardante == -1 || idLibroConsigliato == -1) {
             return new Eccezione(7, "Id libro non valido");
         }
-        LibrerieGestore libGes = LibrerieGestore.GetInstance();
+        /*LibrerieGestore libGes = LibrerieGestore.GetInstance();
         if (libGes.ControlloLibroInLibrerie(idLibroConsigliato)) {
             return new Eccezione(8, "Il libro consigliato non è presente in nessuna libreria");
-        }
+        }*/
         try {
             return stub.AggiungiLibroAConsiglio(utenteGestore.GetIdUtente(), idLibroRiguardante, idLibroConsigliato);
         } catch (Exception e) {
@@ -78,7 +78,7 @@ public class ConsigliGestore {
             }
         }
         try {
-            ConsigliLibri c = new ConsigliLibri(utenteGestore.GetIdUtente(), idLibroRiguardante, idLibriConsigliati[0], idLibriConsigliati[1], idLibriConsigliati[2]);
+            ConsigliLibri c = new ConsigliLibri(idLibroRiguardante, utenteGestore.GetIdUtente(), idLibriConsigliati[0], idLibriConsigliati[1], idLibriConsigliati[2]);
             return stub.AggiungiConsiglio(c);
         } catch (Exception e) {
             return new Eccezione(8, "Remote problem : " + e.getMessage());

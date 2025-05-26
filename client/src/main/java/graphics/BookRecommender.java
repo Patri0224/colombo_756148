@@ -143,6 +143,16 @@ public class BookRecommender extends JFrame {
     public void reloadAll() {
         paginaImpostazioni.reload();
         reloadHome();
+        int idLibro = paginaLibro.getLibro();
+        paginaLibro.setLibro(idLibro);
+
+        String idLibreria = paginaLibreria.getNomeLibreria();
+        paginaLibreria.setLibreria(idLibreria);
+
         autenticazione.reload();
+    }
+
+    public void refresh() {
+
     }
 }

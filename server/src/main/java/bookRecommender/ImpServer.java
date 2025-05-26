@@ -479,7 +479,7 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         if (exist)
             ec = q.AggiungiLibroAConsiglio(idUtente, idRiguardante, idLibroConsigliato);
         else {
-            ec = q.AggiungiConsiglio(new ConsigliLibri(idUtente, idRiguardante, idLibroConsigliato, -1, -1));
+            ec = q.AggiungiConsiglio(new ConsigliLibri( idRiguardante,idUtente, idLibroConsigliato, -1, -1));
         }
         q.Disconnect();
         return ec;
