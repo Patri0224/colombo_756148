@@ -29,9 +29,9 @@ public class Client {
             ConsigliGestore.CreateInstance(stub);
             ValutazioniGestore.CreateInstance(stub);
             UtenteGestore u = UtenteGestore.GetInstance();
-
-            Eccezione ecc =u.Login("pat@g","Patrizio.25");
-            PopupError.mostraErrore(ecc.getMessage()+ecc.getErrorCode());
+            //
+            Eccezione ecc = u.Login("falafel@gmail.com", "Frazz.004");
+            if (ecc.getErrorCode() > 0) PopupError.mostraErrore(ecc.getErrorCode() + " " + ecc.getMessage());
             //u.Registrazione("falafel@g","Ciao.987","FFL78C","Fabio", "Falafel");
             //crezione GUI
             gui = BookRecommender.CreateInstance();

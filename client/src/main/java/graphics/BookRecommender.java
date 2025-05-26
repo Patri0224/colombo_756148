@@ -24,6 +24,7 @@ public class BookRecommender extends JFrame {
     private AggiungiValutazione aggiungiValutazione;
     private PaginaIntermedia paginaIntermedia;
     private Impostazioni paginaImpostazioni;
+    private AggiungiConsiglio aggiungiConsiglio;
 
     public BookRecommender() {
 
@@ -66,6 +67,7 @@ public class BookRecommender extends JFrame {
         aggiungiValutazione = new AggiungiValutazione();
         paginaIntermedia = new PaginaIntermedia();
         paginaImpostazioni = new Impostazioni();
+        aggiungiConsiglio = new AggiungiConsiglio(-1);
 
         cardPanel.add(paginaHome, "HOME");
         cardPanel.add(paginaLibro, "LIBRO");
@@ -74,6 +76,7 @@ public class BookRecommender extends JFrame {
         cardPanel.add(aggiungiValutazione, "VALUTAZIONE");
         cardPanel.add(paginaIntermedia, "I");
         cardPanel.add(paginaImpostazioni, "IMPOSTAZIONI");
+        cardPanel.add(aggiungiConsiglio, "CONSIGLIO");
         showHome();
         frame.add(cardPanel, BorderLayout.CENTER);
 
@@ -113,8 +116,9 @@ public class BookRecommender extends JFrame {
 
     public void showValutazione(String idlibro) {
         showI();
-        ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_LIBRERIA, idlibro);
-        cardLayout.show(cardPanel, "LIBRERIA");
+        ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_AGGIUNGI_VALUTAZIONE, idlibro);
+        aggiungiValutazione.reload(idlibro);
+        cardLayout.show(cardPanel, "VALUTAZIONE");
     }
 
     public void showImpostazioni() {
@@ -122,6 +126,12 @@ public class BookRecommender extends JFrame {
         paginaImpostazioni.reload();
         ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_IMPOSTAZIONI, "");
         cardLayout.show(cardPanel, "IMPOSTAZIONI");
+    }
+    public void showAggiungiConsiglio(int idLibro) {
+        showI();
+        aggiungiConsiglio.reload(idLibro);
+        ComandoIndietro.aggiungiOggetto(ComandoIndietro.PAGINA_AGGIUNGI_CONSIGLIO, "");
+        cardLayout.show(cardPanel, "CONSIGLIO");
     }
 
     public void showI() {
@@ -145,14 +155,8 @@ public class BookRecommender extends JFrame {
         reloadHome();
         int idLibro = paginaLibro.getLibro();
         paginaLibro.setLibro(idLibro);
-
         String idLibreria = paginaLibreria.getNomeLibreria();
         paginaLibreria.setLibreria(idLibreria);
-
         autenticazione.reload();
-    }
-
-    public void refresh() {
-
     }
 }

@@ -19,12 +19,12 @@ public class ValutazioniLibri  implements Serializable {
      */
 
     // Costruttore
-    public ValutazioniLibri(int id_libro, int id_utente) {
+    public ValutazioniLibri(int id_utente, int id_libro) {
         this.id_libro = id_libro;
         this.id_utente = id_utente;
     }
 
-    public ValutazioniLibri(int id_libro, int id_utente, Score score) {
+    public ValutazioniLibri(int id_utente, int id_libro,Score score) {
         this.id_libro = id_libro;
         this.id_utente = id_utente;
         this.score = score;

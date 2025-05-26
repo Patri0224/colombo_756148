@@ -69,7 +69,6 @@ public class PaginaLibreria extends JPanel {
             @Override
             public void componentResized(ComponentEvent e) {
                 int larghezza = info.getWidth();
-                System.out.println("Spazio interno larghezza: " + larghezza);
                 for (JTextArea area : textAreas) {
                     Dimension nuovaDimensione = new Dimension(larghezza - 20, area.getPreferredSize().height);
                     area.setMaximumSize(nuovaDimensione);

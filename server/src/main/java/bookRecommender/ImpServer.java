@@ -266,9 +266,14 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
     @Override
     public Libri[] RicercaLibriDaIds(int[] ids) throws RemoteException {
         try {
-            q.Connect();
-            Libri[] libri = q.RicercaLibriDaIds(ids);
-            q.Disconnect();
+            Libri[] libri=new Libri[0];
+            if (ids == null || ids.length == 0) {
+                return new Libri[0];
+            } else {
+                q.Connect();
+                libri = q.RicercaLibriDaIds(ids);
+                q.Disconnect();
+            }
             if (libri == null) {
                 return new Libri[0];
             }
@@ -384,10 +389,10 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
      * @throws RemoteException tutte le eccezioni
      */
     @Override
-    public Libri[] RicercaLibriDaLibrerie(int idUtente,String titoloRicerca, String autoreRicerca, int annoR) throws RemoteException {
+    public Libri[] RicercaLibriDaLibrerie(int idUtente, String titoloRicerca, String autoreRicerca, int annoR) throws RemoteException {
         try {
             q.Connect();
-            Libri[] libri = q.RicercaLibriDaLibrerie(idUtente,titoloRicerca,  autoreRicerca, annoR);
+            Libri[] libri = q.RicercaLibriDaLibrerie(idUtente, titoloRicerca, autoreRicerca, annoR);
             q.Disconnect();
             if (libri == null) {
                 return new Libri[0];
@@ -479,7 +484,7 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
         if (exist)
             ec = q.AggiungiLibroAConsiglio(idUtente, idRiguardante, idLibroConsigliato);
         else {
-            ec = q.AggiungiConsiglio(new ConsigliLibri( idRiguardante,idUtente, idLibroConsigliato, -1, -1));
+            ec = q.AggiungiConsiglio(new ConsigliLibri(idRiguardante, idUtente, idLibroConsigliato, -1, -1));
         }
         q.Disconnect();
         return ec;
@@ -520,7 +525,7 @@ public class ImpServer implements ServerBookRecommenderInterface, Serializable {
             ConsigliLibri c = q.RicercaConsigliDatoUtenteELibro(idUtente, idLibro);
             if (c != null) {
                 int[] libri = c.getConsigliLibri();
-                if (c.isEmpty()) {
+                if (libri == null || libri.length == 0) {
                     q.Disconnect();
                     return new Libri[0];
                 } else {

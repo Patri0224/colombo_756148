@@ -13,6 +13,7 @@ public class Config {
     public static Color COLORE_SFONDO_BOTTONE = new Color(46, 46, 76);
     public static Color COLORE_HOVER_BOTTONE = new Color(93, 85, 158);
     public static Font FONT = new Font("Arial", Font.PLAIN, 14);
+    public static Font STELLE = new Font("DejaVu Sans", Font.PLAIN, 14);
     public static Color COLORE_TEXT_1 = new Color(255, 255, 255);
     public static Color COLORE_TEXT_2 = new Color(200, 200, 200);
     public static Color COLORE_TEXT_ERR = new Color(223, 62, 62, 255);
@@ -100,6 +101,11 @@ public class Config {
         label.setForeground(COLORE_TEXT_1);
         label.setFont(FONT);
     }
+    public static void setLabel2(JLabel label) {
+        label.setForeground(COLORE_TEXT_1);
+        label.setFont(STELLE);
+
+    }
 
     public static void setLabelError(JLabel label) {
         label.setForeground(COLORE_TEXT_ERR);
@@ -130,11 +136,20 @@ public class Config {
         textArea.setOpaque(true);
     }
 
+    public static void setTextAreaNote(JTextArea textArea) {
+        textArea.setBackground(COLORE_SFONDO2);
+        textArea.setBorder(BORDO_OP1);
+        textArea.setForeground(COLORE_TEXT_1);
+        textArea.setCaretColor(COLORE_TEXT_1);
+        textArea.setFont(FONT);
+        textArea.setOpaque(true);
+    }
+
     public static void setTextArea3(JTextArea textArea) {
         textArea.setBackground(COLORE_SFONDO);
         textArea.setBorder(BORDO_OP3);
         textArea.setForeground(COLORE_TEXT_1);
-        textArea.setCaretColor(COLORE_TEXT_ERR);
+        textArea.setCaretColor(COLORE_TEXT_1);
         textArea.setFont(FONT);
         textArea.setOpaque(true);
     }

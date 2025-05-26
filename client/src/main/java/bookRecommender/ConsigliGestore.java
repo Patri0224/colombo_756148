@@ -46,6 +46,9 @@ public class ConsigliGestore {
         if (idLibroRiguardante == -1 || idLibroConsigliato == -1) {
             return new Eccezione(7, "Id libro non valido");
         }
+        if(idLibroRiguardante == idLibroConsigliato) {
+            return new Eccezione(8, "Non puoi consigliare un libro a se stesso");
+        }
         /*LibrerieGestore libGes = LibrerieGestore.GetInstance();
         if (libGes.ControlloLibroInLibrerie(idLibroConsigliato)) {
             return new Eccezione(8, "Il libro consigliato non è presente in nessuna libreria");

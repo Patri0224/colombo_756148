@@ -6,18 +6,33 @@ import bookRecommender.UtenteGestore;
 import javax.swing.*;
 import java.awt.*;
 
-public class AggiungiConsiglio extends JFrame {
+public class AggiungiConsiglio extends JPanel {
     public int idLibro;
     private JScrollPane scroll;
 
     public AggiungiConsiglio(int idLibro) {
+        this.reload(idLibro);
+    }
+
+    public void reload(int idLibro) {
+        removeAll();
+        if (idLibro == -1) {
+            return;
+        }
         this.idLibro = idLibro;
+        setLayout(new BorderLayout(5, 5));
+        JPanel menuRidotto = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        Config.setPanel1(menuRidotto);
+        JLabel t = new JLabel("Aggiungi consiglio");
+        Config.setLabel1(t);
+        menuRidotto.add(ComandoIndietro.getBottoneHome());
+        menuRidotto.add(ComandoIndietro.getBottoneIndietro());
+        menuRidotto.add(t);
+        add(menuRidotto, BorderLayout.NORTH);
 
-        JFrame aggiungi = new JFrame("Aggiungi consiglio a " + idLibro);
-        aggiungi.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // chiusura finestra
 
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
-
+        JPanel main= new JPanel(new BorderLayout(5, 5));
+        Config.setPanel1(main);
         LibrerieGestore librerieGestore = LibrerieGestore.GetInstance();
         UtenteGestore g = UtenteGestore.GetInstance();
 
@@ -33,13 +48,10 @@ public class AggiungiConsiglio extends JFrame {
         scroll.getVerticalScrollBar().setUnitIncrement(7);
         scroll.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
         p1.setLayout(new BorderLayout());
-        panel.add(ric, BorderLayout.NORTH);
-        panel.add(scroll, BorderLayout.CENTER);
+        main.add(ric, BorderLayout.NORTH);
+        main.add(scroll, BorderLayout.CENTER);
+        add(main, BorderLayout.CENTER);
 
-        aggiungi.setContentPane(panel);
-        aggiungi.setSize(500, 400); // oppure aggiungi.pack();
-        aggiungi.setLocationRelativeTo(null); // centra sullo schermo
-        aggiungi.setVisible(true);
     }
 
 

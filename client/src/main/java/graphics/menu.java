@@ -138,7 +138,7 @@ public class menu extends JPanel {
         JPanel panel = new JPanel();
         Config.setPanel1(panel);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JLabel label = new JLabel("Nome Libreria:");
+        JLabel label = new JLabel("Nome nuova Libreria:");
         Config.setLabel1(label);
         JTextField textField = new JTextField();
         Config.setTextField1(textField);

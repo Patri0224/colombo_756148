@@ -559,6 +559,7 @@ public class QueryList {
             if (id < 0) i++;
             else str.append(id).append(", ");
         }
+        if(str.isEmpty()) return new Libri[0];
         str = new StringBuilder(str.substring(0, str.length() - 2));
         String dataSql = """
                 SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori, d.descrizione, d.categorie, d.editori, d.prezzo
@@ -1044,7 +1045,7 @@ public class QueryList {
                     punteggi[5] = (short) ((punteggi[1] + punteggi[0] + punteggi[2] + punteggi[3] + punteggi[4]) / 5);
 
                     Score score = new Score(punteggi, note);
-                    return new ValutazioniLibri(idLibro, idUtente, score);
+                    return new ValutazioniLibri(idUtente,idLibro, score);
                 }
             }
         }
@@ -1083,7 +1084,7 @@ public class QueryList {
                     punteggi[5] = (short) ((punteggi[1] + punteggi[0] + punteggi[2] + punteggi[3] + punteggi[4]) / 5);
 
                     Score score = new Score(punteggi, note);
-                    return new ValutazioniLibri(idLibro, -1, score);
+                    return new ValutazioniLibri(-1, idLibro, score);
                 }
             }
         }

@@ -172,16 +172,18 @@ public class Ricerca extends JPanel {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     if (opzioneRicerca == 1) {
-                        System.out.println(aggiungiConsiglio.idLibro+" "+ lib.getId());
+                        System.out.println(aggiungiConsiglio.idLibro + " " + lib.getId());
                         Eccezione ecc = ConsigliGestore.GetInstance().AggiungiLibroAConsiglio(aggiungiConsiglio.idLibro, lib.getId());
+                        gui.reloadAll();
                         if (ecc.getErrorCode() == 0) {
-                            aggiungiConsiglio.dispose();
+                            ComandoIndietro.indietro();
+                        } else {
+                            new PopupError(ecc.getErrorCode() + " " + ecc.getMessage());
                         }
-                        new PopupError(ecc.getErrorCode() + " " + ecc.getMessage());
 
-                    } else
+                    } else {
                         gui.showLibro(lib.getId() + "");
-
+                    }
                 }
 
                 @Override

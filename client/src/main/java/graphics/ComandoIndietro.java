@@ -13,6 +13,7 @@ public class ComandoIndietro {
     public static final String PAGINA_AGGIUNGI_VALUTAZIONE = "Pagina Aggiungi Valutazione";
     public static final String PAGINA_AUTENTICAZIONE = "Pagina Autenticazione";
     public static final String PAGINA_IMPOSTAZIONI = "Pagina Impostazioni";
+    public static final String PAGINA_AGGIUNGI_CONSIGLIO = "Pagina Aggiungi Consiglio";
 
     public static void setGui() {
         gui = BookRecommender.GetInstance();
@@ -58,6 +59,10 @@ public class ComandoIndietro {
             }
             case PAGINA_IMPOSTAZIONI: {
                 gui.showImpostazioni();
+                break;
+            }
+            case PAGINA_AGGIUNGI_CONSIGLIO: {
+                gui.showAggiungiConsiglio(-1);
                 break;
             }
         }

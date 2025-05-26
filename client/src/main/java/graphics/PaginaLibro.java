@@ -25,6 +25,7 @@ public class PaginaLibro extends JPanel {
 
     public void setLibro(int id) {
         this.id = id;
+        removeAll();
 
         if (id != -1) {
             libro = LibriRicercaGestore.GetInstance().CercaLibro(id);
@@ -37,7 +38,6 @@ public class PaginaLibro extends JPanel {
             libro.setTitolo("Nessun Libro");
         }
 
-        removeAll();
 
         gui = BookRecommender.GetInstance();
 
@@ -65,8 +65,11 @@ public class PaginaLibro extends JPanel {
     private void creaMainUtenteLoggato() {
         main.setLayout(new GridLayout(1, 3));
         JPanel datiLibro = creaDatiLibro();
+        Config.setPanel2(datiLibro);
         JPanel valConLibro = ValutazioniConsigliLibro();
+        Config.setPanel2(valConLibro);
         JPanel valConUtente = ValutazioniConsigliLibroPersonali();
+        Config.setPanel2(valConUtente);
         main.add(datiLibro);
         main.add(valConLibro);
         main.add(valConUtente);
@@ -75,7 +78,9 @@ public class PaginaLibro extends JPanel {
     private void creaMainUtenteNonLoggato() {
         main.setLayout(new GridLayout(1, 2));
         JPanel datiLibro = creaDatiLibro();
+        Config.setPanel2(datiLibro);
         JPanel valConLibro = ValutazioniConsigliLibro();
+        Config.setPanel2(valConLibro);
         main.add(datiLibro);
         main.add(valConLibro);
 
@@ -93,7 +98,28 @@ public class PaginaLibro extends JPanel {
         datiLibro.add(creaCampo("Categoria", libro.getCategorie()), createGbc(row++));
         datiLibro.add(creaCampo("Editore", libro.getEditore()), createGbc(row++));
         datiLibro.add(creaCampo("Prezzo", String.valueOf(libro.getPrezzoPartenzaEuro())), createGbc(row++));
-        datiLibro.add(creaCampo("Descrizione", libro.getDescrizione()), createGbc(row++));
+        JPanel pannello = new JPanel();
+        pannello.setLayout(new BoxLayout(pannello, BoxLayout.X_AXIS));
+        Config.setPanel2(pannello);
+        JLabel label = new JLabel("Descrizione");
+        Config.setLabel1(label);
+        JTextArea campo = new JTextArea(libro.getDescrizione());
+        campo.setEditable(false);
+        campo.setPreferredSize(new Dimension(300,100));
+        campo.setLineWrap(true);
+        campo.setWrapStyleWord(true);
+        Config.setTextArea1(campo); // Supponendo che la funzione funzioni anche con JTextField
+        JScrollPane scroll = new JScrollPane();
+        Config.setScrollPane(scroll);
+        scroll.setViewportView(campo);
+        scroll.setPreferredSize(new Dimension(600, 400));
+
+        JPanel container = new JPanel(new BorderLayout(5,5)); // altezza maggiore
+        container.add(scroll, BorderLayout.CENTER);
+        Config.setPanel1(container);
+        pannello.add(label);
+        pannello.add(container);
+        datiLibro.add(pannello, createGbc(row++));
 
         return datiLibro;
     }
@@ -145,18 +171,21 @@ public class PaginaLibro extends JPanel {
         ValutazioniGestore vG = ValutazioniGestore.GetInstance();
         ValutazioniLibri valutazioneLibro = vG.RicercaValutazioneMedia(libro.getId());
         scores = valutazioneLibro.getPunteggi();
-        valutazioneStr += "Stile: " + creaStelle(scores[0]);
-        valutazioneStr += "Contenuto: " + creaStelle(scores[1]);
-        valutazioneStr += "Gradevolezza: " + creaStelle(scores[2]);
-        valutazioneStr += "Originalità: " + creaStelle(scores[3]);
-        valutazioneStr += "Edizione: " + creaStelle(scores[4]);
-        valutazioneStr += "Media: " + creaStelle(scores[5]);
-        valutazioni.setText(valutazioneStr);
+        valutazioneStr += "\nStile: " + creaStelle(scores[0]);
+        valutazioneStr += "\nContenuto: " + creaStelle(scores[1]);
+        valutazioneStr += "\nGradevolezza: " + creaStelle(scores[2]);
+        valutazioneStr += "\nOriginalità: " + creaStelle(scores[3]);
+        valutazioneStr += "\nEdizione: " + creaStelle(scores[4]);
+        valutazioneStr += "\nMedia: " + creaStelle(scores[5]);
         Config.setTextArea1(valutazioni);
+        valutazioni.setText(valutazioneStr);
+        valutazioni.setFont(new Font("DejaVu Sans", Font.PLAIN, Math.min(Config.FONT.getSize() + 5, 40)));
+
+        datiLibro.add(valutazioni);
         ConsigliGestore cG = ConsigliGestore.GetInstance();
         Libri[] libriConsigliati = cG.RicercaConsigliDatoLibro(libro.getId());
+        JTextArea consigli = new JTextArea();
         if (libriConsigliati == null) {
-            JTextArea consigli = new JTextArea();
             consigli.setText("Nessun libro è stato consigliato per questo libro.");
             Config.setTextArea1(consigli);
 
@@ -169,16 +198,20 @@ public class PaginaLibro extends JPanel {
             StringBuilder consigliStrBuilder = new StringBuilder();
 
             conteggio.forEach((libro, occorrenze) -> {
-                consigliStrBuilder.append("Libro: ")
+                consigliStrBuilder.append("- Libro: ")
                         .append(libro.getTitolo())
                         .append(" -> ")
                         .append(occorrenze)
                         .append(" occorrenze\n");
             });
 
-            JTextArea consigli = new JTextArea();
             consigli.setText(consigliStrBuilder.toString());
+            Config.setTextArea1(consigli);
+            consigli.setBorder(BorderFactory.createEmptyBorder(20,30,30,30));
+            consigli.setLineWrap(true);
+            consigli.setWrapStyleWord(true);
         }
+        datiLibro.add(consigli);
         return datiLibro;
     }
 
@@ -209,11 +242,89 @@ public class PaginaLibro extends JPanel {
             aggButton.addActionListener(e -> gui.showValutazione(id + ""));
             valLibro.add(aggButton);
         } else {
-            JTextArea valutazioni = new JTextArea();
-            valutazioni.setEditable(false);
-            Config.setTextArea1(valutazioni);
-            valutazioni.setText(valutazioniLibri.toString());
-            valLibro.add(valutazioni);
+            JPanel panelValutazioni = new JPanel(new GridLayout(6, 3));
+            Config.setPanel1(panelValutazioni);
+            JLabel stile = new JLabel("Stile");
+            Config.setLabel1(stile);
+            JLabel scoreStile = new JLabel(creaStelle(valutazioniLibri.getPunteggio(0)));
+            Config.setLabel2(scoreStile);
+
+            JScrollPane scrollStile = new JScrollPane();
+            JTextArea noteStile = new JTextArea(valutazioniLibri.getNota(0));
+            Config.setScrollPane(scrollStile);
+            scrollStile.setViewportView(noteStile);
+            scrollStile.setPreferredSize(new Dimension(600, 400));
+            Config.setTextArea1(noteStile);
+            noteStile.setEditable(false);
+            panelValutazioni.add(stile);
+            panelValutazioni.add(scoreStile);
+            panelValutazioni.add(scrollStile);
+
+            JLabel contenuto = new JLabel("Contenuto");
+            Config.setLabel1(contenuto);
+            JLabel scoreContenuto = new JLabel(creaStelle(valutazioniLibri.getPunteggio(1)));
+            Config.setLabel2(scoreContenuto);
+            JScrollPane scrollContenuto = new JScrollPane();
+            JTextArea noteContenuto = new JTextArea(valutazioniLibri.getNota(1));
+            Config.setScrollPane(scrollContenuto);
+            scrollContenuto.setViewportView(noteContenuto);
+            scrollContenuto.setPreferredSize(new Dimension(600, 400));
+            Config.setTextArea1(noteContenuto);
+            noteContenuto.setEditable(false);
+            panelValutazioni.add(contenuto);
+            panelValutazioni.add(scoreContenuto);
+            panelValutazioni.add(scrollContenuto);
+
+            JLabel gradevolezza = new JLabel("Gradevolezza");
+            Config.setLabel1(gradevolezza);
+            JLabel scoreGradevolezza = new JLabel(creaStelle(valutazioniLibri.getPunteggio(2)));
+            Config.setLabel2(scoreGradevolezza);
+            JScrollPane scrollGradevolezza = new JScrollPane();
+            JTextArea noteGradevolezza = new JTextArea(valutazioniLibri.getNota(2));
+            Config.setScrollPane(scrollGradevolezza);
+            scrollGradevolezza.setViewportView(noteGradevolezza);
+            Config.setTextArea1(noteGradevolezza);
+            noteGradevolezza.setEditable(false);
+            panelValutazioni.add(gradevolezza);
+            panelValutazioni.add(scoreGradevolezza);
+            panelValutazioni.add(scrollGradevolezza);
+
+            JLabel originalita = new JLabel("Originalità");
+            Config.setLabel1(originalita);
+            JLabel scoreOriginalita = new JLabel(creaStelle(valutazioniLibri.getPunteggio(3)));
+            Config.setLabel2(scoreOriginalita);
+            JScrollPane scrollOriginalita = new JScrollPane();
+            JTextArea noteOriginalita = new JTextArea(valutazioniLibri.getNota(3));
+            Config.setScrollPane(scrollOriginalita);
+            scrollOriginalita.setViewportView(noteOriginalita);
+            Config.setTextArea1(noteOriginalita);
+            noteOriginalita.setEditable(false);
+            panelValutazioni.add(originalita);
+            panelValutazioni.add(scoreOriginalita);
+            panelValutazioni.add(scrollOriginalita);
+
+            JLabel edizione = new JLabel("Edizione");
+            Config.setLabel1(edizione);
+            JLabel scoreEdizione = new JLabel(creaStelle(valutazioniLibri.getPunteggio(4)));
+            Config.setLabel2(scoreEdizione);
+            JScrollPane scrollEdizione = new JScrollPane();
+            JTextArea noteEdizione = new JTextArea(valutazioniLibri.getNota(4));
+            Config.setScrollPane(scrollEdizione);
+            scrollEdizione.setViewportView(noteEdizione);
+            Config.setTextArea1(noteEdizione);
+            noteEdizione.setEditable(false);
+            panelValutazioni.add(edizione);
+            panelValutazioni.add(scoreEdizione);
+            panelValutazioni.add(scrollEdizione);
+
+            JLabel media = new JLabel("Media");
+            Config.setLabel1(media);
+            JLabel scoreMedia = new JLabel(creaStelle(valutazioniLibri.getPunteggio(5)));
+            Config.setLabel2(scoreMedia);
+            panelValutazioni.add(media);
+            panelValutazioni.add(scoreMedia);
+            valLibro.add(panelValutazioni);
+
         }
         datiLibro.add(valLibro);
         JPanel conLibro = new JPanel();
@@ -266,19 +377,22 @@ public class PaginaLibro extends JPanel {
 
             JButton aggButton2 = new JButton("secondo Consiglio");
             Config.setButton1(aggButton2);
-            aggButton2.addActionListener(e -> setConsiglio());
-            if (finalLib.length == 2) {
+            if (finalLib.length >= 2) {
                 aggButton2.setText(finalLib[1].getTitolo());
                 aggButton2.addActionListener(e -> gui.showLibro(finalLib[1].getId() + ""));
+            } else {
+                aggButton2.addActionListener(e -> setConsiglio());
             }
             consigli.add(aggButton2);
 
             JButton aggButton3 = new JButton("terzo Consiglio");
             Config.setButton1(aggButton3);
-            aggButton3.addActionListener(e -> setConsiglio());
             if (finalLib.length == 3) {
                 aggButton3.setText(finalLib[2].getTitolo());
                 aggButton3.addActionListener(e -> gui.showLibro(finalLib[2].getId() + ""));
+            } else {
+                aggButton3.addActionListener(e -> setConsiglio());
+
             }
             consigli.add(aggButton3);
             conLibro.add(consigli);
@@ -315,25 +429,29 @@ public class PaginaLibro extends JPanel {
         panel.add(libCombo);
         JButton aggiungiButton = new JButton("aggiungi");
         Config.setButton1(aggiungiButton);
-        aggiungiButton.addActionListener(e -> LibrerieGestore.GetInstance().AggiungiLibroALibreria((String) libCombo.getSelectedItem(), libro.getId()));
+        aggiungiButton.addActionListener(e -> aggiungiLibroaLibreria(libCombo));
         panel.add(aggiungiButton);
         return panel;
     }
 
     private void setConsiglio() {
-        new AggiungiConsiglio(libro.getId());
+        gui.showAggiungiConsiglio(libro.getId());
     }
 
     private static String creaStelle(float voto) {
-        int piene = (int) voto;
-        boolean mezza = (voto - piene) >= 0.5;
-        int vuote = 5 - piene - (mezza ? 1 : 0);
+        int piene = Math.round(voto);
+        int vuote = 5 - piene;
 
         StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%.1f", voto));
         for (int i = 0; i < piene; i++) sb.append("★");
-        if (mezza) sb.append("⯨");
         for (int i = 0; i < vuote; i++) sb.append("☆");
         return sb.toString();
+    }
+
+    private void aggiungiLibroaLibreria(JComboBox<String> libCombo) {
+        LibrerieGestore.GetInstance().AggiungiLibroALibreria((String) libCombo.getSelectedItem(), libro.getId());
+        gui.reloadAll();
     }
 
     public int getLibro() {
