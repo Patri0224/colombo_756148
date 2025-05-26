@@ -90,36 +90,143 @@ public class PaginaLibro extends JPanel {
     private JPanel creaDatiLibro() {
         JPanel datiLibro = new JPanel(new GridBagLayout());
         Config.setPanel2(datiLibro);
-
         int row = 0;
+
+        // Campi statici
         datiLibro.add(creaCampo("Titolo", libro.getTitolo()), createGbc(row++));
         datiLibro.add(creaCampo("Autore", libro.getAutori()), createGbc(row++));
         datiLibro.add(creaCampo("Pubblicazione", libro.getMesePubblicazione() + " " + libro.getAnnoPubblicazione()), createGbc(row++));
         datiLibro.add(creaCampo("Categoria", libro.getCategorie()), createGbc(row++));
         datiLibro.add(creaCampo("Editore", libro.getEditore()), createGbc(row++));
         datiLibro.add(creaCampo("Prezzo", String.valueOf(libro.getPrezzoPartenzaEuro())), createGbc(row++));
+
+        // ------------------ DESCRIZIONE ------------------
+        JPanel pannello = new JPanel(new GridBagLayout());
+        Config.setPanel2(pannello);
+
+        GridBagConstraints gIn = new GridBagConstraints();
+        gIn.insets = new Insets(5, 5, 5, 5);
+        gIn.anchor = GridBagConstraints.WEST;
+
+        // Etichetta descrizione
+        gIn.gridx = 0;
+        gIn.gridy = 0;
+        gIn.fill = GridBagConstraints.NONE;
+
+        JLabel descrizione = new JLabel("Descrizione: ");
+        Config.setLabel1(descrizione);
+        pannello.add(descrizione, gIn);
+
+        // Area di testo scrollabile
+        JTextArea campo = new JTextArea(libro.getDescrizione());
+        campo.setEditable(false);
+        campo.setLineWrap(true);
+        campo.setWrapStyleWord(true);
+        campo.setPreferredSize(new Dimension(300, 100));
+        Config.setTextArea1(campo);
+
+        JScrollPane scroll = new JScrollPane(campo);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        Config.setScrollPane(scroll);
+
+        // Scroll su riga successiva
+        gIn.gridx = 0;
+        gIn.gridy = 1;
+        gIn.fill = GridBagConstraints.BOTH;
+        gIn.weightx = 1.0;
+        gIn.weighty = 1.0;
+        pannello.add(scroll, gIn);
+
+        // Inserimento pannello descrizione nella riga successiva
+        GridBagConstraints gOut = createGbc(row++);
+        gOut.fill = GridBagConstraints.BOTH;
+        gOut.weightx = 1.0;
+        gOut.weighty = 1.0;
+        datiLibro.add(pannello, gOut);
+
+        return datiLibro;
+    }
+
+    private GridBagConstraints createGbc(int y) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = y;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        return gbc;
+    }
+
+    private JPanel creaCampo(String etichetta, String valore) {
         JPanel pannello = new JPanel();
         pannello.setLayout(new BoxLayout(pannello, BoxLayout.X_AXIS));
         Config.setPanel2(pannello);
-        JLabel label = new JLabel("Descrizione");
+
+        JLabel label = new JLabel(etichetta);
         Config.setLabel1(label);
+
+        JTextArea campo = new JTextArea(valore);
+        campo.setEditable(false);
+        campo.setLineWrap(true);
+        campo.setWrapStyleWord(true);
+        Config.setTextArea1(campo);
+
+        JPanel container = new JPanel(new BorderLayout(5, 5));
+        container.add(campo, BorderLayout.CENTER);
+        Config.setPanel1(container);
+
+        pannello.add(label);
+        pannello.add(container);
+
+        return pannello;
+    }
+
+   /* private JPanel creaDatiLibro() {
+        JPanel datiLibro = new JPanel(new GridBagLayout());
+        Config.setPanel2(datiLibro);
+        int row = 0;
+        JPanel contenitore = new JPanel(new GridLayout(2,1));
+        Config.setPanel2(contenitore);
+        datiLibro.add(creaCampo("Titolo", libro.getTitolo()), createGbc(row++));
+        datiLibro.add(creaCampo("Autore", libro.getAutori()), createGbc(row++));
+        datiLibro.add(creaCampo("Pubblicazione", libro.getMesePubblicazione() + " " + libro.getAnnoPubblicazione()), createGbc(row++));
+        datiLibro.add(creaCampo("Categoria", libro.getCategorie()), createGbc(row++));
+        datiLibro.add(creaCampo("Editore", libro.getEditore()), createGbc(row++));
+        datiLibro.add(creaCampo("Prezzo", String.valueOf(libro.getPrezzoPartenzaEuro())), createGbc(row++));
+
+
+
+        JPanel pannello = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridx = 0;
+        gbc.gridy = row++;
+        JLabel descrizione = new JLabel("Descrizione: ");
+        Config.setLabel1(descrizione);
+        pannello.add(descrizione, gbc);
+        Config.setPanel2(pannello);
         JTextArea campo = new JTextArea(libro.getDescrizione());
         campo.setEditable(false);
-        campo.setPreferredSize(new Dimension(300,100));
         campo.setLineWrap(true);
         campo.setWrapStyleWord(true);
         Config.setTextArea1(campo); // Supponendo che la funzione funzioni anche con JTextField
-        JScrollPane scroll = new JScrollPane();
+        campo.setPreferredSize(new Dimension(300, 100));
+        JScrollPane scroll = new JScrollPane(campo);
         Config.setScrollPane(scroll);
-        scroll.setViewportView(campo);
-        scroll.setPreferredSize(new Dimension(600, 400));
-
-        JPanel container = new JPanel(new BorderLayout(5,5)); // altezza maggiore
-        container.add(scroll, BorderLayout.CENTER);
-        Config.setPanel1(container);
-        pannello.add(label);
-        pannello.add(container);
-        datiLibro.add(pannello, createGbc(row++));
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        gbc.gridx=1;
+        gbc.fill =GridBagConstraints.BOTH;
+        gbc.weightx=1;
+        gbc.weighty=1;
+        pannello.add(scroll, gbc);
+        datiLibro.add(pannello);
 
         return datiLibro;
     }
@@ -156,7 +263,7 @@ public class PaginaLibro extends JPanel {
         pannello.add(label);
         pannello.add(container);
         return pannello;
-    }
+    }*/
 
     private JPanel ValutazioniConsigliLibro() {
         JPanel datiLibro = new JPanel();
