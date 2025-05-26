@@ -234,8 +234,10 @@ public class Autenticazione extends JPanel {
             ComandoIndietro.indietro();
         } else if (ecc.getErrorCode() == 2) {
             errPasswordLogin.setText(ecc.getErrorCode() + ecc.getMessage());
-        } else {
+        } else if( ecc.getErrorCode() == 1) {
             errEmailLogin.setText(ecc.getErrorCode() + ecc.getMessage());
+        }else{
+            PopupError.mostraErrore(ecc.getErrorCode() + " " + ecc.getMessage());
         }
     }
 
@@ -270,6 +272,8 @@ public class Autenticazione extends JPanel {
             ComandoIndietro.indietro();
         } else if (e.getErrorCode() == 1) {
             errEmailRegistrazione.setText(e.getErrorCode() + " " + e.getMessage());
+        }else{
+            PopupError.mostraErrore(e.getErrorCode() + " " + e.getMessage());
         }
     }
 
