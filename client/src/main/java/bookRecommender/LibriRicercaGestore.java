@@ -7,6 +7,7 @@ import graphics.PopupError;
 
 import java.rmi.RemoteException;
 
+
 public class LibriRicercaGestore {
     private static LibriRicercaGestore instance = null;
     private final ServerBookRecommenderInterface stub;

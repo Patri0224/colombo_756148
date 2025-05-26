@@ -194,8 +194,8 @@ public class UtenteGestore {
     }
 
     public boolean ControlloCodiceFiscale(String codiceFiscale) {
-        // Implement codice fiscale validation logic here
-        return true; // Placeholder, replace with actual validation logic
+        // Implementare controllo codice fiscale
+        return true;
     }
 
     public void Logout() {
