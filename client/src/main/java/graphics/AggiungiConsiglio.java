@@ -15,7 +15,6 @@ import java.awt.*;
 
 public class AggiungiConsiglio extends JPanel {
     public int idLibro;
-    private JScrollPane scroll;
 
     /**
      * Costruttore della classe AggiungiConsiglio
@@ -32,6 +31,7 @@ public class AggiungiConsiglio extends JPanel {
      */
     public void reload(int idLibro) {
         removeAll();
+        JScrollPane scroll;
         if (idLibro == -1) {
             return;
         }
@@ -49,8 +49,7 @@ public class AggiungiConsiglio extends JPanel {
 
         JPanel main= new JPanel(new BorderLayout(5, 5));
         Config.setPanel1(main);
-        LibrerieGestore librerieGestore = LibrerieGestore.GetInstance();
-        UtenteGestore g = UtenteGestore.GetInstance();
+
 
         JPanel p1 = new JPanel();
         JPanel ric = new Ricerca(p1, 1, this);

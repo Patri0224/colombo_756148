@@ -184,4 +184,12 @@ public class Config {
         fontSizeSpinner.setFont(FONT);
     }
 
+    public static void setScrollPanel2(JScrollPane scrollPanel) {
+        scrollPanel.setBackground(COLORE_SFONDO);
+        scrollPanel.setOpaque(true);
+        scrollPanel.setBorder(BORDO_OP1);
+        scrollPanel.setPreferredSize(new Dimension(100,50));
+        scrollPanel.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+    }
+
 }

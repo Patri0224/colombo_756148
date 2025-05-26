@@ -40,7 +40,7 @@ public class Client {
 
             //creazione GUI
             gui = BookRecommender.CreateInstance();
-            gui.creaGrafica(gui);
+            gui.creaGrafica();
 
 
         } catch (RemoteException | NotBoundException e) {

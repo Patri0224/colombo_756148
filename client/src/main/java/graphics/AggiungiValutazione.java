@@ -40,6 +40,10 @@ public class AggiungiValutazione extends JPanel {
 
     }
 
+    /**
+     * Crea una pagina in cui l'utente può aggiungere una valutazione ad un libro selezionato nella pagina libro
+     * @param idLibro Id del libro a cui aggiungere una valutazione
+     */
     public void reload(String idLibro) {
         gui = BookRecommender.GetInstance();
         removeAll();
@@ -189,6 +193,7 @@ public class AggiungiValutazione extends JPanel {
             add(griglia, BorderLayout.CENTER);
         }
     }
+
 
     private void aggiungiValutazione(String idLibro) {
         short[] punteggi = new short[5];

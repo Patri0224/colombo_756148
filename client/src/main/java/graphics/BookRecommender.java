@@ -33,6 +33,9 @@ public class BookRecommender extends JFrame {
     private Impostazioni paginaImpostazioni;
     private AggiungiConsiglio aggiungiConsiglio;
 
+    /**
+     * JFrame di base di tutte le pagine, attraverso l'utilizzo di un JCardPanel
+     */
     public BookRecommender() {
 
     }
@@ -51,7 +54,11 @@ public class BookRecommender extends JFrame {
         return instance;
     }
 
-    public void creaGrafica(BookRecommender bookRecommender) {
+    /**
+     * Creazione della grafica del programma, attraverso la libreria Java Swing
+     *
+     */
+    public void creaGrafica() {
         utenteGestore = UtenteGestore.GetInstance();
         libriRicercaGestore = LibriRicercaGestore.GetInstance();
         librerieGestore = LibrerieGestore.GetInstance();

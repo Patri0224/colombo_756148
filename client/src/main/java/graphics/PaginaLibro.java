@@ -108,7 +108,7 @@ public class PaginaLibro extends JPanel {
         datiLibro.add(creaCampo("Editore", libro.getEditore()), createGbc(row++));
         datiLibro.add(creaCampo("Prezzo", String.valueOf(libro.getPrezzoPartenzaEuro())), createGbc(row++));
 
-        // ------------------ DESCRIZIONE ------------------
+        // Descrizione
         JPanel pannello = new JPanel(new GridBagLayout());
         Config.setPanel2(pannello);
 
@@ -135,6 +135,8 @@ public class PaginaLibro extends JPanel {
 
         JScrollPane scroll = new JScrollPane(campo);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+        scroll.getVerticalScrollBar().setUnitIncrement(10);
         Config.setScrollPane(scroll);
 
         // Scroll su riga successiva
@@ -192,86 +194,6 @@ public class PaginaLibro extends JPanel {
 
         return pannello;
     }
-
-   /* private JPanel creaDatiLibro() {
-        JPanel datiLibro = new JPanel(new GridBagLayout());
-        Config.setPanel2(datiLibro);
-        int row = 0;
-        JPanel contenitore = new JPanel(new GridLayout(2,1));
-        Config.setPanel2(contenitore);
-        datiLibro.add(creaCampo("Titolo", libro.getTitolo()), createGbc(row++));
-        datiLibro.add(creaCampo("Autore", libro.getAutori()), createGbc(row++));
-        datiLibro.add(creaCampo("Pubblicazione", libro.getMesePubblicazione() + " " + libro.getAnnoPubblicazione()), createGbc(row++));
-        datiLibro.add(creaCampo("Categoria", libro.getCategorie()), createGbc(row++));
-        datiLibro.add(creaCampo("Editore", libro.getEditore()), createGbc(row++));
-        datiLibro.add(creaCampo("Prezzo", String.valueOf(libro.getPrezzoPartenzaEuro())), createGbc(row++));
-
-
-
-        JPanel pannello = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        gbc.gridx = 0;
-        gbc.gridy = row++;
-        JLabel descrizione = new JLabel("Descrizione: ");
-        Config.setLabel1(descrizione);
-        pannello.add(descrizione, gbc);
-        Config.setPanel2(pannello);
-        JTextArea campo = new JTextArea(libro.getDescrizione());
-        campo.setEditable(false);
-        campo.setLineWrap(true);
-        campo.setWrapStyleWord(true);
-        Config.setTextArea1(campo); // Supponendo che la funzione funzioni anche con JTextField
-        campo.setPreferredSize(new Dimension(300, 100));
-        JScrollPane scroll = new JScrollPane(campo);
-        Config.setScrollPane(scroll);
-        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        gbc.gridx=1;
-        gbc.fill =GridBagConstraints.BOTH;
-        gbc.weightx=1;
-        gbc.weighty=1;
-        pannello.add(scroll, gbc);
-        datiLibro.add(pannello);
-
-        return datiLibro;
-    }
-
-    private GridBagConstraints createGbc(int y) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = y;
-        gbc.gridwidth = 1;
-        gbc.gridheight = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.insets = new Insets(5, 5, 5, 5);
-        return gbc;
-    }
-
-    private JPanel creaCampo(String etichetta, String valore) {
-        JPanel pannello = new JPanel();
-        pannello.setLayout(new BoxLayout(pannello, BoxLayout.X_AXIS));
-        Config.setPanel2(pannello);
-        JLabel label = new JLabel(etichetta);
-        Config.setLabel1(label);
-
-        JTextArea campo = new JTextArea(valore);
-        campo.setEditable(false);
-        campo.setLineWrap(true);
-        campo.setWrapStyleWord(true);
-        Config.setTextArea1(campo); // Supponendo che la funzione funzioni anche con JTextField
-        JPanel container = new JPanel(new BorderLayout(5, 5)); // altezza maggiore
-        container.add(campo, BorderLayout.CENTER);
-        Config.setPanel1(container);
-        pannello.add(label);
-        pannello.add(container);
-        return pannello;
-    }*/
 
     private JPanel ValutazioniConsigliLibro() {
         JPanel datiLibro = new JPanel();
@@ -366,7 +288,7 @@ public class PaginaLibro extends JPanel {
 
             JScrollPane scrollStile = new JScrollPane();
             JTextArea noteStile = new JTextArea(valutazioniLibri.getNota(0));
-            Config.setScrollPane(scrollStile);
+            Config.setScrollPanel2(scrollStile);
             scrollStile.setViewportView(noteStile);
             scrollStile.setPreferredSize(new Dimension(600, 400));
             Config.setTextArea1(noteStile);
@@ -381,7 +303,7 @@ public class PaginaLibro extends JPanel {
             Config.setLabel2(scoreContenuto);
             JScrollPane scrollContenuto = new JScrollPane();
             JTextArea noteContenuto = new JTextArea(valutazioniLibri.getNota(1));
-            Config.setScrollPane(scrollContenuto);
+            Config.setScrollPanel2(scrollContenuto);
             scrollContenuto.setViewportView(noteContenuto);
             scrollContenuto.setPreferredSize(new Dimension(600, 400));
             Config.setTextArea1(noteContenuto);
@@ -396,7 +318,7 @@ public class PaginaLibro extends JPanel {
             Config.setLabel2(scoreGradevolezza);
             JScrollPane scrollGradevolezza = new JScrollPane();
             JTextArea noteGradevolezza = new JTextArea(valutazioniLibri.getNota(2));
-            Config.setScrollPane(scrollGradevolezza);
+            Config.setScrollPanel2(scrollGradevolezza);
             scrollGradevolezza.setViewportView(noteGradevolezza);
             Config.setTextArea1(noteGradevolezza);
             noteGradevolezza.setEditable(false);
@@ -410,7 +332,7 @@ public class PaginaLibro extends JPanel {
             Config.setLabel2(scoreOriginalita);
             JScrollPane scrollOriginalita = new JScrollPane();
             JTextArea noteOriginalita = new JTextArea(valutazioniLibri.getNota(3));
-            Config.setScrollPane(scrollOriginalita);
+            Config.setScrollPanel2(scrollOriginalita);
             scrollOriginalita.setViewportView(noteOriginalita);
             Config.setTextArea1(noteOriginalita);
             noteOriginalita.setEditable(false);
@@ -424,7 +346,7 @@ public class PaginaLibro extends JPanel {
             Config.setLabel2(scoreEdizione);
             JScrollPane scrollEdizione = new JScrollPane();
             JTextArea noteEdizione = new JTextArea(valutazioniLibri.getNota(4));
-            Config.setScrollPane(scrollEdizione);
+            Config.setScrollPanel2(scrollEdizione);
             scrollEdizione.setViewportView(noteEdizione);
             Config.setTextArea1(noteEdizione);
             noteEdizione.setEditable(false);
