@@ -1,55 +1,75 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
     <groupId>bookRecommender</groupId>
     <artifactId>colombo_756148</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-  <developers>
-    <developer>
-      <name>
-        Patrizio Colombo
-      </name>
-      <roles>
-        <role>
-          project manager
-        </role>
-        <role>
+    <developers>
+        <developer>
+            <name>
+                Patrizio Colombo
+            </name>
+            <roles>
+                <role>
+                    project manager
+                </role>
+                <role>
 
-        </role>
-      </roles>
-    </developer>
-    <developer>
-        <name>
-
-        </name>
-        <roles>
-            <role>
-
-            </role>
-        </roles>
-    </developer>
-  </developers>
+                </role>
+            </roles>
+        </developer>
+        <developer>
+            <name>
+                Fabio Felitti
+            </name>
+            <roles>
+                <role>
+                    Graphics designer
+                </role>
+            </roles>
+        </developer>
+        <developer>
+            <name>
+                Matteo Franchi
+            </name>
+            <roles>
+                <role>
+                    Database designer
+                </role>
+            </roles>
+        </developer>
+        <developer>
+            <name>
+                Alessandro Iacono
+            </name>
+            <roles>
+                <role>
+                    Documentation writer
+                </role>
+            </roles>
+        </developer>
+    </developers>
     <packaging>pom</packaging>
 
     <modules>
-      <module>client</module>
-      <module>server</module>
-      <module>common</module>
+        <module>client</module>
+        <module>server</module>
+        <module>common</module>
     </modules>
 
     <dependencyManagement>
-      <dependencies>
-        <!-- Add common dependencies here if needed -->
-      </dependencies>
+        <dependencies>
+            <!-- Add common dependencies here if needed -->
+        </dependencies>
     </dependencyManagement>
 
     <build>
-      <pluginManagement>
-        <plugins>
-          <!-- Configure Maven plugins here if needed -->
-        </plugins>
-      </pluginManagement>
+        <pluginManagement>
+            <plugins>
+                <!-- Configure Maven plugins here if needed -->
+            </plugins>
+        </pluginManagement>
     </build>
-  </project>
+</project>
