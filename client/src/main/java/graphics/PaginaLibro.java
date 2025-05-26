@@ -337,6 +337,8 @@ public class PaginaLibro extends JPanel {
             JTextArea noteOriginalita = new JTextArea(valutazioniLibri.getNota(3));
             Config.setScrollPanel2(scrollOriginalita);
             scrollOriginalita.setViewportView(noteOriginalita);
+            scrollOriginalita.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollOriginalita.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 0));
             Config.setTextArea1(noteOriginalita);
             noteOriginalita.setEditable(false);
             panelValutazioni.add(originalita);
