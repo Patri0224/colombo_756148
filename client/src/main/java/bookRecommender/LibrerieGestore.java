@@ -16,12 +16,21 @@ import graphics.PopupError;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+/**
+ * Gestore delle librerie, permette di gestire le librerie dell'utente
+ * e di interagire con il server per aggiungere, rimuovere e cercare librerie e libri in esse.
+ */
 public class LibrerieGestore {
     private static LibrerieGestore instance = null;
     private final ServerBookRecommenderInterface stub;
     private Librerie[] librerie = new Librerie[0];
     private final UtenteGestore utenteGestore;
 
+    /**
+     * Costruttore privato per il singleton
+     *
+     * @param stub interfaccia remota del server per le operazioni sulle librerie
+     */
     private LibrerieGestore(ServerBookRecommenderInterface stub) {
         this.stub = stub;
 
@@ -36,6 +45,12 @@ public class LibrerieGestore {
         }
     }
 
+    /**
+     * Crea un'istanza di LibrerieGestore se non esiste già,
+     *
+     * @param stub interfaccia remota del server per le operazioni sulle librerie
+     * @return l'istanza di LibrerieGestore
+     */
     public static LibrerieGestore CreateInstance(ServerBookRecommenderInterface stub) {
         if (instance == null) {
             instance = new LibrerieGestore(stub);
@@ -43,6 +58,11 @@ public class LibrerieGestore {
         return instance;
     }
 
+    /**
+     * Restituisce l'istanza di LibrerieGestore se esiste,
+     *
+     * @return l'istanza di LibrerieGestore o null se non esiste
+     */
     public static LibrerieGestore GetInstance() {
         if (instance == null) {
             return null;
@@ -50,6 +70,11 @@ public class LibrerieGestore {
         return instance;
     }
 
+    /**
+     * Carica le librerie dell'utente loggato dal server.
+     *
+     * @return Eccezione che indica il risultato dell'operazione:
+     */
     public Eccezione caricaLibrerie() {
         if (utenteGestore.UtenteLoggato()) {
             try {
@@ -64,6 +89,11 @@ public class LibrerieGestore {
         }
     }
 
+    /**
+     * Restituisce l'array di librerie dell'utente loggato salvate in memoria.
+     *
+     * @return array di Librerie
+     */
     public Librerie[] GetLibrerie() {
         if (librerie.length == 0) {
             Eccezione e = caricaLibrerie();
@@ -72,6 +102,11 @@ public class LibrerieGestore {
         return librerie;
     }
 
+    /**
+     * Restituisce il numero di librerie dell'utente loggato.
+     *
+     * @return numero di librerie
+     */
     public int GetNumeroLibrerie() {
         if (librerie.length == 0) {
             Eccezione e = caricaLibrerie();
@@ -80,6 +115,12 @@ public class LibrerieGestore {
         return librerie.length;
     }
 
+    /**
+     * Restituisce una libreria specifica in base al nome.
+     *
+     * @param nomeLibreria nome della libreria da cercare
+     * @return Librerie oggetto della libreria trovata, o null se non esiste
+     */
     public Librerie GetLibreria(String nomeLibreria) {
         for (Librerie value : librerie) {
             if (value.getNome().equals(nomeLibreria)) {
@@ -89,16 +130,20 @@ public class LibrerieGestore {
         return null;
     }
 
+    /**
+     * Aggiunge una nuova libreria all'utente loggato e lo comunica al server.
+     *
+     * @param nomeLibreria nome della libreria da aggiungere
+     * @return Eccezione che indica il risultato dell'operazione:
+     */
     public Eccezione AggiungiLibreria(String nomeLibreria) {
         if (utenteGestore.UtenteLoggato()) {
             try {
                 Eccezione ecc = stub.AggiungiLibreria(utenteGestore.GetIdUtente(), nomeLibreria);
                 if (ecc.getErrorCode() == 0) {
                     caricaLibrerie();
-                    return ecc;
-                } else {
-                    return ecc;
                 }
+                return ecc;
             } catch (RemoteException e) {
                 return new Eccezione(2, "Errore durante l'aggiunta della libreria" + e.getMessage());
             }
@@ -107,6 +152,12 @@ public class LibrerieGestore {
         }
     }
 
+    /**
+     * Rimuove una libreria specifica dell'utente loggato e lo comunica al server.
+     *
+     * @param idLibreria id della libreria da rimuovere
+     * @return Eccezione che indica il risultato dell'operazione:
+     */
     public Eccezione RimuoviLibreria(int idLibreria) {
         if (utenteGestore.UtenteLoggato()) {
             try {
@@ -125,6 +176,13 @@ public class LibrerieGestore {
         }
     }
 
+    /**
+     * Aggiunge un libro a una libreria specifica dell'utente loggato e lo comunica al server.
+     *
+     * @param idLibreria id della libreria a cui aggiungere il libro
+     * @param idLibro    id del libro da aggiungere
+     * @return Eccezione che indica il risultato dell'operazione:
+     */
     public Eccezione AggiungiLibroALibreria(int idLibreria, int idLibro) {
         if (utenteGestore.UtenteLoggato()) {
             try {
@@ -143,7 +201,13 @@ public class LibrerieGestore {
         }
     }
 
-
+    /**
+     * Aggiunge un libro a una libreria specifica dell'utente loggato
+     *
+     * @param nomeLibreria nome della libreria a cui aggiungere il libro
+     * @param idLibro      id del libro da aggiungere
+     * @return Eccezione che indica il risultato dell'operazione:
+     */
     public Eccezione AggiungiLibroALibreria(String nomeLibreria, int idLibro) {
         Librerie libreria = GetLibreria(nomeLibreria);
         if (libreria != null) {
@@ -154,6 +218,12 @@ public class LibrerieGestore {
 
     }
 
+    /**
+     * Restituisce un array di libri presenti in una libreria specifica dell'utente loggato.
+     *
+     * @param nomeLibreria nome della libreria da cui ottenere i libri
+     * @return array di Libri presenti nella libreria, o un array vuoto se la libreria non esiste
+     */
     public Libri[] GetLibriDaLibreria(String nomeLibreria) {
         Librerie libreria = GetLibreria(nomeLibreria);
         LibriRicercaGestore libriRicercaGestore = LibriRicercaGestore.GetInstance();
@@ -165,6 +235,13 @@ public class LibrerieGestore {
         }
     }
 
+    /**
+     * Rimuove un libro da una libreria specifica dell'utente loggato e lo comunica al server.
+     *
+     * @param idLibreria id della libreria da cui rimuovere il libro
+     * @param idLibro    id del libro da rimuovere
+     * @return Eccezione che indica il risultato dell'operazione:
+     */
     public Eccezione RimuoviLibroDaLibreria(int idLibreria, int idLibro) {
         if (utenteGestore.UtenteLoggato()) {
             try {
@@ -183,6 +260,13 @@ public class LibrerieGestore {
         }
     }
 
+    /**
+     * Rimuove un libro da una libreria specifica dell'utente loggato
+     *
+     * @param nomeLibreria nome della libreria da cui rimuovere il libro
+     * @param idLibro      id del libro da rimuovere
+     * @return Eccezione che indica il risultato dell'operazione:
+     */
     public Eccezione RimuoviLibroDaLibreria(String nomeLibreria, int idLibro) {
         Librerie libreria = GetLibreria(nomeLibreria);
         if (libreria != null) {
@@ -228,6 +312,15 @@ public class LibrerieGestore {
         }
     }
 
+    /**
+     * Cerca libri in tutte le librerie dell'utente loggato con possibilità di filtrare per titolo, autore e anno.
+     *
+     * @param titoloRicerca titolo del libro da cercare
+     * @param autoreRicerca autore del libro da cercare
+     * @param annoR         anno del libro da cercare, -1 se non si vuole filtrare per anno
+     * @return array di Libri trovati in tutte le librerie dell'utente loggato
+     * @throws RuntimeException se si verifica un errore durante la comunicazione con il server
+     */
     public Libri[] GetLibriDaTutteLibrerie(String titoloRicerca, String autoreRicerca, int annoR) throws RuntimeException {
         if (utenteGestore.UtenteLoggato()) {
             try {
@@ -251,11 +344,16 @@ public class LibrerieGestore {
         return sb.toString();
     }
 
+    /**
+     * Restituisce un array di nomi delle librerie dell'utente loggato.
+     *
+     * @return array di String contenente i nomi delle librerie
+     */
     public String[] getNomeLibrerie() {
-        ArrayList<String> lista = new ArrayList<String>();
+        ArrayList<String> lista = new ArrayList<>();
         for (Librerie l : librerie) {
             lista.add(l.getNome());
         }
-        return lista.toArray(new String[lista.size()]);
+        return lista.toArray(new String[0]);
     }
 }

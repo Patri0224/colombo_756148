@@ -16,6 +16,11 @@ import graphics.PopupError;
 
 import java.rmi.RemoteException;
 
+/**
+ * Gestore dei consigli dei libri
+ * Questo gestore permette di aggiungere consigli di libri,
+ * e di comunicare con il server per gestire le operazioni sui consigli.
+ */
 public class ConsigliGestore {
     private static ConsigliGestore instance = null;
     private final ServerBookRecommenderInterface stub;
@@ -26,6 +31,12 @@ public class ConsigliGestore {
         this.utenteGestore = UtenteGestore.GetInstance();
     }
 
+    /**
+     * Crea un'istanza di ConsigliGestore se non esiste già
+     *
+     * @param stub interfaccia remota del server
+     * @return l'istanza di ConsigliGestore
+     */
     public static ConsigliGestore CreateInstance(ServerBookRecommenderInterface stub) {
         if (instance == null) {
             instance = new ConsigliGestore(stub);
@@ -33,6 +44,11 @@ public class ConsigliGestore {
         return instance;
     }
 
+    /**
+     * Restituisce l'istanza di ConsigliGestore se esiste, altrimenti ritorna null
+     *
+     * @return l'istanza di ConsigliGestore o null se non esiste
+     */
     public static ConsigliGestore GetInstance() {
         if (instance == null) {
             return null;
@@ -54,13 +70,9 @@ public class ConsigliGestore {
         if (idLibroRiguardante == -1 || idLibroConsigliato == -1) {
             return new Eccezione(7, "Id libro non valido");
         }
-        if(idLibroRiguardante == idLibroConsigliato) {
+        if (idLibroRiguardante == idLibroConsigliato) {
             return new Eccezione(8, "Non puoi consigliare un libro a se stesso");
         }
-        /*LibrerieGestore libGes = LibrerieGestore.GetInstance();
-        if (libGes.ControlloLibroInLibrerie(idLibroConsigliato)) {
-            return new Eccezione(8, "Il libro consigliato non è presente in nessuna libreria");
-        }*/
         try {
             return stub.AggiungiLibroAConsiglio(utenteGestore.GetIdUtente(), idLibroRiguardante, idLibroConsigliato);
         } catch (Exception e) {
@@ -125,6 +137,12 @@ public class ConsigliGestore {
         }
     }
 
+    /**
+     * Restituisce i consigli fatti da tutti gli utenti tenendo i duplicati di un libro dato il suo id
+     *
+     * @param idLibro id del libro per il quale si vogliono i consigli
+     * @return un array di ConsigliLibri con i consigli con duplicati fatti per il libro, o null se si verifica un errore
+     */
     public Libri[] RicercaConsigliDatoLibro(int idLibro) {
         if (idLibro == -1) {
             PopupError.mostraErrore("Id libro non valido");
@@ -134,11 +152,17 @@ public class ConsigliGestore {
             return stub.RicercaConsigliDatoLibro(idLibro);
         } catch (Exception e) {
             PopupError.mostraErrore(e.getMessage());
-            e.printStackTrace();
             return null;
         }
     }
 
+    /**
+     * Restituisce i consigli fatti da un utente
+     *
+     * @param idLibro id del libro per il quale si vogliono i consigli
+     * @return un array di Libri con i consigli fatti per il libro di lunghezza da 0 a tre libri, o null se si verifica un errore
+     * @throws RemoteException
+     */
     public Libri[] RicercaConsigliDatoUtenteELibro(int idLibro) throws RemoteException {
         if (!utenteGestore.UtenteLoggato()) {
             PopupError.mostraErrore("utente non loggato2");
@@ -152,7 +176,6 @@ public class ConsigliGestore {
             return stub.RicercaConsigliDatoUtenteELibro(utenteGestore.GetIdUtente(), idLibro);
         } catch (Exception e) {
             PopupError.mostraErrore(e.getMessage());
-            e.printStackTrace();
             return new Libri[0];
         }
     }

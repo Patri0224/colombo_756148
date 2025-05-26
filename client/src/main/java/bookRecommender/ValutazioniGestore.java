@@ -12,7 +12,9 @@ import bookRecommender.entita.Score;
 import bookRecommender.entita.ValutazioniLibri;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
 import graphics.PopupError;
-
+/** * Gestore delle valutazioni dei libri
+ * Singleton
+ */
 public class ValutazioniGestore {
     private static ValutazioniGestore instance;
     private final ServerBookRecommenderInterface stub;

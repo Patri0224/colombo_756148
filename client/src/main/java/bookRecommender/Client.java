@@ -8,7 +8,6 @@ package bookRecommender;
  */
 
 
-import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
 import graphics.BookRecommender;
 import graphics.PopupError;
@@ -17,11 +16,14 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 
+/**
+ * Classe Client, contiene il main per l'avvio del client.
+ * Collega il client al server RMI e crea le istanze dei gestori e della GUI.
+ */
 public class Client {
     static String hostName = "127.0.0.1";
     static int PORT = 10001;
     static ServerBookRecommenderInterface stub;
-    static UtenteGestore utenteGestore;
     static BookRecommender gui;
 
     public static void main(String[] args) {
@@ -35,12 +37,8 @@ public class Client {
             LibrerieGestore.CreateInstance(stub);
             ConsigliGestore.CreateInstance(stub);
             ValutazioniGestore.CreateInstance(stub);
-            UtenteGestore u = UtenteGestore.GetInstance();
-            //
-            Eccezione ecc = u.Login("falafel@gmail.com", "Frazz.004");
-            if (ecc.getErrorCode() > 0) PopupError.mostraErrore(ecc.getErrorCode() + " " + ecc.getMessage());
-            //u.Registrazione("falafel@g","Ciao.987","FFL78C","Fabio", "Falafel");
-            //crezione GUI
+
+            //creazione GUI
             gui = BookRecommender.CreateInstance();
             gui.creaGrafica(gui);
 

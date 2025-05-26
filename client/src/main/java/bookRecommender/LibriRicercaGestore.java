@@ -14,6 +14,10 @@ import graphics.PopupError;
 
 import java.rmi.RemoteException;
 
+/**
+ * Gestore per la ricerca dei libri.
+ * Questo gestore si occupa di effettuare ricerche sui libri tramite lo stub del server.
+ */
 public class LibriRicercaGestore {
     private static LibriRicercaGestore instance = null;
     private final ServerBookRecommenderInterface stub;
@@ -37,6 +41,14 @@ public class LibriRicercaGestore {
         return instance;
     }
 
+    /**
+     * Esegue una ricerca di libri in base ai parametri forniti e salva i risultati nella variabile libri.
+     *
+     * @param titolo            titolo del libro da cercare
+     * @param autore            autore del libro da cercare
+     * @param annoPubblicazione anno di pubblicazione del libro da cercare, -1 per non specificare
+     * @return
+     */
     public Eccezione RicercaLibri(String titolo, String autore, int annoPubblicazione) {
         try {
             libri = stub.RicercaLibri(titolo, autore, annoPubblicazione);
@@ -46,6 +58,18 @@ public class LibriRicercaGestore {
         }
     }
 
+    /**
+     * Esegue una ricerca di libri in base ai parametri forniti e salva i risultati nella variabile libri.
+     *
+     * @param titolo            titolo del libro da cercare
+     * @param autore            autore del libro da cercare
+     * @param annoPubblicazione anno di pubblicazione del libro da cercare, -1 per non specificare
+     * @param editore           editore del libro da cercare
+     * @param categoria         categoria del libro da cercare
+     * @param prezzoMin         prezzo minimo del libro da cercare, -1 per non specificare
+     * @param prezzoMax         prezzo massimo del libro da cercare, -1 per non specificare
+     * @return Eccezione che indica il risultato della ricerca
+     */
     public Eccezione RicercaLibri(String titolo, String autore, int annoPubblicazione, String editore, String categoria, float prezzoMin, float prezzoMax) {
         try {
             libri = stub.RicercaLibri(titolo, autore, annoPubblicazione, editore, categoria, prezzoMin, prezzoMax);
@@ -63,6 +87,13 @@ public class LibriRicercaGestore {
         return libri.length;
     }
 
+    /**
+     * Cerca un libro specifico per ID nell'array di libri locali.
+     * Se non trovato, effettua una ricerca remota tramite lo stub.
+     *
+     * @param idLibro ID del libro da cercare
+     * @return Libri oggetto libro trovato o null se non esiste
+     */
     public Libri CercaLibro(int idLibro) {
         for (Libri libro : libri) {
             if (libro != null && libro.getId() == idLibro) {
@@ -83,6 +114,13 @@ public class LibriRicercaGestore {
         }
     }
 
+    /**
+     * Cerca più libri specifici per ID nell'array di libri locali.
+     * Se non trovati, effettua una ricerca remota tramite lo stub.
+     *
+     * @param idLibri Array di ID dei libri da cercare
+     * @return Libri[] array di libri trovati o un array vuoto se non trovati
+     */
     public Libri[] CercaLibriMultipli(int[] idLibri) {
         int i = 0;
         Libri[] libris = new Libri[idLibri.length];

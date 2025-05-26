@@ -8,6 +8,7 @@
 package graphics;
 
 import bookRecommender.*;
+import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.entita.Libri;
 import bookRecommender.entita.ValutazioniLibri;
 
@@ -457,7 +458,10 @@ public class PaginaLibro extends JPanel {
     }
 
     private void aggiungiLibroaLibreria(JComboBox<String> libCombo) {
-        LibrerieGestore.GetInstance().AggiungiLibroALibreria((String) libCombo.getSelectedItem(), libro.getId());
+        Eccezione ecc=LibrerieGestore.GetInstance().AggiungiLibroALibreria((String) libCombo.getSelectedItem(), libro.getId());
+        if(ecc.getErrorCode() > 0) {
+            PopupError.mostraErrore( ecc.getErrorCode() + " " + ecc.getMessage());
+        }
         gui.reloadAll();
     }
 

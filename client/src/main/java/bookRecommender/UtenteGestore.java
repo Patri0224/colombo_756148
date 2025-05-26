@@ -11,6 +11,10 @@ import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
 import graphics.PopupError;
 
+/**
+ * Gestore delle operazioni relative agli utenti del sistema, come registrazione, login, logout e gestione dei dati utente.
+ * Questa classe implementa il pattern Singleton per garantire che ci sia una sola istanza di UtenteGestore durante l'esecuzione dell'applicazione.
+ */
 public class UtenteGestore {
     private static UtenteGestore instance = null;
     private int idUtente = -1;
@@ -40,6 +44,12 @@ public class UtenteGestore {
         return instance;
     }
 
+    /**
+     * Controlla se la password rispetta i requisiti di sicurezza:
+     *
+     * @param password la password da controllare
+     * @return true se la password è valida, false altrimenti
+     */
     public static boolean ControlloCaratteriPassword(String password) {
         if (password.length() < 8)
             return false;
@@ -55,6 +65,17 @@ public class UtenteGestore {
         return true;
     }
 
+    /**
+     * Registra un nuovo utente nel sistema.
+     * Controlla la validità del codice fiscale e della password prima di procedere con la registrazione.
+     *
+     * @param email         l'email dell'utente
+     * @param password      la password dell'utente
+     * @param codiceFiscale il codice fiscale dell'utente
+     * @param nome          il nome dell'utente
+     * @param cognome       il cognome dell'utente
+     * @return un oggetto Eccezione che indica il risultato della registrazione
+     */
     public Eccezione Registrazione(String email, String password, String codiceFiscale, String nome, String cognome) {
         if (!ControlloCodiceFiscale(codiceFiscale)) {
             return new Eccezione(2, "Codice fiscale non valido");
@@ -82,6 +103,13 @@ public class UtenteGestore {
         }
     }
 
+    /**
+     * Ottiene l'ID dell'utente in base all'email.
+     * Se l'utente è già loggato, restituisce l'ID memorizzato.
+     *
+     * @param email l'email dell'utente
+     * @return l'ID dell'utente o -1 in caso di errore
+     */
     public int GetIdUtente(String email) {
         if (idUtente != -1)
             return idUtente; //se l'utente è già loggato
@@ -100,6 +128,12 @@ public class UtenteGestore {
         }
     }
 
+    /**
+     * Ottiene l'ID dell'utente in base all'email memorizzata nell'istanza.
+     * Se l'utente è già loggato, restituisce l'ID memorizzato.
+     *
+     * @return l'ID dell'utente o -1 in caso di errore
+     */
     public int GetIdUtente() {
         if (idUtente != -1)
             return idUtente;
@@ -123,18 +157,29 @@ public class UtenteGestore {
     public String GetNome() {
         return nome;
     }
+
     public String GetCognome() {
         return cognome;
     }
+
     public String GetEmail() {
         return email;
     }
+
     public String GetCF() {
         return codiceFiscale;
     }
 
+    /**
+     * Esegue il login dell'utente utilizzando l'email e la password.
+     * Se il login ha successo, memorizza le informazioni dell'utente nell'istanza.
+     *
+     * @param email    l'email dell'utente
+     * @param password la password dell'utente
+     * @return un oggetto Eccezione che indica il risultato del login
+     */
     public Eccezione Login(String email, String password) {
-        Eccezione ecc = null;
+        Eccezione ecc;
         try {
             ecc = stub.login(email, CrittografiaPassword(password));
             if (ecc.getErrorCode() == 0) {
@@ -145,7 +190,6 @@ public class UtenteGestore {
                 return ecc;
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return new Eccezione(5, "Remote Error" + e.getMessage());
         }
         if (ecc.getErrorCode() == 1)//utente non esiste
@@ -157,9 +201,17 @@ public class UtenteGestore {
         return new Eccezione(20, "last");
     }
 
+    /**
+     * Esegue il login dell'utente utilizzando l'ID utente e la password.
+     * Se il login ha successo, memorizza le informazioni dell'utente nell'istanza.
+     *
+     * @param idUtente l'ID dell'utente
+     * @param password la password dell'utente
+     * @return un oggetto Eccezione che indica il risultato del login
+     */
     public Eccezione Login(int idUtente, String password) {
 
-        Eccezione ecc = null;
+        Eccezione ecc;
         try {
             ecc = stub.login(idUtente, CrittografiaPassword(password));
             if (ecc.getErrorCode() == 0) {
@@ -182,6 +234,10 @@ public class UtenteGestore {
 
     }
 
+    /**
+     * Recupera i dati dell'utente registrato in base all'ID utente.
+     * Aggiorna le informazioni dell'utente nell'istanza.
+     */
     public void GetDati() {
         try {
             String[] str = stub.GetUtenteRegistrato(idUtente);
@@ -191,18 +247,26 @@ public class UtenteGestore {
             this.codiceFiscale = str[3];
         } catch (Exception e) {
             PopupError.mostraErrore(e.getMessage());
-            e.printStackTrace();
         }
     }
 
     public String CrittografiaPassword(String password) {
-        String hashed = PasswordUtils.crittografaPassword(password);
-        return password; // Placeholder, replace with actual encryption logic
+        return PasswordUtils.crittografaPassword(password);
     }
 
     public boolean ControlloCodiceFiscale(String codiceFiscale) {
-        // Implement codice fiscale validation logic here
-        return true; // Placeholder, replace with actual validation logic
+        if (codiceFiscale == null) return false;
+
+        // Controllo lunghezza
+        if (codiceFiscale.length() != 16) return false;
+
+        // Controllo solo lettere e numeri
+        if (!codiceFiscale.matches("^[A-Z0-9]+$")) return false;
+
+        // Controllo formato: 6 lettere, 2 cifre, 1 lettera, 2 cifre, 1 lettera, 3 cifre, 1 lettera
+        if (!codiceFiscale.matches("^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$")) return false;
+
+        return true;
     }
 
     public void Logout() {
@@ -215,6 +279,12 @@ public class UtenteGestore {
 
     }
 
+    /**
+     * Rimuove l'utente dal sistema.
+     * Se la rimozione ha successo, resetta le informazioni dell'utente nell'istanza.
+     *
+     * @return un oggetto Eccezione che indica il risultato della rimozione
+     */
     public Eccezione RimuoviUtente() {
         try {
             Eccezione ecc = stub.RimuoviUtente(idUtente);
@@ -233,6 +303,12 @@ public class UtenteGestore {
         }
     }
 
+    /**
+     * Modifica la password dell'utente.
+     *
+     * @param password la nuova password da impostare
+     * @return un oggetto Eccezione che indica il risultato della modifica
+     */
     public Eccezione ModificaPassword(String password) {
         if (ControlloCaratteriPassword(password))
             password = CrittografiaPassword(password);
