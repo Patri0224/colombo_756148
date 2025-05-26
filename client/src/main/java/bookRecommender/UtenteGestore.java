@@ -138,6 +138,7 @@ public class UtenteGestore {
                 return ecc;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             return new Eccezione(5, "Remote Error" + e.getMessage());
         }
         if (ecc.getErrorCode() == 1)//utente non esiste
@@ -153,7 +154,7 @@ public class UtenteGestore {
 
         Eccezione ecc = null;
         try {
-            ecc = stub.login(idUtente, password);
+            ecc = stub.login(idUtente, CrittografiaPassword(password));
             if (ecc.getErrorCode() == 0) {
                 this.idUtente = idUtente;
                 this.passwordCriptata = CrittografiaPassword(password);

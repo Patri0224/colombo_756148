@@ -1,6 +1,7 @@
 package bookRecommender;
 
 
+import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
 import graphics.BookRecommender;
 import graphics.PopupError;
@@ -28,7 +29,9 @@ public class Client {
             ConsigliGestore.CreateInstance(stub);
             ValutazioniGestore.CreateInstance(stub);
             UtenteGestore u = UtenteGestore.GetInstance();
-            u.Login("pat@g","Patrizio.25");
+
+            Eccezione ecc =u.Login("pat@g","Patrizio.25");
+            PopupError.mostraErrore(ecc.getMessage()+ecc.getErrorCode());
             //u.Registrazione("falafel@g","Ciao.987","FFL78C","Fabio", "Falafel");
             //crezione GUI
             gui = BookRecommender.CreateInstance();
