@@ -156,11 +156,7 @@ public class BookRecommender extends JFrame {
     public void logout(String titoloPagina) {
         utenteGestore.Logout();
         showI();//inserito per permettere il passaggio da pagina alla stessa pagina
-        if (titoloPagina == ComandoIndietro.PAGINA_LIBRERIA || titoloPagina == ComandoIndietro.PAGINA_AGGIUNGI_VALUTAZIONE) {
-            ComandoIndietro.setGui();
-        } else {
-            ComandoIndietro.indietroI();
-        }
+        showHome();
     }
 
 

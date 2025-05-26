@@ -95,7 +95,16 @@ public class Ricerca extends JPanel {
                 componentResized(e);
             }
         });
-
+        if (opzioneRicerca == 0) {
+            Libri[] libri = LibriRicercaGestore.GetInstance().GetLibri();
+            if (libri.length == 0) {
+                JLabel label = new JLabel("");
+                Config.setLabel1(label);
+                risultati.add(label, BorderLayout.NORTH);
+            } else {
+                mostraLibri(libri);
+            } // Inizializza con un array vuoto
+        }
     }
 
     public void cercaLibri() {
@@ -212,6 +221,7 @@ public class Ricerca extends JPanel {
             i++;
         }
         risultati.add(interno, BorderLayout.CENTER);
+
     }
 
 }

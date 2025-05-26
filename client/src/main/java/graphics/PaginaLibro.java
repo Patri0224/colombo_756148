@@ -130,15 +130,18 @@ public class PaginaLibro extends JPanel {
         campo.setEditable(false);
         campo.setLineWrap(true);
         campo.setWrapStyleWord(true);
-        campo.setPreferredSize(new Dimension(300, 100));
+        campo.setPreferredSize(null);
         Config.setTextArea1(campo);
 
-        JScrollPane scroll = new JScrollPane(campo);
-        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scroll.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
-        scroll.getVerticalScrollBar().setUnitIncrement(10);
-        Config.setScrollPane(scroll);
+        JScrollPane scroll = new JScrollPane();
+        scroll.setViewportView(campo);
 
+        scroll.getVerticalScrollBar().setUI(new CustomScrollBarUI());
+        scroll.getHorizontalScrollBar().setUI(new CustomScrollBarUI());
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        campo.setPreferredSize(null); // lascia che lo scroll pane gestisca la dimensione
+        scroll.setPreferredSize(new Dimension(300, 100));
+        Config.setScrollPane(scroll);
         // Scroll su riga successiva
         gIn.gridx = 0;
         gIn.gridy = 1;
@@ -244,7 +247,7 @@ public class PaginaLibro extends JPanel {
 
             consigli.setText(consigliStrBuilder.toString());
             Config.setTextArea1(consigli);
-            consigli.setBorder(BorderFactory.createEmptyBorder(20,30,30,30));
+            consigli.setBorder(BorderFactory.createEmptyBorder(20, 30, 30, 30));
             consigli.setLineWrap(true);
             consigli.setWrapStyleWord(true);
         }
@@ -487,9 +490,9 @@ public class PaginaLibro extends JPanel {
     }
 
     private void aggiungiLibroaLibreria(JComboBox<String> libCombo) {
-        Eccezione ecc=LibrerieGestore.GetInstance().AggiungiLibroALibreria((String) libCombo.getSelectedItem(), libro.getId());
-        if(ecc.getErrorCode() > 0) {
-            PopupError.mostraErrore( ecc.getErrorCode() + " " + ecc.getMessage());
+        Eccezione ecc = LibrerieGestore.GetInstance().AggiungiLibroALibreria((String) libCombo.getSelectedItem(), libro.getId());
+        if (ecc.getErrorCode() > 0) {
+            PopupError.mostraErrore(ecc.getErrorCode() + " " + ecc.getMessage());
         }
         gui.reloadAll();
     }

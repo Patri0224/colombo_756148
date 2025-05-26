@@ -11,6 +11,8 @@ import bookRecommender.eccezioni.Eccezione;
 import bookRecommender.rmi.ServerBookRecommenderInterface;
 import graphics.PopupError;
 
+import java.util.Base64;
+
 /**
  * Gestore delle operazioni relative agli utenti del sistema, come registrazione, login, logout e gestione dei dati utente.
  * Questa classe implementa il pattern Singleton per garantire che ci sia una sola istanza di UtenteGestore durante l'esecuzione dell'applicazione.
@@ -251,7 +253,7 @@ public class UtenteGestore {
     }
 
     public String CrittografiaPassword(String password) {
-        return PasswordUtils.crittografaPassword(password);
+        return Base64.getEncoder().encodeToString(password.getBytes());
     }
 
     public boolean ControlloCodiceFiscale(String codiceFiscale) {
