@@ -65,6 +65,19 @@ public class Server extends UnicastRemoteObject {
             e.printStackTrace();
         }
         System.out.println("Server ready");
+        System.out.println("Premi un tasto per terminare il server...");
+        try {
+            String val= String.valueOf(System.in.read());
+        } catch (IOException e) {
+
+        }
+        System.out.println("Premi ancora un tasto per terminare il server...");
+        try {
+            String val= String.valueOf(System.in.read());
+        } catch (IOException e) {
+
+        }
+        System.exit(0);
 
     }
 }
