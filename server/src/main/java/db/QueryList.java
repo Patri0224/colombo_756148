@@ -17,31 +17,27 @@ import java.util.Map;
 
 public class QueryList {
     private final ConnectionManager connectionManager;
-    private Connection conn;
-
+    private final ThreadLocal<Connection> connThreadLocal = new ThreadLocal<>();
 
     public QueryList(ConnectionManager conMgr) {
         this.connectionManager = conMgr;
-
     }
 
-    /**
-     * va usato prima di fare la/le query per prendere una connessione
-     */
     public void Connect() {
         try {
-            conn = connectionManager.getConnection();
+            connThreadLocal.set(connectionManager.getConnection());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * va usato dopo aver finito di fare la/le query per chiudere la connessione
-     */
     public void Disconnect() {
         try {
-            connectionManager.endConnection(conn);
+            Connection conn = connThreadLocal.get();
+            if (conn != null) {
+                connectionManager.endConnection(conn);
+                connThreadLocal.remove(); // evita memory leak
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -58,6 +54,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public boolean ControlloEsisteUtente(int idUtente) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = "SELECT EXISTS (SELECT 1 FROM UTENTI_REGISTRATI_PRINCIPALE WHERE utente_id = ?) AS esiste_utente";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idUtente);
@@ -78,6 +75,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public boolean ControlloEsisteUtente(String email) throws SQLException {
+        Connection conn = connThreadLocal.get();
         int id = GetIdUtenteDaEmail(email);
         if (id == -1) return false;
         return ControlloEsisteUtente(id);
@@ -91,6 +89,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public int GetIdUtenteDaEmail(String email) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = "SELECT utente_id FROM UTENTI_REGISTRATI_PRINCIPALE WHERE mail = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email);
@@ -126,6 +125,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public Eccezione ControlloPasswordUtente(int idUtente, String password) throws SQLException {
+        Connection conn = connThreadLocal.get();
         if (!ControlloEsisteUtente(idUtente)) return new Eccezione(1, "Utente non esistente");
         String sql = "SELECT passwd FROM UTENTI_REGISTRATI_PRINCIPALE WHERE utente_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -157,6 +157,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori per il controllo utente
      */
     public Eccezione Registrazione(String email, String password, String nome, String cognome, String codiceFiscale) throws SQLException {
+        Connection conn = connThreadLocal.get();
         if (ControlloEsisteUtente(email)) return new Eccezione(1, "Utente già esistente");
         String sql = "INSERT INTO UTENTI_REGISTRATI_PRINCIPALE (mail, passwd) VALUES (?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -200,6 +201,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public String[] GetUtenteRegistrato(int idUtente) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = "SELECT p.mail, d.nome, d.cognome, d.codice_fiscale FROM UTENTI_REGISTRATI_DETTAGLI d JOIN UTENTI_REGISTRATI_PRINCIPALE p ON d.utente_id=p.utente_id WHERE d.utente_id = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -229,6 +231,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori per il controllo utente
      */
     public Eccezione ModificaPassword(int idUtente, String password) throws SQLException {
+        Connection conn = connThreadLocal.get();
         if (!ControlloEsisteUtente(idUtente)) return new Eccezione(1, "Utente non esistente");
         String sql = "UPDATE UTENTI_REGISTRATI_PRINCIPALE SET passwd = ? WHERE utente_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -253,6 +256,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori per il controllo utente
      */
     public Eccezione RimuoviUtente(int idUtente) throws SQLException {
+        Connection conn = connThreadLocal.get();
         if (!ControlloEsisteUtente(idUtente)) return new Eccezione(1, "Utente non esistente");
         String sql = "DELETE FROM UTENTI_REGISTRATI_PRINCIPALE WHERE utente_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -280,6 +284,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public Libri[] RicercaLibri(String titolo, String autore, int anno) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String dataSql = """
                 SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori, d.descrizione, d.categorie, d.editori, d.prezzo
                 FROM libri_principale p JOIN libri_dettagli d ON p.libro_id = d.libro_id
@@ -351,6 +356,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public Libri[] RicercaLibriDaIds(int[] ids, String titolo, String autore, int anno) throws SQLException {
+        Connection conn = connThreadLocal.get();
         if (ids.length == 0) return new Libri[0];
         StringBuilder str = new StringBuilder();
         int i = 0;
@@ -435,6 +441,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public Libri[] RicercaLibri(String titolo, String autore, int anno, String editore, String categoria, float prezzoMin, float prezzoMax) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String dataSql = """
                 SELECT p.libro_id, p.titolo, p.anno_pubblicazione, p.mese_pubblicazione, p.autori,
                        d.descrizione, d.categorie, d.editori, d.prezzo
@@ -558,6 +565,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public Libri[] RicercaLibriDaIds(int[] ids) throws SQLException {
+        Connection conn = connThreadLocal.get();
 
         if (ids.length == 0) return new Libri[0];
         StringBuilder str = new StringBuilder();
@@ -605,6 +613,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public Librerie[] RicercaLibrerie(int idUtente) throws SQLException {
+        Connection conn = connThreadLocal.get();
         ArrayList<Librerie> librerie = new ArrayList<>();
         String sql = """
                 SELECT l.libreria_id,l.nome_libreria,c.libro_id
@@ -646,6 +655,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public Libri[] RicercaLibriDaLibrerie(int idUtente,String titoloRicerca, String autoreRicerca, int annoR) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = """
                 SELECT c.libro_id
                 FROM librerie l JOIN contenuto_libreria c ON l.libreria_id = c.libreria_id
@@ -677,6 +687,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public boolean ControlloEsisteLibreria(int idUtente, String nomeLibreria) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = "SELECT EXISTS (SELECT 1 FROM librerie WHERE utente_id = ? AND nome_libreria = ?) AS esiste_libreria";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idUtente);
@@ -699,6 +710,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public boolean ControlloLibroInLibrerie(int idUtente, int idLibro) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = "SELECT EXISTS (SELECT 1 FROM contenuto_libreria WHERE libreria_id IN (SELECT libreria_id FROM librerie WHERE utente_id = ?) AND libro_id = ?) AS esiste_libro";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idUtente);
@@ -720,6 +732,7 @@ public class QueryList {
      * @return Eccezione con codice 0 e come messaggio l'id della libreria, altrimenti il codice di errore
      */
     public Eccezione AggiungiLibreria(int idUtente, String nomeLibreria) {
+        Connection conn = connThreadLocal.get();
         String sql = "INSERT INTO librerie (utente_id, nome_libreria) VALUES (?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, idUtente);
@@ -755,6 +768,7 @@ public class QueryList {
      * @return Eccezione con codice 0 se tutto ok, altrimenti il codice di errore
      */
     public Eccezione AggiungiLibroALibreria(int idLibreria, int idLibro) {
+        Connection conn = connThreadLocal.get();
         String sql = "INSERT INTO contenuto_libreria (libreria_id, libro_id) VALUES (?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idLibreria);
@@ -780,6 +794,7 @@ public class QueryList {
      * @return Eccezione con codice 0 se tutto ok, altrimenti il codice di errore
      */
     public Eccezione RimuoviLibroDaLibreria(int idLibreria, int idLibro) {
+        Connection conn = connThreadLocal.get();
         String sql = "DELETE FROM contenuto_libreria WHERE libreria_id = ? AND libro_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idLibreria);
@@ -802,6 +817,7 @@ public class QueryList {
      * @return Eccezione con codice 0 se tutto ok, altrimenti il codice di errore
      */
     public Eccezione RimuoviLibreria(int idLibreria) {
+        Connection conn = connThreadLocal.get();
         String sql = "DELETE FROM librerie WHERE libreria_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idLibreria);
@@ -825,6 +841,7 @@ public class QueryList {
      * @return Eccezione con codice 0 se tutto ok, 2 aggiunta fallita, 1 conflitti di integrità, 3 errore SQL,4 nessun libro è stato consigliato
      */
     public Eccezione AggiungiConsiglio(ConsigliLibri consiglio) {
+        Connection conn = connThreadLocal.get();
         int[] idLibri = consiglio.getConsigliLibri();
         boolean empty = true;
         for (int l : idLibri) {
@@ -886,6 +903,7 @@ public class QueryList {
      * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL
      */
     public Eccezione AggiungiLibroAConsiglio(int idUtente, int idRiguardante, int idLibroConsigliato) {
+        Connection conn = connThreadLocal.get();
         String sql = "INSERT INTO contenuto_consiglio (utente_id, libro_id_riguardante, libro_id_consigliato) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idUtente);
@@ -912,6 +930,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public Libri[] RicercaConsigliDatoLibro(int idLibro) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = "SELECT libro_id_consigliato FROM contenuto_consiglio WHERE libro_id_riguardante = ?";
         ArrayList<Integer> ids = new ArrayList<>();
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -950,6 +969,7 @@ public class QueryList {
      * @throws SQLException da gestire fuori
      */
     public ConsigliLibri RicercaConsigliDatoUtenteELibro(int idUtente, int idLibro) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = "SELECT libro_id_consigliato FROM contenuto_consiglio WHERE utente_id = ? AND libro_id_riguardante = ?";
         ConsigliLibri consiglio = new ConsigliLibri(idLibro, idUtente);
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -974,6 +994,7 @@ public class QueryList {
      * @return Eccezione con codice 0 se tutto ok, 1 se ci sono conflitti di integrità, 2 se l'aggiunta fallisce, 3 se c'è un errore SQL
      */
     public Eccezione AggiungiValutazione(ValutazioniLibri v) {
+        Connection conn = connThreadLocal.get();
         String sql = """
                     INSERT INTO recensioni (
                         utente_id, libro_id,
@@ -1027,6 +1048,7 @@ public class QueryList {
      * @throws SQLException eccezione da gestire fuori
      */
     public ValutazioniLibri RicercaValutazione(int idUtente, int idLibro) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = "SELECT * FROM recensioni WHERE utente_id = ? AND libro_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idUtente);
@@ -1067,6 +1089,7 @@ public class QueryList {
      * @throws SQLException eccezione da gestire fuori
      */
     public ValutazioniLibri RicercaValutazioneMedia(int idLibro) throws SQLException {
+        Connection conn = connThreadLocal.get();
         String sql = "SELECT AVG(contenuto) AS avg_contenuto, AVG(stile) AS avg_stile, AVG(gradevolezza) AS avg_gradevolezza, AVG(originalita) AS avg_originalita, AVG(edizione) AS avg_edizione FROM recensioni WHERE libro_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, idLibro);
