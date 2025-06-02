@@ -62,8 +62,8 @@ public class Autenticazione extends JPanel {
         Config.setPanel2(panelRegistrazione);
         panelLogin.setLayout(new BoxLayout(panelLogin, BoxLayout.Y_AXIS));
         panelRegistrazione.setLayout(new BoxLayout(panelRegistrazione, BoxLayout.Y_AXIS));
-        panelLogin.setBorder(BorderFactory.createEmptyBorder(5,40,5,40));
-        panelRegistrazione.setBorder(BorderFactory.createEmptyBorder(5,40,5,40));
+        panelLogin.setBorder(BorderFactory.createEmptyBorder(5, 40, 5, 40));
+        panelRegistrazione.setBorder(BorderFactory.createEmptyBorder(5, 40, 5, 40));
 
         JPanel em = new JPanel();
         JPanel p = new JPanel();
@@ -217,9 +217,9 @@ public class Autenticazione extends JPanel {
                 gui.reloadHome();
                 ComandoIndietro.indietro();
             } else if (ecc.getErrorCode() == 2) {
-                errPasswordLogin.setText(ecc.getErrorCode() + ecc.getMessage());
+                errPasswordLogin.setText(ecc.getMessage());
             } else {
-                errEmailLogin.setText(ecc.getErrorCode() + ecc.getMessage());
+                errEmailLogin.setText(ecc.getMessage());
             }
 
         } else {
@@ -233,10 +233,10 @@ public class Autenticazione extends JPanel {
             gui.reloadHome();
             ComandoIndietro.indietro();
         } else if (ecc.getErrorCode() == 2) {
-            errPasswordLogin.setText(ecc.getErrorCode() + ecc.getMessage());
-        } else if( ecc.getErrorCode() == 1) {
-            errEmailLogin.setText(ecc.getErrorCode() + ecc.getMessage());
-        }else{
+            errPasswordLogin.setText(ecc.getMessage());
+        } else if (ecc.getErrorCode() == 1) {
+            errEmailLogin.setText(ecc.getMessage());
+        } else {
             PopupError.mostraErrore(ecc.getErrorCode() + " " + ecc.getMessage());
         }
     }
@@ -271,8 +271,12 @@ public class Autenticazione extends JPanel {
             gui.reloadHome();
             ComandoIndietro.indietro();
         } else if (e.getErrorCode() == 1) {
-            errEmailRegistrazione.setText(e.getErrorCode() + " " + e.getMessage());
-        }else{
+            errEmailRegistrazione.setText(e.getMessage());
+        } else if (e.getErrorCode() == 2) {
+            errCodiceFiscaleRegistrazione.setText(e.getMessage());
+        }  else if (e.getErrorCode() == 3) {
+            errPasswordRegistrazione.setText(e.getMessage());
+        } else{
             PopupError.mostraErrore(e.getErrorCode() + " " + e.getMessage());
         }
     }
@@ -282,3 +286,4 @@ public class Autenticazione extends JPanel {
         return str.matches("\\d+");
     }
 }
+

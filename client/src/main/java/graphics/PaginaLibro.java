@@ -211,6 +211,7 @@ public class PaginaLibro extends JPanel {
         ValutazioniGestore vG = ValutazioniGestore.GetInstance();
         ValutazioniLibri valutazioneLibro = vG.RicercaValutazioneMedia(libro.getId());
         scores = valutazioneLibro.getPunteggi();
+        valutazioneStr += "\nValutazione per il libro:\n";
         valutazioneStr += "\nStile: " + creaStelle(scores[0]);
         valutazioneStr += "\nContenuto: " + creaStelle(scores[1]);
         valutazioneStr += "\nGradevolezza: " + creaStelle(scores[2]);
@@ -236,18 +237,19 @@ public class PaginaLibro extends JPanel {
                 conteggio.put(lib, conteggio.getOrDefault(lib, 0) + 1);
             }
             StringBuilder consigliStrBuilder = new StringBuilder();
-
+            consigliStrBuilder.append("Libri consigliati'")
+                    .append("':\n\n");
             conteggio.forEach((libro, occorrenze) -> {
                 consigliStrBuilder.append("- Libro: ")
                         .append(libro.getTitolo())
-                        .append(" -> ")
+                        .append("\n consigliato da ")
                         .append(occorrenze)
-                        .append(" occorrenze\n");
+                        .append(" utente/i\n");
             });
 
             consigli.setText(consigliStrBuilder.toString());
             Config.setTextArea1(consigli);
-            consigli.setBorder(BorderFactory.createEmptyBorder(20, 30, 30, 30));
+            consigli.setBorder(BorderFactory.createEmptyBorder(20, 10, 30, 10));
             consigli.setLineWrap(true);
             consigli.setWrapStyleWord(true);
         }
