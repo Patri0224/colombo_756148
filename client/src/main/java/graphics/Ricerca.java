@@ -113,6 +113,7 @@ public class Ricerca extends JPanel {
         String annoRicerca = anno.getText().trim();
         if (opzioneRicerca == 0)
             if (titoloRicerca.length() < 3 && autoreRicerca.length() < 3 && annoRicerca.length() < 4) {
+                new PopupError("Inserisci almeno 3 caratteri per titolo o autore, o 4 per anno");
                 return;
             }
         int annoR;
